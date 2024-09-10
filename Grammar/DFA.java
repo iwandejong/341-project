@@ -1,7 +1,13 @@
 package Grammar;
 
 public class DFA {
-    public State transition(String input, Grammar g) {
+    public Grammar g;
+
+    public DFA (Grammar _g) {
+        g = _g;
+    }
+
+    public State transition(String input) {
         State s = g.S; // mark as starting state
         return transitionHelper(s, input);
     }

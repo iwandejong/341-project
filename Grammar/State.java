@@ -16,7 +16,7 @@ public class State {
         Transition t = null; // pick transition to go to
 
         for (int i = 0; i < transitions.size(); i++) {
-            if (transitions.get(i).inputs.contains(input)) {
+            if (transitions.get(i).input == input) {
                 t = transitions.get(i);
                 break;
             }
