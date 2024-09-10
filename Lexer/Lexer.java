@@ -43,6 +43,8 @@ public class Lexer {
                 if (verifyToken(temp)) {
                     tokens.add(new Token(temp));
                     temp = "";
+                } else {
+                    throw new Exception("Lexical analysis failed.");
                 }
             }
 
@@ -53,10 +55,6 @@ public class Lexer {
     // check if token matches the expected language
     public boolean verifyToken(String input) {
         // perform reserved-keyword search first - why?
-        for (int i = 0; i < tokens.size(); i++) {
-            System.out.println(reservedKeywords.get(i));
-        }
-
         if (reservedKeywords.contains(input)) {
             return true;
         }
