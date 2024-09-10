@@ -11,4 +11,20 @@ public class State {
         acceptingState = _acceptingState;
         transitions = _transitions;
     }
+
+    public State transition (char input) {
+        Transition t = null; // pick transition to go to
+
+        for (int i = 0; i < transitions.size(); i++) {
+            if (transitions.get(i).inputs.contains(input)) {
+                t = transitions.get(i);
+                break;
+            }
+        }
+
+        if (t != null) {
+            return t.transitionTo(input);
+        }
+        return null; // ! no transitions found for input
+    }
 }

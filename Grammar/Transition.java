@@ -1,11 +1,21 @@
 package Grammar;
+import java.util.*;
 
 public class Transition {
-    public State current;
-    public State next;
+    public State from;
+    public State to;
+    public List<Character> inputs;
 
-    public Transition (State _current, State _next) {
-        current = _current;
-        next = _next;
+    public Transition (State _from, State _to, List<Character> _inputs) {
+        from = _from;
+        to = _to;
+        inputs = _inputs;
+    }
+
+    public State transitionTo (char _input) {
+        if (inputs.contains(_input)) {
+            return to;
+        }
+        return null; // ? should this return null?
     }
 }
