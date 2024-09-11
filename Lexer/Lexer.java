@@ -1,19 +1,16 @@
 package Lexer;
 import java.util.*;
 import java.io.*;
-import Grammar.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Lexer {
     public List<Token> tokens;
-    // public DFA dfa; // use DFA to perform tokenization
     public List<String> reservedKeywords;
 
     public Lexer() throws FileNotFoundException {
         tokens = new ArrayList<Token>();
         reservedKeywords = new ArrayList<String>();
-        // dfa = _dfa;
 
         // load reserved keywords
         File file = new File("reservedKeywords.txt");
@@ -54,7 +51,7 @@ public class Lexer {
 
     // check if token matches the expected language
     public boolean verifyToken(String input) {
-        // perform reserved-keyword search first - why?
+        // ? perform reserved-keyword search first - why?
         if (reservedKeywords.contains(input)) {
             return true;
         }
