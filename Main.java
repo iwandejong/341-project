@@ -17,6 +17,6 @@ public class Main {
         Lexer l = new Lexer();
         l.performLexing(program);
 
-        l.printTokens();
+        // l.printTokens();
     }
  }
