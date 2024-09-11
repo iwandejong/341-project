@@ -47,7 +47,8 @@ public class Lexer {
         // TODO: Test for indentation as well
         for (int i = 0; i < input.length(); i++) {
             // if input at i is ' ' or '\n', reset the DFA.
-            if (input.charAt(i) == ' ' || input.charAt(i) == '\n') {
+            if (Character.isWhitespace(input.charAt(i))) {
+                if (temp == "") continue; // remain hopeful
                 // verify token
                 String tokenClass = verifyToken(temp);
                 if (tokenClass != null) {

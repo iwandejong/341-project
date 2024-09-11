@@ -7,7 +7,67 @@
     </TOK>
     <TOK>
         <ID>1</ID>
-        <CLASS>main</CLASS>
+        <CLASS>num</CLASS>
+        <WORD/>
+    </TOK>
+    <TOK>
+        <ID>2</ID>
+        <CLASS>V_a01</CLASS>
+        <WORD/>
+    </TOK>
+    <TOK>
+        <ID>3</ID>
+        <CLASS>,</CLASS>
+        <WORD/>
+    </TOK>
+    <TOK>
+        <ID>4</ID>
+        <CLASS>text</CLASS>
+        <WORD/>
+    </TOK>
+    <TOK>
+        <ID>5</ID>
+        <CLASS>V_a02</CLASS>
+        <WORD/>
+    </TOK>
+    <TOK>
+        <ID>6</ID>
+        <CLASS>,</CLASS>
+        <WORD/>
+    </TOK>
+    <TOK>
+        <ID>7</ID>
+        <CLASS>begin</CLASS>
+        <WORD/>
+    </TOK>
+    <TOK>
+        <ID>8</ID>
+        <CLASS>V_a01</CLASS>
+        <WORD/>
+    </TOK>
+    <TOK>
+        <ID>9</ID>
+        <CLASS>=</CLASS>
+        <WORD/>
+    </TOK>
+    <TOK>
+        <ID>10</ID>
+        <CLASS>1</CLASS>
+        <WORD/>
+    </TOK>
+    <TOK>
+        <ID>11</ID>
+        <CLASS>;</CLASS>
+        <WORD/>
+    </TOK>
+    <TOK>
+        <ID>12</ID>
+        <CLASS>halt</CLASS>
+        <WORD/>
+    </TOK>
+    <TOK>
+        <ID>13</ID>
+        <CLASS>end</CLASS>
         <WORD/>
     </TOK>
 </TOKENSTREAM>
