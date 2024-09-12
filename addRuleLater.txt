@@ -1,0 +1,4 @@
+VNAME ::= a token of Token-Class V from the Lexer
+CONST ::= a token of Token-Class N from the Lexer // see the Appendix below
+CONST ::= a token of Token-Class T from the Lexer // see the Appendix below
+FNAME ::= a token of Token-Class F from the Lexer // see the Appendix below
