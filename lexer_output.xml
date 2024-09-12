@@ -2,72 +2,77 @@
 <TOKENSTREAM>
     <TOK>
         <ID>0</ID>
-        <CLASS>main</CLASS>
-        <WORD/>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>main</WORD>
     </TOK>
     <TOK>
         <ID>1</ID>
-        <CLASS>num</CLASS>
-        <WORD/>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>num</WORD>
     </TOK>
     <TOK>
         <ID>2</ID>
-        <CLASS>V_a01</CLASS>
-        <WORD/>
+        <CLASS>V</CLASS>
+        <WORD>V_a01</WORD>
     </TOK>
     <TOK>
         <ID>3</ID>
-        <CLASS>,</CLASS>
-        <WORD/>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>,</WORD>
     </TOK>
     <TOK>
         <ID>4</ID>
-        <CLASS>text</CLASS>
-        <WORD/>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>text</WORD>
     </TOK>
     <TOK>
         <ID>5</ID>
-        <CLASS>V_a02</CLASS>
-        <WORD/>
+        <CLASS>V</CLASS>
+        <WORD>V_a02</WORD>
     </TOK>
     <TOK>
         <ID>6</ID>
-        <CLASS>,</CLASS>
-        <WORD/>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>,</WORD>
     </TOK>
     <TOK>
         <ID>7</ID>
-        <CLASS>begin</CLASS>
-        <WORD/>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>begin</WORD>
     </TOK>
     <TOK>
         <ID>8</ID>
-        <CLASS>V_a01</CLASS>
-        <WORD/>
+        <CLASS>V</CLASS>
+        <WORD>V_a01</WORD>
     </TOK>
     <TOK>
         <ID>9</ID>
-        <CLASS>=</CLASS>
-        <WORD/>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>=</WORD>
     </TOK>
     <TOK>
         <ID>10</ID>
-        <CLASS>1</CLASS>
-        <WORD/>
+        <CLASS>N</CLASS>
+        <WORD>1.0</WORD>
     </TOK>
     <TOK>
         <ID>11</ID>
-        <CLASS>;</CLASS>
-        <WORD/>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>;</WORD>
     </TOK>
     <TOK>
         <ID>12</ID>
-        <CLASS>halt</CLASS>
-        <WORD/>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>halt</WORD>
     </TOK>
     <TOK>
         <ID>13</ID>
-        <CLASS>end</CLASS>
-        <WORD/>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>;</WORD>
+    </TOK>
+    <TOK>
+        <ID>14</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>end</WORD>
     </TOK>
 </TOKENSTREAM>

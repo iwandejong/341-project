@@ -43,8 +43,6 @@ public class Lexer {
         // perform lexing while not in an accepting state (if accepting state, then tokenize)
         // State s = dfa.g.S; // set s to start state of DFA
         String temp = "";
-        
-        // TODO: Test for indentation as well
         for (int i = 0; i < input.length(); i++) {
             // if input at i is ' ' or '\n', reset the DFA.
             if (Character.isWhitespace(input.charAt(i))) {
@@ -68,14 +66,14 @@ public class Lexer {
             temp += input.charAt(i);
         }
 
-        printTokens();
+        // printTokens();
 
         // finally output as XML
         generateXML();
     }
 
     // check if token matches the expected language, returns the class
-    public String verifyToken(String input) {
+    public String verifyToken(String input) throws Exception {
         // ? perform reserved-keyword search first - why?
         if (reservedKeywords.contains(input)) {
             return "reserved_keyword";
@@ -83,42 +81,150 @@ public class Lexer {
 
         // * TOKEN CLASS V
         // check if input matches any of the regex
-        Pattern pattern = Pattern.compile("V_[a-z]([a-z]|[0-9])*");
-        Matcher matcher = pattern.matcher(input);
-        boolean matchFound = matcher.find();
+        Pattern pattern;
+        Matcher matcher;
+        boolean matchFound;
+        if (input.startsWith("V_")) {
+            pattern = Pattern.compile("V_[a-z]([a-z]|[0-9])*");
+            matcher = pattern.matcher(input);
+            matchFound = matcher.matches();
 
-        if (matchFound) {
-            return "V";
-        } // otherwise remain hopeful
+            if (matchFound) {
+                return "V";
+            } // otherwise remain hopeful
+
+            if (Character.isDigit(input.charAt(2))) {
+                throw new Exception("Variable names cannot start with a digit.");
+            }
+
+            for (int i = 2; i < input.length(); i++) { // Start from index 2 after "V_"
+                char c = input.charAt(i);
+                if (!Character.isLowerCase(c) && !Character.isDigit(c)) {
+                    throw new Exception(
+                        "Invalid character '" + c + "' at position " + i + ". Variable names can only contain lowercase letters and digits after 'V_'."
+                    );
+                }
+            }
+        
+            throw new Exception("Invalid variable name.");
+        }
 
         // * TOKEN CLASS F
-        pattern = Pattern.compile("F_[a-z]([a-z]|[0-9])*");
-        matcher = pattern.matcher(input);
-        matchFound = matcher.find();
+        if (input.startsWith("F_")) {
+            pattern = Pattern.compile("F_[a-z]([a-z]|[0-9])*");
+            matcher = pattern.matcher(input);
+            matchFound = matcher.matches();
+    
+            if (matchFound) {
+                return "F";
+            }
 
-        if (matchFound) {
-            return "F";
-        } // otherwise remain hopeful
+            if (Character.isDigit(input.charAt(2))) {
+                throw new Exception("Function names cannot start with a digit.");
+            }
+
+            for (int i = 2; i < input.length(); i++) { // Start from index 2 after "F_"
+                char c = input.charAt(i);
+                if (!Character.isLowerCase(c) && !Character.isDigit(c)) {
+                    throw new Exception(
+                        "Invalid character '" + c + "' at position " + i + ". Function names can only contain lowercase letters and digits after 'F_'."
+                    );
+                }
+            }
+
+            throw new Exception("Invalid function name");
+        }
+
 
         // * TOKEN CLASS T
-        pattern = Pattern.compile("\"[A-Z]([a-z]){0,7}\"");
-        matcher = pattern.matcher(input);
-        matchFound = matcher.find();
+        if (input.startsWith("\"") && !input.endsWith("\"")) {
+            throw new Exception("String literals must end with a double quote.");
+        }
 
-        if (matchFound) {
-            return "T";
-        } // otherwise remain hopeful
+        if (!input.startsWith("\"") && input.endsWith("\"")) {
+            throw new Exception("String literals must start with a double quote.");
+        }
+
+        if (input.startsWith("\"") && input.endsWith("\"")) {
+            pattern = Pattern.compile("\"[A-Z]([a-z]){0,7}\"");
+            matcher = pattern.matcher(input);
+            matchFound = matcher.matches();
+
+            if (matchFound) {
+                return "T";
+            }
+
+            if (input.length() > 8) {
+                throw new Exception("String literals can only contain up to 8 characters.");
+            }
+
+            if (!Character.isUpperCase(input.charAt(1))) {
+                throw new Exception("String literals must start with an uppercase letter.");
+            }
+
+            if (input.charAt(1) == ' ') {
+                throw new Exception("String literals cannot start with a space.");
+            }
+
+            for (int i = 2; i < input.length()-1; i++) {
+                char c = input.charAt(i);
+                if (!Character.isLowerCase(c)) {
+                    throw new Exception("String literals can only contain lowercase letters.");
+                }
+            }
+
+            throw new Exception("Invalid string literal.");
+        }
 
         // * TOKEN CLASS N
-        pattern = Pattern.compile("[-]?\\d+[\\.\\d*]?");
+        String numberInput = input;
+        boolean isFloat = false;
+        for (int i = 0; i < input.length(); i++) {
+            if (input.charAt(i) == '.') {
+                if (isFloat) {
+                    throw new Exception("Invalid number. Too many decimal points.");
+                }
+                numberInput = input.substring(0, i) + input.substring(i+1);
+
+                if (i == 0 || i == input.length()-1) {
+                    throw new Exception("Invalid number. Decimal point cannot be at the start or end of a number.");
+                }
+
+                isFloat = true;
+            }
+        }
+
+        if (numberInput.startsWith("-")) {
+            numberInput = numberInput.substring(1);
+        }
+
+        if (numberInput.length() == 0) {
+            throw new Exception("Invalid number.");
+        }
+
+        pattern = Pattern.compile("^-?\\d+(\\.\\d+)?$");
         matcher = pattern.matcher(input);
-        matchFound = matcher.find();
+        matchFound = matcher.matches();
 
         if (matchFound) {
             return "N";
         }
 
-        // eventually return false
+        for (int i = 0; i < numberInput.length(); i++) {
+            char c = numberInput.charAt(i);
+            if (!Character.isDigit(c)) {
+                throw new Exception("Invalid number.");
+            }
+        }
+
+        // try catch to convert to integer
+        try {
+            Integer.parseInt(numberInput);
+        } catch (NumberFormatException e) {
+            throw new Exception("Failed to convert string to number.");
+        }
+
+        // eventually return null
         return null;
     }
 
@@ -153,7 +259,7 @@ public class Lexer {
             tokenClass.setTextContent(tokens.get(i).tokenClass);
 
             Element tokenValue = doc.createElement("WORD");
-            tokenClass.setTextContent(tokens.get(i).tokenValue);
+            tokenValue.setTextContent(tokens.get(i).tokenValue);
 
             token.appendChild(tokenId);
             token.appendChild(tokenClass);
