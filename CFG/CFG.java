@@ -10,14 +10,12 @@ public class CFG {
     public CFG (List<Rule> _rules) {
         rules = _rules;
         FIRST = buildFIRSTSet();
-        // FOLLOW = buildFOLLOWSet();
+        FOLLOW = buildFOLLOWSet();
         NULLABLE = buildNULLABLESet();
-
+        
         printFIRSTSet();
-        // printFOLLOWSet();
+        printFOLLOWSet();
         printNULLABLESet();
-
-        // getUniqueRules();
     }
 
     // TODO: traverse the tokens sequentially
@@ -81,10 +79,80 @@ public class CFG {
 
     public List<List<Rule>> buildFOLLOWSet() {
         List<List<Rule>> followSet = new ArrayList<List<Rule>>();
+        
+        // loop through all rules
+        for (int i = 0; i < rules.size(); i++) {
+            Rule r = rules.get(i);
+            
+            // iterate through each rule (e.g. PROG -> main -> VTYP -> VNAME -> , -> ...)
+            // first take the next variable in the Rule (since PROG is a LHS-rule and FOLLOW only looks for RHS-rules)
+            r = r.next;
+            
+            while (r != null) {
+                // if the rule not terminal, find its FIRST set
+                List<Rule> fS = new ArrayList<Rule>(); // "resets" fS variable
+                if (!r.terminal) {
+                    Rule nextRule = r.next; // GLOBVARS -> ALGO
 
-        // TODO: implement follow set
+                    if (nextRule == null) {
+                        break;
+                    }
+                    
+                    if (nextRule.terminal) {
+                        fS.add(r); // add the LHS rule
+                        fS.add(nextRule); // if the FOLLOW is a terminal, add it directly to the list
+                    } else {
+                        // find its FIRST set
+                        List<Rule> f = findRules(FIRST, nextRule); // get the FIRSTs for the non-terminal
+                        
+                        List<Rule> newSet = new ArrayList<Rule>();
+                        
+                        newSet.add(r); // add the LHS rule
+                        for (int j = 1; j < f.size(); j++) {
+                            newSet.add(f.get(j)); // don't add LHS rule again
+                        }
+
+                        fS.addAll(newSet);
+                    }
+                    
+                    boolean alreadyInSet = false;
+                    for (int k = 0; k < followSet.size(); k++) {
+                        if (followSet.get(k).get(0).identifier.equals(fS.get(0).identifier)) {
+                            for (int m = 1; m < fS.size(); m++) {
+                                if (!followSet.get(k).contains(fS.get(m))) { // Prevent duplicate rules
+                                    boolean stringMatchFound = false;
+                                    for (int n = 0; n < followSet.get(k).size(); n++) {
+                                        if (followSet.get(k).get(n).identifier.equals(fS.get(m).identifier)) {
+                                            stringMatchFound = true;
+                                        }
+                                    }
+                                    if (!stringMatchFound) {
+                                        followSet.get(k).add(fS.get(m));
+                                    }
+                                }
+                            }
+                            alreadyInSet = true;
+                        }
+                    }
+                    if (!alreadyInSet) {
+                        followSet.add(fS);
+                    }
+                }
+                r = r.next;
+            }
+        }
 
         return followSet;
+    }
+
+    public List<Rule> findRules(List<List<Rule>> set, Rule rule) {
+        for (List<Rule> s : set) {
+            if (s.get(0).identifier.equals(rule.identifier)) {
+                return s;
+            }
+        }
+
+        return null;
     }
 
     public List<Rule> buildNULLABLESet() {
@@ -99,12 +167,12 @@ public class CFG {
     }
 
     public List<List<Rule>> getUniqueRules() {
-        List<List<Rule>> uniqueRoles = new ArrayList<>();
+        List<List<Rule>> uniqueRules = new ArrayList<>();
     
         for (Rule r : rules) {
             boolean exists = false;
     
-            for (List<Rule> roleGroup : uniqueRoles) {
+            for (List<Rule> roleGroup : uniqueRules) {
                 if (roleGroup.get(0).identifier.equals(r.identifier)) {
                     exists = true;
                     break;
@@ -119,16 +187,16 @@ public class CFG {
                         newGroup.add(rule);
                     }
                 }
-                uniqueRoles.add(newGroup);
+                uniqueRules.add(newGroup);
             }
         }
     
-        // // Print unique roles
-        // for (List<Rule> group : uniqueRoles) {
+        // // Print unique rules
+        // for (List<Rule> group : uniqueRules) {
         //     System.out.println(group.get(0).identifier);
         // }
     
-        return uniqueRoles;
+        return uniqueRules;
     }    
 
     public void printAllTerminals() {

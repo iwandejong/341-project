@@ -61,6 +61,10 @@ public class Main {
             rules.add(r);
         }
 
+        // Print grammar
+        System.out.println();
+        System.out.println("\u001B[33m" + "CFG Rules:");
+        System.out.println("----------" + "\u001B[0m");
         String r = "";
         for (Rule rule : rules) {
             while (rule != null) {
