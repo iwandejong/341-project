@@ -51,3 +51,7 @@ PROLOG ::= {
 EPILOG ::= }
 LOCVARS ::= VTYP VNAME , VTYP VNAME , VTYP VNAME ,
 SUBFUNCS ::= FUNCTIONS
+VNAME ::= RGX_V_[a-z]([a-z]|[0-9])*
+FNAME ::= RGX_F_[a-z]([a-z]|[0-9])*
+CONST ::= RGX_^-?\\d+(\\.\\d+)?$
+CONST ::= RGX_\"[A-Z]([a-z]){0,7}\"

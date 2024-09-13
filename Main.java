@@ -35,6 +35,8 @@ public class Main {
             ruleNames.add(rule[0]);
         }
 
+        // generate all rules
+        // the rules follow the format: PROG -> main -> GLOBVARS -> ALGO -> FUNCTIONS
         List<Rule> rules = new ArrayList<Rule>();
         for (int i = 0; i < grammar.size(); i++) {
             String[] rule = grammar.get(i).split(" ::= ");
@@ -45,11 +47,12 @@ public class Main {
             Rule temp = r;
 
             for (int j = 0; j < next.length; j++) {
-                // since we know the ruleNames, we know the rules that are non-terminal
                 if (ruleNames.contains(next[j])) {
+                    // since we know the ruleNames, we know the rules that are non-terminal (e.g. PROG -> ...)
                     temp.next = new Rule(next[j], null, false);
                     temp = temp.next;
                 } else {
+                    // otherwise, rules are terminal (e.g. num)
                     temp.next = new Rule(next[j], null, true);
                     temp = temp.next;
                 }
@@ -57,5 +60,42 @@ public class Main {
 
             rules.add(r);
         }
+
+        String r = "";
+        for (Rule rule : rules) {
+            while (rule != null) {
+                if (rule.terminal) {
+                    r += "\u001B[32m" + rule.identifier + "\u001B[0m";
+                } else {
+                    r += rule.identifier;
+                }
+                rule = rule.next;
+                if (rule == null) {
+                    continue;
+                }
+                r += " -> ";
+            }
+            System.out.println(r);
+            r = "";
+        }
+
+        // TODO: traverse the tokens sequentially
+        // when you run into a non-terminal symbol such as GLOBVARS, you "enter" the non-terminal symbol by "expanding" the symbol.
+        // in the case of GLOBVARS, you'd enter the symbol and expand to get PROG -> main -> VTYP -> VNAME -> , -> ...
+        // if no match is found BUT there is an epsilon-transition (e.g. GLOBVARS -> ε), then continue building the tree.
+
+        CFG cfg = new CFG(rules);
+        // cfg.printAllTerminals();
+        
+        // for (int i = 0; i < cfg.FIRST.size(); i++) {
+            // System.out.println(cfg.FIRST.get(i).identifier);
+        // }
+
+        // build a stack to validate the tree and to decide where to go next
+        Stack<Rule> stack = new Stack<Rule>();
     }
- }
+
+    
+
+
+}
