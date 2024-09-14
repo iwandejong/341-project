@@ -1,7 +1,8 @@
 import Lexer.*;
+import Parser.*;
+
 import java.io.*;
 import java.util.*;
-import CFG.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -88,18 +89,7 @@ public class Main {
         // in the case of GLOBVARS, you'd enter the symbol and expand to get PROG -> main -> VTYP -> VNAME -> , -> ...
         // if no match is found BUT there is an epsilon-transition (e.g. GLOBVARS -> ε), then continue building the tree.
 
-        CFG cfg = new CFG(rules);
-        // cfg.printAllTerminals();
-        
-        // for (int i = 0; i < cfg.FIRST.size(); i++) {
-            // System.out.println(cfg.FIRST.get(i).identifier);
-        // }
-
-        // build a stack to validate the tree and to decide where to go next
-        Stack<Rule> stack = new Stack<Rule>();
+        Parser parser = new Parser(rules);
+        parser.parseSyntaxTree(l.tokens);
     }
-
-    
-
-
 }

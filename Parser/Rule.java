@@ -1,4 +1,4 @@
-package CFG;
+package Parser;
 
 public class Rule {
     public String identifier;
