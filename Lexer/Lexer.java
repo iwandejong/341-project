@@ -212,7 +212,6 @@ public class Lexer {
 
         for (int i = 0; i < numberInput.length(); i++) {
             char c = numberInput.charAt(i);
-            System.out.println(c);
             if (!Character.isDigit(c)) {
                 throw new Exception("Invalid number.");
             }
