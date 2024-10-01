@@ -1,0 +1,19 @@
+Variables: 
+- No double variable in same scope
+- Declaration of used variable name must be found either in own scope or higher ancestor
+- If 2 declarations in different scopes, choose "nearest" declaration
+- Every variable must have a declaration
+- Variable name != any function name
+- Variable name != reserved keyword
+- 2 variable with same name are different entities if they are rooted in different scopes
+
+Functions:
+- Main = highest scope
+- Every function declaration is its own scope
+- child scope may not have same name as immediate parent scope
+- child scope may not have the same name as any sibling scopes in same parent
+- call command may refer to an immediate child scope
+- call command may refer to own scope (recursion)
+- no recursive calls to Main
+
+If any rule is broken throw Error Report
