@@ -2,6 +2,8 @@ main
 begin
     halt ;
 end
+## BREAK ##
+Files below this line have not been tested.
 
 main
 num V_a01 , text V_a02 , num V_a03 ;
@@ -24,9 +26,6 @@ begin
     print V_a04 ;
     halt ;
 end
-
-## BREAK ##
-Files below this line have not been tested.
 
 main
 begin

@@ -41,7 +41,6 @@ public class Parser {
 
         // use recursive parseHelper
         try {
-            // ruleStack.get(0).next means PROG -> main.
             parseHelper(atToken, ruleStack, 0);
         } catch (Exception e) {
             // Handle the exception (e.g., log it or print an error message)
@@ -52,6 +51,11 @@ public class Parser {
     }
 
     public void parseHelper(int atToken, Stack<ProductionRule> ruleStack, int currentSymbol) throws Exception {
+        // break if ruleStack is empty
+        if (ruleStack.peek().lhs.identifier.equals("$") && ruleStack.size() == 1) {
+            return;
+        }
+        
         // visualize the stack
         System.out.println();
         System.out.println("-----------------");
@@ -62,34 +66,36 @@ public class Parser {
         System.out.println("-----------------");
         System.out.println();
 
+        List<Symbol> rhsSymbols = ruleStack.peek().rhs;
+        Symbol curr = null;
+        
+        if (currentSymbol < rhsSymbols.size()) {
+            curr = rhsSymbols.get(currentSymbol);
+        }
+        
+        if (curr == null || currentSymbol >= rhsSymbols.size()) {
+            // Temporarily save current rule
+            ProductionRule currentRule = ruleStack.pop();
+            
+            System.out.println("Current Rule: " + currentRule.lhs.identifier);
+            
+            int atRule = findRuleIndex(ruleStack.peek(), currentRule.lhs);
+            
+            System.out.println("At Rule: " + ruleStack.peek().lhs.identifier);
+            System.out.println("At Rule: " + atRule);
+            
+            // Ensure that the stack is still not empty before continuing
+            if (!ruleStack.isEmpty()) {
+                // Reset currentSymbol and continue with the next rule in the stack
+                parseHelper(atToken, ruleStack, ++atRule);
+            }
+            
+            return; // Prevent any further execution
+        }
+        
         // didn't run out of tokens yet
         if (atToken < tokenList.size()) {
             Token currentToken = tokenList.get(atToken);
-            List<Symbol> rhsSymbols = ruleStack.peek().rhs;
-            Symbol curr = null;
-
-            if (currentSymbol < rhsSymbols.size()) {
-                curr = rhsSymbols.get(currentSymbol);
-            }
-            
-            if (curr == null || currentSymbol >= rhsSymbols.size()) {
-                // Temporarily save current rule
-                ProductionRule currentRule = ruleStack.pop();
-
-                System.out.println("Current Rule: " + currentRule.lhs.identifier);
-
-                int atRule = findRuleIndex(ruleStack.peek(), currentRule.lhs);
-
-                System.out.println("At Rule: " + ruleStack.peek().lhs.identifier);
-                System.out.println("At Rule: " + atRule);
-        
-                // Ensure that the stack is still not empty before continuing
-                if (!ruleStack.isEmpty()) {
-                    // Reset currentSymbol and continue with the next rule in the stack
-                    parseHelper(atToken, ruleStack, ++atRule);
-                }
-                return;
-            }
 
             System.out.println("Current Rule: " + curr.identifier);
 
@@ -103,30 +109,57 @@ public class Parser {
                 // non-terminal symbol, therefore, push to the stack and expand each option
                 List<ProductionRule> nextRules = findFIRST(curr, currentToken.tokenValue);
 
-                if (nextRules == null) {
+                if (nextRules == null || nextRules.isEmpty()) {
                     // * epsilon transition
                     // don't change the ruleStack, instead just traverse to the next symbol
                     parseHelper(atToken, ruleStack, ++currentSymbol);
+                } else {
+                    for (ProductionRule nextRule : nextRules) {
+                        // do not add if rule is already in stack
+                        if (ruleStack.contains(nextRule)) {
+                            continue;
+                        }
+                        ruleStack.push(nextRule);
+                        parseHelper(atToken, ruleStack, 0);
+                    }
                 }
 
-                for (ProductionRule nextRule : nextRules) {
-                    // do not add if rule is already in stack
-                    if (ruleStack.contains(nextRule)) {
-                        continue;
-                    }
-                    ruleStack.push(nextRule);
-                    parseHelper(atToken, ruleStack, 0);
-                }
             }
         } else {
+            // check if current rule has any epsilon transitions
+            List<ProductionRule> nextRules = findFIRST(curr, "ε");
+            boolean isEpsilon = false;
+
+            for (ProductionRule nextRule : nextRules) {
+                if (nextRule.rhs.get(0).identifier.equals("ε")) {
+                    // * epsilon transition allowed
+                    isEpsilon = true;
+                }
+            }
+
+            if (isEpsilon) {
+                ruleStack.pop(); // pop the current rule if epsilon transition is allowed
+            }
+
+            System.out.println();
+            System.out.println("-----------------");
+            System.out.println("Stack: ");
+            for (ProductionRule rule : ruleStack) {
+                System.out.println(rule.lhs.identifier);
+            }
+            System.out.println("-----------------");
+            System.out.println();
+
             // we ran out of tokens, but we need to check if the stack is empty.
-            if (ruleStack.peek().lhs.equals("$") && ruleStack.size() == 1) {
+            if (ruleStack.peek().lhs.identifier.equals("$") && ruleStack.size() == 1) {
                 // if the stack is empty, then parsing is successful
                 System.out.println("Parsing successful.");
             } else {
                 // if the stack is not empty, then parsing is unsuccessful
                 System.out.println("Parsing unsuccessful.");
             }
+
+            return; // Prevent any further execution
         }
     }
 
