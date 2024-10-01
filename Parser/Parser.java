@@ -6,273 +6,15 @@ import java.util.regex.Pattern;
 import Lexer.Token;
 
 public class Parser {
-    public List<Rule> rules;
-    public List<List<Rule>> FIRST; // each rule has its own set (list) of Rules that are terminal and is first to the non-terminal node
-    public List<List<Rule>> FOLLOW; // each rule has its own set (list) of Rules that are terminal and follows the first set
-    public List<Rule> NULLABLE; // each rule has its own set (list) of Rules that are nullable
+    public List<ProductionRule> rules;
 
     public Tree syntaxTree; // define the syntax tree to be build later on
 
-    public Parser (List<Rule> _rules) {
+    public List<Token> tokenList;
+
+    public Parser (List<ProductionRule> _rules, List<Token> _tokens) {
         rules = _rules;
-        FIRST = buildFIRSTSet();
-        FOLLOW = buildFOLLOWSet();
-        NULLABLE = buildNULLABLESet();
-        
-        printFIRSTSet();
-        printFOLLOWSet();
-        printNULLABLESet(); 
-    }
-
-    public List<List<Rule>> buildFIRSTSet() {
-        List<List<Rule>> firstSet = getUniqueRules();
-        for (List<Rule> subset : firstSet) {
-            List<Rule> f = new ArrayList<Rule>();
-            for (Rule rule : rules) {
-                if (rule.identifier.equals(subset.get(0).identifier)) {
-                    if (!rule.terminal) {
-                        // recursively divide and conquer
-                        List<Rule> subRules = new ArrayList<Rule>();
-                        buildFIRSTSetHelper(subRules, rule.next);
-                        f.addAll(subRules);
-                    } else {
-                        f.add(rule);
-                    }
-                }
-            }
-
-            subset.addAll(f);
-        }
-
-        // remove duplicates
-        for (List<Rule> subset : firstSet) {
-            // remove duplicates in the set (that is the same identifier)
-            for (int i = 0; i < subset.size(); i++) {
-                Rule r = subset.get(i);
-                for (int j = i + 1; j < subset.size(); j++) {
-                    if (r.identifier.equals(subset.get(j).identifier)) {
-                        subset.remove(j);
-                        j--;
-                    }
-                }
-            }
-        }
-
-        return firstSet;
-    }
-
-    public Rule buildFIRSTSetHelper(List<Rule> subRules, Rule rule) {
-        if (rule.terminal) {
-            subRules.add(rule);
-            return rule;
-        }
-
-        // recursively go through until a terminal is found
-        for (Rule subRule : rules) {
-            if (rule.identifier.equals(subRule.identifier)) {
-                // Recursively build FIRST set for sub-rules
-                buildFIRSTSetHelper(subRules, subRule.next);
-            }
-        }
-    
-        return null;
-    }
-
-    public List<List<Rule>> buildFOLLOWSet() {
-        List<List<Rule>> followSet = new ArrayList<List<Rule>>();
-        
-        // loop through all rules
-        for (int i = 0; i < rules.size(); i++) {
-            Rule r = rules.get(i);
-            
-            // iterate through each rule (e.g. PROG -> main -> VTYP -> VNAME -> , -> ...)
-            // first take the next variable in the Rule (since PROG is a LHS-rule and FOLLOW only looks for RHS-rules)
-            r = r.next;
-            
-            while (r != null) {
-                // if the rule not terminal, find its FIRST set
-                List<Rule> fS = new ArrayList<Rule>(); // "resets" fS variable
-                if (!r.terminal) {
-                    Rule nextRule = r.next; // GLOBVARS -> ALGO
-
-                    if (nextRule == null) {
-                        break;
-                    }
-                    
-                    if (nextRule.terminal) {
-                        fS.add(r); // add the LHS rule
-                        fS.add(nextRule); // if the FOLLOW is a terminal, add it directly to the list
-                    } else {
-                        // find its FIRST set
-                        List<Rule> f = findRules(FIRST, nextRule); // get the FIRSTs for the non-terminal
-                        
-                        List<Rule> newSet = new ArrayList<Rule>();
-                        
-                        newSet.add(r); // add the LHS rule
-                        for (int j = 1; j < f.size(); j++) {
-                            newSet.add(f.get(j)); // don't add LHS rule again
-                        }
-
-                        fS.addAll(newSet);
-                    }
-                    
-                    boolean alreadyInSet = false;
-                    for (int k = 0; k < followSet.size(); k++) {
-                        if (followSet.get(k).get(0).identifier.equals(fS.get(0).identifier)) {
-                            for (int m = 1; m < fS.size(); m++) {
-                                if (!followSet.get(k).contains(fS.get(m))) { // Prevent duplicate rules
-                                    boolean stringMatchFound = false;
-                                    for (int n = 0; n < followSet.get(k).size(); n++) {
-                                        if (followSet.get(k).get(n).identifier.equals(fS.get(m).identifier)) {
-                                            stringMatchFound = true;
-                                        }
-                                    }
-                                    if (!stringMatchFound) {
-                                        followSet.get(k).add(fS.get(m));
-                                    }
-                                }
-                            }
-                            alreadyInSet = true;
-                        }
-                    }
-                    if (!alreadyInSet) {
-                        followSet.add(fS);
-                    }
-                }
-                r = r.next;
-            }
-        }
-
-        return followSet;
-    }
-
-    public List<Rule> findRules(List<List<Rule>> set, Rule rule) {
-        for (List<Rule> s : set) {
-            if (s.get(0).identifier.equals(rule.identifier)) {
-                return s;
-            }
-        }
-
-        return null;
-    }
-
-    public List<Rule> buildNULLABLESet() {
-        List<Rule> nullableSet = new ArrayList<Rule>();
-        for (Rule rule : rules) {
-            if (rule.next.terminal && rule.next.identifier.equals("ε")) {
-                nullableSet.add(rule);
-            }
-        }
-
-        return nullableSet;
-    }
-
-    public List<List<Rule>> getUniqueRules() {
-        List<List<Rule>> uniqueRules = new ArrayList<>();
-    
-        for (Rule r : rules) {
-            boolean exists = false;
-    
-            for (List<Rule> roleGroup : uniqueRules) {
-                if (roleGroup.get(0).identifier.equals(r.identifier)) {
-                    exists = true;
-                    break;
-                }
-            }
-    
-            if (!exists) {
-                List<Rule> newGroup = new ArrayList<>();
-                // Add all rules with the same identifier
-                for (Rule rule : rules) {
-                    if (r.identifier.equals(rule.identifier)) {
-                        newGroup.add(rule);
-                    }
-                }
-                uniqueRules.add(newGroup);
-            }
-        }
-    
-        // // Print unique rules
-        // for (List<Rule> group : uniqueRules) {
-        //     System.out.println(group.get(0).identifier);
-        // }
-    
-        return uniqueRules;
-    }    
-
-    public void printAllTerminals() {
-        for (int i = 0; i < rules.size(); i++) {
-            Rule r = rules.get(i);
-            while (r != null) {
-                if (r.terminal) {
-                    System.out.println(r.identifier);
-                }
-                r = r.next;
-            }
-        }
-    }
-
-    public void printFIRSTSet() {
-        System.out.println();
-        System.out.println("\u001B[33m" + "FIRST Rules:");
-        System.out.println("----------" + "\u001B[0m");
-        for (int i = 0; i < FIRST.size(); i++) {
-            List<Rule> f = FIRST.get(i);
-            String r = "";
-            for (int j = 0; j < f.size(); j++) {
-                r += f.get(j).identifier;
-                if (j != f.size() - 1 && j > 0) {
-                    r += ", ";
-                }
-
-                if (j == 0) {
-                    r += " = { ";
-                }
-            }
-            r += " }";
-            System.out.println(r);
-        }
-    }
-
-    public void printFOLLOWSet() {
-        System.out.println();
-        System.out.println("\u001B[33m" + "FOLLOW Rules:");
-        System.out.println("----------" + "\u001B[0m");
-        for (int i = 0; i < FOLLOW.size(); i++) {
-            List<Rule> f = FOLLOW.get(i);
-            String r = "";
-            for (int j = 0; j < f.size(); j++) {
-                r += f.get(j).identifier;
-                if (j != f.size() - 1 && j > 0) {
-                    r += ", ";
-                }
-
-                if (j == 0) {
-                    r += " = { ";
-                }
-            }
-            r += " }";
-            System.out.println(r);
-        }
-    }
-
-    public void printNULLABLESet() {
-        System.out.println();
-        System.out.println("\u001B[33m" + "NULLABLE Rules:");
-        System.out.println("----------" + "\u001B[0m");
-        for (int i = 0; i < NULLABLE.size(); i++) {
-            Rule r = NULLABLE.get(i);
-            System.out.println(r.identifier);
-        }
-    }
-
-    public List<Rule> findFirstSet (Rule r) {
-        for (List<Rule> f : FIRST) {
-            if (f.getFirst().identifier.equals(r.identifier)) {
-                return f;
-            }
-        }
-        return null;
+        tokenList = _tokens;
     }
 
     // TODO: traverse the tokens sequentially
@@ -280,79 +22,217 @@ public class Parser {
     // in the case of GLOBVARS, you'd enter the symbol and expand to get PROG -> main -> VTYP -> VNAME -> , -> ...
     // if no match is found BUT there is an epsilon-transition (e.g. GLOBVARS -> ε), then continue building the tree. Do not nullify the transition if the nullable set is invalid (e.g. it has length > 0, but is invalid) - this would instead result in a syntax error
     // traverse the rules with a token stream read from the Lexer XML file
-    public void parseSyntaxTree(List<Token> tS) {
+    public void parse() {
         // define the stack
-        Stack<Rule> ruleStack = new Stack<Rule>();
+        Stack<ProductionRule> ruleStack = new Stack<ProductionRule>();
 
         // add $ to the stack
-        ruleStack.add(new Rule("$", null, true)); // it is a terminal symbol, no need to have a next.
+        ruleStack.push(new ProductionRule(new Symbol("$", true), new ArrayList<Symbol>()));
 
-        // define rule "iterator" as the start rule (which is PROG -> ...)
-        Rule currentRule = rules.get(0);
-
-        System.out.println();
-        System.out.println(currentRule.identifier);
+        // add first rule to the stack
+        ruleStack.push(rules.get(0));
 
         // define token "iterator" in stream
         int atToken = 0;
-        Token currentToken = tS.get(atToken);
+        Token currentToken;
+        if (tokenList.size() < atToken) {
+            currentToken = tokenList.get(atToken);
+        } 
 
-        // define if rule is nullable
-        boolean isNullable = false;
+        // use recursive parseHelper
+        try {
+            parseHelper(atToken, ruleStack, 0);
+        } catch (Exception e) {
+            // Handle the exception (e.g., log it or print an error message)
+            e.printStackTrace(); // Or use logging
+        }        
 
-        // define the syntax tree
-        Node root = new Node(currentRule);
-        syntaxTree = new Tree(root);
+        System.out.println((ruleStack.peek().lhs.identifier.equals("$") && ruleStack.size() == 1) ? "\u001B[32m" + "Parsing successful." + "\u001B[0m" : "\u001B[31m" + "Parsing unsuccessful." + "\u001B[0m");
+    }
 
-        // add first rule to the stack
-        ruleStack.add(currentRule);
+    public void parseHelper(int atToken, Stack<ProductionRule> ruleStack, int currentSymbol) throws Exception {
+        // break if ruleStack is empty
+        if (ruleStack.peek().lhs.identifier.equals("$") && ruleStack.size() == 1) {
+            return;
+        }
+        
+        // visualize the stack
+        System.out.println();
+        System.out.println("-----------------");
+        System.out.println("Stack: ");
+        for (ProductionRule rule : ruleStack) {
+            System.out.println(rule.lhs.identifier);
+        }
+        System.out.println("-----------------");
+        System.out.println();
 
-        currentRule = currentRule.next;
+        List<Symbol> rhsSymbols = ruleStack.peek().rhs;
+        Symbol curr = null;
+        
+        if (currentSymbol < rhsSymbols.size()) {
+            curr = rhsSymbols.get(currentSymbol);
+        }
+        
+        if (curr == null || currentSymbol >= rhsSymbols.size()) {
+            // Temporarily save current rule
+            ProductionRule currentRule = ruleStack.pop();
+            
+            System.out.println("Current Rule: " + currentRule.lhs.identifier);
+            
+            int atRule = findRuleIndex(ruleStack.peek(), currentRule.lhs);
+            
+            System.out.println("Parent Rule: " + ruleStack.peek().lhs.identifier);
+            // System.out.println("At Rule: " + atRule);
+            
+            // Ensure that the stack is still not empty before continuing
+            if (!ruleStack.isEmpty()) {
+                // Reset currentSymbol and continue with the next rule in the stack
+                parseHelper(atToken, ruleStack, ++atRule);
+            }
+            
+            return; // Prevent any further execution
+        }
+        
+        // didn't run out of tokens yet
+        if (atToken < tokenList.size()) {
+            Token currentToken = tokenList.get(atToken);
 
-        while (currentRule != null) {
-            Node child = new Node(currentRule);
-            if (currentRule.terminal) {
-                // add it to the tree's current node as a child
-                root.addChild(child);
+            System.out.println("Current Symbol: " + curr.identifier);
+
+            if (curr.terminal) {
+                // * a dead end, we've reached a terminal symbol
+                // don't change the ruleStack (terminal symbols 'terminates'), instead just traverse to the next symbol
+                // System.out.println("Terminal symbol: " + currentToken.tokenValue);
+                parseHelper(++atToken, ruleStack, ++currentSymbol);
             } else {
-                // account for nullable rules (e.g. ε)
-                List<Rule> firstSet = findFirstSet(currentRule);
-                for (Rule fR : firstSet) {
-                    Node childNode = new Node(fR);
+                // * essentially this goes to the next "level(s)" of the tree
+                // non-terminal symbol, therefore, push to the stack and expand each option
+                List<ProductionRule> nextRules = findFIRST(curr, currentToken.tokenValue);
 
-                    if (fR.identifier.equals("ε")) {
-                        isNullable = true;
-                    }
-
-                    if (fR.identifier.equals(currentToken.tokenValue)) {
-                        // pass to syntax tree, match found, no need to look further
-                        child.addChild(childNode);
-                    }
-
-                    // try to convert to regex if no matches up to this point...
-                    if (fR.identifier.startsWith("RGX_")) {
-                        String regexString = fR.identifier.substring(4);
-                        Pattern pattern;
-                        Matcher matcher;
-                        boolean matchFound;
-
-                        pattern = Pattern.compile(regexString);
-                        matcher = pattern.matcher(currentToken.tokenValue);
-                        matchFound = matcher.matches();
-
-                        if (matchFound) {
-                            // pass to syntax tree, match found, no need to look further
-                            child.addChild(childNode);
+                if (nextRules == null || nextRules.isEmpty()) {
+                    // * epsilon transition
+                    // don't change the ruleStack, instead just traverse to the next symbol
+                    parseHelper(atToken, ruleStack, ++currentSymbol);
+                } else {
+                    for (ProductionRule nextRule : nextRules) {
+                        // do not add if rule is already in stack
+                        if (ruleStack.contains(nextRule)) {
+                            continue;
                         }
+                        ruleStack.push(nextRule);
+                        parseHelper(atToken, ruleStack, 0);
                     }
                 }
 
-                // push the rule to the stack
-                ruleStack.add(currentRule);
             }
-            // atToken++;
-            // currentToken = tS.get(atToken);
-            currentRule = ruleStack.peek();
+        } else {
+            // check if current rule has any epsilon transitions
+            List<ProductionRule> nextRules = findFIRST(curr, "ε");
+            boolean isEpsilon = false;
+
+            for (ProductionRule nextRule : nextRules) {
+                if (nextRule.rhs.get(0).identifier.equals("ε")) {
+                    // * epsilon transition allowed
+                    isEpsilon = true;
+                }
+            }
+
+            if (isEpsilon) {
+                ruleStack.pop(); // pop the current rule if epsilon transition is allowed
+            }
+
+            System.out.println();
+            System.out.println("-----------------");
+            System.out.println("Final Stack: ");
+            for (ProductionRule rule : ruleStack) {
+                System.out.println(rule.lhs.identifier);
+            }
+            System.out.println("-----------------");
+            System.out.println();
+
+            return; // Prevent any further execution
         }
+    }
+
+    public ProductionRule findProductionRule(String identifier) {
+        for (ProductionRule rule : rules) {
+            if (rule.lhs.identifier.equals(identifier)) {
+                return rule;
+            }
+        }
+
+        return null;
+    }
+
+    public List<ProductionRule> findFIRST(Symbol symbol, String identifier) {
+        List<ProductionRule> trail = new ArrayList<>();
+        boolean matchFound = findFIRSTHelper(symbol, identifier, trail);
+
+        // if no match is found, but there is an epsilon-transition, then continue building the tree
+        if (!matchFound) {
+            for (ProductionRule rule : rules) {
+                if (rule.lhs.identifier.equals(symbol.identifier)) {
+                    if (rule.rhs.get(0).identifier.equals("ε")) {
+                        return null;
+                    }
+                }
+            }
+        }
+
+        return trail;
+    }
+    
+    private boolean findFIRSTHelper(Symbol symbol, String identifier, List<ProductionRule> trail) {
+        // System.out.println("Finding FIRST for: " + symbol.identifier + " with token: " + identifier);
+
+        
+    
+        // Find symbol that matches lhs of rule and matches the identifier
+        for (ProductionRule rule : rules) {
+
+            if (rule.lhs.identifier.equals(symbol.identifier)) {
+                // Add the current rule to the trail
+                trail.add(rule);
+
+                // System.out.println(symbol.identifier + " -> " + rule.rhs.get(0).identifier);
+    
+                // Recursively enter the rule, if it's a non-terminal symbol
+                if (rule.rhs.get(0).identifier.startsWith("RGX_")) {
+                    String regexString = rule.rhs.get(0).identifier.substring(4);
+                    Pattern pattern = Pattern.compile(regexString);
+                    Matcher matcher = pattern.matcher(identifier);
+    
+                    if (matcher.matches()) {
+                        return true; // Match found
+                    }
+                } else if (rule.rhs.get(0).identifier.equals(identifier)) {
+                    return true; // Exact match found
+                } else {
+                    // Recursive check on the next symbol in rhs
+                    boolean found = findFIRSTHelper(rule.rhs.get(0), identifier, trail);
+                    if (found) {
+                        return true; // Propagate match found
+                    }
+                }
+                // If no match was found, remove the last rule added to the trail
+                trail.remove(trail.size() - 1);
+            }
+        }
+    
+        return false; // No match found
+    }
+
+    public int findRuleIndex(ProductionRule rule, Symbol symbol) {
+        for (ProductionRule r : rules) {
+            if (r.lhs.identifier.equals(rule.lhs.identifier)) {
+                for (int i = 0; i < r.rhs.size(); i++) {
+                    if (r.rhs.get(i).identifier.equals(symbol.identifier)) {
+                        return i;
+                    }
+                }
+            }
+        }
+
+        return -1;
     }
 }

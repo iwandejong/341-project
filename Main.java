@@ -6,18 +6,66 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        // input file
-        File file = new File("inputFile.recspl");
-        Scanner sc1 = new Scanner(file);
-        String program = "";
-        while (sc1.hasNextLine()) {
-            program += sc1.nextLine() + '\n';
+        // read each "Test" from a txt file into a list
+        List<String> programs = new ArrayList<>();
+        try {
+            File file = new File("testFile.txt");
+            Scanner sc1 = new Scanner(file);
+            StringBuilder tempString = new StringBuilder();
+
+            while (sc1.hasNextLine()) {
+                String line = sc1.nextLine();
+
+                // Check for the delimiter to break out
+                if (line.equals("## BREAK ##")) {
+                    break;
+                }
+
+                // Check for empty line to store the current program
+                if (line.trim().isEmpty()) {
+                    if (tempString.length() > 0) {
+                        programs.add(tempString.toString());
+                        tempString.setLength(0); // Reset the StringBuilder
+                    }
+                } else {
+                    // Append the current line to the tempString
+                    tempString.append(line).append('\n');
+                }
+            }
+
+            // To add the last program if file doesn't end with an empty line
+            if (tempString.length() > 0) {
+                programs.add(tempString.toString());
+            }
+
+            sc1.close();
+
+            // Visualize inputs
+            for (String s : programs) {
+                System.out.println(s);
+                System.out.println("----- End of Program -----");
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found: " + e.getMessage());
         }
-        sc1.close();
+
+        
+        // input file
+        // File file = new File("inputFile.recspl");
+        // Scanner sc1 = new Scanner(file);
+        // List<String> programs = new ArrayList<String>();
+        // while (sc1.hasNextLine()) {
+        //     program += sc1.nextLine() + '\n';
+        // }
+        // sc1.close();
 
         // perform lexing
-        Lexer l = new Lexer();
-        l.performLexing(program);
+        List<Lexer> lexers = new ArrayList<Lexer>();
+        for (String program : programs) {
+            Lexer l = new Lexer();
+            l.performLexing(program);
+            lexers.add(l);
+        }
 
         // load grammar
         File grammarFile = new File("CFG.txt");
@@ -37,28 +85,25 @@ public class Main {
         }
 
         // generate all rules
-        // the rules follow the format: PROG -> main -> GLOBVARS -> ALGO -> FUNCTIONS
-        List<Rule> rules = new ArrayList<Rule>();
+        // the rules follow the format: PROG : main -> GLOBVARS -> ALGO -> FUNCTIONS
+        List<ProductionRule> rules = new ArrayList<ProductionRule>();
         for (int i = 0; i < grammar.size(); i++) {
+            List<Symbol> symbols = new ArrayList<Symbol>();
             String[] rule = grammar.get(i).split(" ::= ");
             String identifier = rule[0];
             String[] next = rule[1].split(" ");
 
-            Rule r = new Rule(identifier, null, false);
-            Rule temp = r;
+            Symbol lhs = new Symbol(identifier, false);
 
             for (int j = 0; j < next.length; j++) {
                 if (ruleNames.contains(next[j])) {
-                    // since we know the ruleNames, we know the rules that are non-terminal (e.g. PROG -> ...)
-                    temp.next = new Rule(next[j], null, false);
-                    temp = temp.next;
+                    symbols.add(new Symbol(next[j], false));
                 } else {
-                    // otherwise, rules are terminal (e.g. num)
-                    temp.next = new Rule(next[j], null, true);
-                    temp = temp.next;
+                    symbols.add(new Symbol(next[j], true));
                 }
             }
 
+            ProductionRule r = new ProductionRule(lhs, symbols);
             rules.add(r);
         }
 
@@ -67,18 +112,15 @@ public class Main {
         System.out.println("\u001B[33m" + "CFG Rules:");
         System.out.println("----------" + "\u001B[0m");
         String r = "";
-        for (Rule rule : rules) {
-            while (rule != null) {
-                if (rule.terminal) {
-                    r += "\u001B[32m" + rule.identifier + "\u001B[0m";
+        for (ProductionRule rule : rules) {
+            r += rule.lhs.identifier + " -> ";
+            for (Symbol s : rule.rhs) {
+                if (s.terminal) {
+                    r += "\u001B[32m" + s.identifier + "\u001B[0m";
                 } else {
-                    r += rule.identifier;
+                    r += s.identifier;
                 }
-                rule = rule.next;
-                if (rule == null) {
-                    continue;
-                }
-                r += " -> ";
+                r += " ";
             }
             System.out.println(r);
             r = "";
@@ -89,7 +131,15 @@ public class Main {
         // in the case of GLOBVARS, you'd enter the symbol and expand to get PROG -> main -> VTYP -> VNAME -> , -> ...
         // if no match is found BUT there is an epsilon-transition (e.g. GLOBVARS -> ε), then continue building the tree.
 
-        Parser parser = new Parser(rules);
-        parser.parseSyntaxTree(l.tokens);
+        List<Parser> parsers = new ArrayList<Parser>();
+        for (Lexer l : lexers) {
+            Parser p = new Parser(rules, l.tokens);
+            parsers.add(p);
+        }
+
+        // parse
+        for (Parser p : parsers) {
+            p.parse();
+        }
     }
 }
