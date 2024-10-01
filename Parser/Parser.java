@@ -47,7 +47,7 @@ public class Parser {
             e.printStackTrace(); // Or use logging
         }        
 
-        System.out.println(ruleStack.peek() == null ? "Parsing passed" : "Parsing failed");
+        System.out.println((ruleStack.peek().lhs.identifier.equals("$") && ruleStack.size() == 1) ? "\u001B[32m" + "Parsing successful." + "\u001B[0m" : "\u001B[31m" + "Parsing unsuccessful." + "\u001B[0m");
     }
 
     public void parseHelper(int atToken, Stack<ProductionRule> ruleStack, int currentSymbol) throws Exception {
@@ -81,8 +81,8 @@ public class Parser {
             
             int atRule = findRuleIndex(ruleStack.peek(), currentRule.lhs);
             
-            System.out.println("At Rule: " + ruleStack.peek().lhs.identifier);
-            System.out.println("At Rule: " + atRule);
+            System.out.println("Parent Rule: " + ruleStack.peek().lhs.identifier);
+            // System.out.println("At Rule: " + atRule);
             
             // Ensure that the stack is still not empty before continuing
             if (!ruleStack.isEmpty()) {
@@ -97,12 +97,12 @@ public class Parser {
         if (atToken < tokenList.size()) {
             Token currentToken = tokenList.get(atToken);
 
-            System.out.println("Current Rule: " + curr.identifier);
+            System.out.println("Current Symbol: " + curr.identifier);
 
             if (curr.terminal) {
                 // * a dead end, we've reached a terminal symbol
                 // don't change the ruleStack (terminal symbols 'terminates'), instead just traverse to the next symbol
-                System.out.println("Terminal symbol: " + currentToken.tokenValue);
+                // System.out.println("Terminal symbol: " + currentToken.tokenValue);
                 parseHelper(++atToken, ruleStack, ++currentSymbol);
             } else {
                 // * essentially this goes to the next "level(s)" of the tree
@@ -143,21 +143,12 @@ public class Parser {
 
             System.out.println();
             System.out.println("-----------------");
-            System.out.println("Stack: ");
+            System.out.println("Final Stack: ");
             for (ProductionRule rule : ruleStack) {
                 System.out.println(rule.lhs.identifier);
             }
             System.out.println("-----------------");
             System.out.println();
-
-            // we ran out of tokens, but we need to check if the stack is empty.
-            if (ruleStack.peek().lhs.identifier.equals("$") && ruleStack.size() == 1) {
-                // if the stack is empty, then parsing is successful
-                System.out.println("Parsing successful.");
-            } else {
-                // if the stack is not empty, then parsing is unsuccessful
-                System.out.println("Parsing unsuccessful.");
-            }
 
             return; // Prevent any further execution
         }
@@ -192,7 +183,7 @@ public class Parser {
     }
     
     private boolean findFIRSTHelper(Symbol symbol, String identifier, List<ProductionRule> trail) {
-        System.out.println("Finding FIRST for: " + symbol.identifier + " with token: " + identifier);
+        // System.out.println("Finding FIRST for: " + symbol.identifier + " with token: " + identifier);
 
         
     
@@ -203,7 +194,7 @@ public class Parser {
                 // Add the current rule to the trail
                 trail.add(rule);
 
-                System.out.println(symbol.identifier + " -> " + rule.rhs.get(0).identifier);
+                // System.out.println(symbol.identifier + " -> " + rule.rhs.get(0).identifier);
     
                 // Recursively enter the rule, if it's a non-terminal symbol
                 if (rule.rhs.get(0).identifier.startsWith("RGX_")) {

@@ -131,8 +131,15 @@ public class Main {
         // in the case of GLOBVARS, you'd enter the symbol and expand to get PROG -> main -> VTYP -> VNAME -> , -> ...
         // if no match is found BUT there is an epsilon-transition (e.g. GLOBVARS -> ε), then continue building the tree.
 
-        Parser parser = new Parser(rules, lexers.get(0).tokens);
-        // parser.parseSyntaxTree(l.tokens);
-        parser.parse();
+        List<Parser> parsers = new ArrayList<Parser>();
+        for (Lexer l : lexers) {
+            Parser p = new Parser(rules, l.tokens);
+            parsers.add(p);
+        }
+
+        // parse
+        for (Parser p : parsers) {
+            p.parse();
+        }
     }
 }
