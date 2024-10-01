@@ -1,0 +1,180 @@
+main
+begin
+    halt ;
+end
+
+main
+num V_a01 , text V_a02 , num V_a03 ;
+begin
+    V_a01 = 5 ;
+    V_a02 = "Hello" ;
+    V_a03 = V_a01 ;
+    print V_a02 ;
+    halt ;
+end
+
+main
+num V_a01 , num V_a02 , text V_a03 , text V_a04 ;
+begin
+    V_a01 = 10 ;
+    V_a02 = V_a01 ;
+    V_a03 = "Sample" ;
+    V_a04 = "Test" ;
+    print V_a03 ;
+    print V_a04 ;
+    halt ;
+end
+
+## BREAK ##
+Files below this line have not been tested.
+
+main
+begin
+    num V_result;
+    V_result = F_add(5, 3, 2);
+    print V_result;
+    halt;
+end
+
+main
+num V_a01, V_a02;
+begin
+    V_a01 = 1;
+    V_a02 = F_compute(V_a01, 2);
+    print V_a02;
+    halt;
+end
+
+main
+begin
+    num V_a01;
+    V_a01 = 10;
+    if V_a01 > 5 then
+        print "V_a01 is greater than 5";
+    else
+        print "V_a01 is not greater than 5";
+    halt;
+end
+
+main
+begin
+    num V_counter;
+    V_counter = 0;
+    while V_counter < 5 do
+        V_counter = V_counter + 1;
+    halt;
+end
+
+main
+begin
+    print V_a01;  
+    halt;
+end
+
+main
+begin
+    halt;
+end
+
+main
+begin
+    num V_value;
+    V_value = F_factorial(5);
+    print V_value;
+    halt;
+end
+
+main
+begin
+    num V_a01;
+    V_a01 = 1  
+    print V_a01;
+    halt;
+end
+
+main
+num V_a01;
+begin
+    V_a01 = 10;
+    print V_a01;
+    V_a01 = V_a01 + 5;
+    print V_a01;
+    halt;
+end
+
+main
+begin
+    num V_a01, V_a02;
+    V_a01 = 10;
+    V_a02 = 20;
+    if V_a01 > 5 then
+        if V_a02 > 15 then
+            print "Both conditions met";
+        else
+            print "Only first condition met";
+    else
+        print "First condition not met";
+    halt;
+end
+
+main
+begin
+    num V_a01, V_a02;
+    V_a01 = 4;
+    V_a02 = -V_a01 + 3;
+    print V_a02;
+    halt;
+end
+
+main
+begin
+    print V_undefined;
+    halt;
+end
+
+main
+begin
+    print "Hello, World!";
+    halt;
+end
+
+main
+begin
+    num V_a01;
+    V_a01 = F_sum(F_sum(1, 2, 3), 4, 5);
+    print V_a01;
+    halt;
+end
+
+main
+begin
+    num V_a01, V_a02;
+    V_a01 = 10;
+    V_a02 = 20;
+    if (V_a01 > 5) and (V_a02 > 15) then
+        print "Both conditions met";
+    else
+        print "Conditions not met";
+    halt;
+end
+
+main
+begin
+    num V_a01;
+    V_a01 = 5;
+    {
+        num V_a01;
+        V_a01 = 10;
+        print V_a01;
+    }
+    print V_a01;
+    halt;
+end
+
+main
+begin
+    num V_a01;
+    V_a01 = F_mixed("Test", 3.5, V_a01);
+    print V_a01;
+    halt;
+end

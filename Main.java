@@ -6,18 +6,66 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        // input file
-        File file = new File("inputFile.recspl");
-        Scanner sc1 = new Scanner(file);
-        String program = "";
-        while (sc1.hasNextLine()) {
-            program += sc1.nextLine() + '\n';
+        // read each "Test" from a txt file into a list
+        List<String> programs = new ArrayList<>();
+        try {
+            File file = new File("testFile.txt");
+            Scanner sc1 = new Scanner(file);
+            StringBuilder tempString = new StringBuilder();
+
+            while (sc1.hasNextLine()) {
+                String line = sc1.nextLine();
+
+                // Check for the delimiter to break out
+                if (line.equals("## BREAK ##")) {
+                    break;
+                }
+
+                // Check for empty line to store the current program
+                if (line.trim().isEmpty()) {
+                    if (tempString.length() > 0) {
+                        programs.add(tempString.toString());
+                        tempString.setLength(0); // Reset the StringBuilder
+                    }
+                } else {
+                    // Append the current line to the tempString
+                    tempString.append(line).append('\n');
+                }
+            }
+
+            // To add the last program if file doesn't end with an empty line
+            if (tempString.length() > 0) {
+                programs.add(tempString.toString());
+            }
+
+            sc1.close();
+
+            // Visualize inputs
+            for (String s : programs) {
+                System.out.println(s);
+                System.out.println("----- End of Program -----");
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found: " + e.getMessage());
         }
-        sc1.close();
+
+        
+        // input file
+        // File file = new File("inputFile.recspl");
+        // Scanner sc1 = new Scanner(file);
+        // List<String> programs = new ArrayList<String>();
+        // while (sc1.hasNextLine()) {
+        //     program += sc1.nextLine() + '\n';
+        // }
+        // sc1.close();
 
         // perform lexing
-        Lexer l = new Lexer();
-        l.performLexing(program);
+        List<Lexer> lexers = new ArrayList<Lexer>();
+        for (String program : programs) {
+            Lexer l = new Lexer();
+            l.performLexing(program);
+            lexers.add(l);
+        }
 
         // load grammar
         File grammarFile = new File("CFG.txt");
@@ -83,7 +131,7 @@ public class Main {
         // in the case of GLOBVARS, you'd enter the symbol and expand to get PROG -> main -> VTYP -> VNAME -> , -> ...
         // if no match is found BUT there is an epsilon-transition (e.g. GLOBVARS -> ε), then continue building the tree.
 
-        Parser parser = new Parser(rules, l.tokens);
+        Parser parser = new Parser(rules, lexers.get(0).tokens);
         // parser.parseSyntaxTree(l.tokens);
         parser.parse();
     }
