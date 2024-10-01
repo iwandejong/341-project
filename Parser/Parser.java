@@ -32,9 +32,6 @@ public class Parser {
         // add first rule to the stack
         ruleStack.push(rules.get(0));
 
-        System.out.println();
-        System.out.println(ruleStack.peek().lhs.identifier);
-
         // define token "iterator" in stream
         int atToken = 0;
         Token currentToken;
@@ -55,63 +52,81 @@ public class Parser {
     }
 
     public void parseHelper(int atToken, Stack<ProductionRule> ruleStack, int currentSymbol) throws Exception {
-        // select the current rule at the top of the stack
-        // Rule currentRule = ruleStack.peek();
-        
-        if (ruleStack.peek().rhs.get(currentSymbol) == null) {
-            // reached end of ruleset, pop
-            ruleStack.pop();
-            System.out.println(ruleStack.peek().rhs.get(0).identifier);
-            parseHelper(atToken, ruleStack, 0);
+        // visualize the stack
+        System.out.println();
+        System.out.println("-----------------");
+        System.out.println("Stack: ");
+        for (ProductionRule rule : ruleStack) {
+            System.out.println(rule.lhs.identifier);
         }
-        
-        System.out.println("Current Symbol: " + ruleStack.peek().rhs.get(currentSymbol).identifier);
+        System.out.println("-----------------");
+        System.out.println();
 
         // didn't run out of tokens yet
         if (atToken < tokenList.size()) {
             Token currentToken = tokenList.get(atToken);
-            Symbol curr = ruleStack.peek().rhs.get(currentSymbol);
+            List<Symbol> rhsSymbols = ruleStack.peek().rhs;
+            Symbol curr = null;
+
+            if (currentSymbol < rhsSymbols.size()) {
+                curr = rhsSymbols.get(currentSymbol);
+            }
+            
+            if (curr == null || currentSymbol >= rhsSymbols.size()) {
+                // Temporarily save current rule
+                ProductionRule currentRule = ruleStack.pop();
+
+                System.out.println("Current Rule: " + currentRule.lhs.identifier);
+
+                int atRule = findRuleIndex(ruleStack.peek(), currentRule.lhs);
+
+                System.out.println("At Rule: " + ruleStack.peek().lhs.identifier);
+                System.out.println("At Rule: " + atRule);
+        
+                // Ensure that the stack is still not empty before continuing
+                if (!ruleStack.isEmpty()) {
+                    // Reset currentSymbol and continue with the next rule in the stack
+                    parseHelper(atToken, ruleStack, ++atRule);
+                }
+                return;
+            }
+
+            System.out.println("Current Rule: " + curr.identifier);
 
             if (curr.terminal) {
-                
-                // try to convert to regex if no matches up to this point...
-                if (curr.identifier.startsWith("RGX_")) {
-                    String regexString = curr.identifier.substring(4);
-                    Pattern pattern;
-                    Matcher matcher;
-                    boolean matchFound;
-
-                    pattern = Pattern.compile(regexString);
-                    matcher = pattern.matcher(currentToken.tokenValue);
-                    matchFound = matcher.matches();
-
-                    if (!matchFound) {
-                        throw new Exception("No regex match was found, therefore abort parsing");
-                    }
-                }
-
-                // try to match a raw value, if not, return false and abort parsing
-                if (!curr.identifier.equals(currentToken.tokenValue)) {
-                    throw new Exception("Tried to match a raw value, but failed, therefore return false and abort parsing");
-                }
-
+                // * a dead end, we've reached a terminal symbol
                 // don't change the ruleStack (terminal symbols 'terminates'), instead just traverse to the next symbol
+                System.out.println("Terminal symbol: " + currentToken.tokenValue);
                 parseHelper(++atToken, ruleStack, ++currentSymbol);
             } else {
-                // non-terminal symbol, therefore, push to the stack and expand
-                for (ProductionRule rule : rules) {
-                    if (rule.lhs.identifier.equals(curr.identifier)) {
-                        // ! it will push the first rule to the stack, and then the next rule will not be pushed to the stack
-                        ruleStack.push(rule);
-                        break;
-                    }
+                // * essentially this goes to the next "level(s)" of the tree
+                // non-terminal symbol, therefore, push to the stack and expand each option
+                List<ProductionRule> nextRules = findFIRST(curr, currentToken.tokenValue);
+
+                if (nextRules == null) {
+                    // * epsilon transition
+                    // don't change the ruleStack, instead just traverse to the next symbol
+                    parseHelper(atToken, ruleStack, ++currentSymbol);
                 }
 
-                parseHelper(atToken, ruleStack, 0);
+                for (ProductionRule nextRule : nextRules) {
+                    // do not add if rule is already in stack
+                    if (ruleStack.contains(nextRule)) {
+                        continue;
+                    }
+                    ruleStack.push(nextRule);
+                    parseHelper(atToken, ruleStack, 0);
+                }
             }
         } else {
-            // we ran out of tokens, therefore, check if currentRule has FIRST/FOLLOW (?) rules
-            throw new Exception("Ran out of tokens.");
+            // we ran out of tokens, but we need to check if the stack is empty.
+            if (ruleStack.peek().lhs.equals("$") && ruleStack.size() == 1) {
+                // if the stack is empty, then parsing is successful
+                System.out.println("Parsing successful.");
+            } else {
+                // if the stack is not empty, then parsing is unsuccessful
+                System.out.println("Parsing unsuccessful.");
+            }
         }
     }
 
@@ -123,5 +138,77 @@ public class Parser {
         }
 
         return null;
+    }
+
+    public List<ProductionRule> findFIRST(Symbol symbol, String identifier) {
+        List<ProductionRule> trail = new ArrayList<>();
+        boolean matchFound = findFIRSTHelper(symbol, identifier, trail);
+
+        // if no match is found, but there is an epsilon-transition, then continue building the tree
+        if (!matchFound) {
+            for (ProductionRule rule : rules) {
+                if (rule.lhs.identifier.equals(symbol.identifier)) {
+                    if (rule.rhs.get(0).identifier.equals("ε")) {
+                        return null;
+                    }
+                }
+            }
+        }
+
+        return trail;
+    }
+    
+    private boolean findFIRSTHelper(Symbol symbol, String identifier, List<ProductionRule> trail) {
+        System.out.println("Finding FIRST for: " + symbol.identifier + " with token: " + identifier);
+
+        
+    
+        // Find symbol that matches lhs of rule and matches the identifier
+        for (ProductionRule rule : rules) {
+
+            if (rule.lhs.identifier.equals(symbol.identifier)) {
+                // Add the current rule to the trail
+                trail.add(rule);
+
+                System.out.println(symbol.identifier + " -> " + rule.rhs.get(0).identifier);
+    
+                // Recursively enter the rule, if it's a non-terminal symbol
+                if (rule.rhs.get(0).identifier.startsWith("RGX_")) {
+                    String regexString = rule.rhs.get(0).identifier.substring(4);
+                    Pattern pattern = Pattern.compile(regexString);
+                    Matcher matcher = pattern.matcher(identifier);
+    
+                    if (matcher.matches()) {
+                        return true; // Match found
+                    }
+                } else if (rule.rhs.get(0).identifier.equals(identifier)) {
+                    return true; // Exact match found
+                } else {
+                    // Recursive check on the next symbol in rhs
+                    boolean found = findFIRSTHelper(rule.rhs.get(0), identifier, trail);
+                    if (found) {
+                        return true; // Propagate match found
+                    }
+                }
+                // If no match was found, remove the last rule added to the trail
+                trail.remove(trail.size() - 1);
+            }
+        }
+    
+        return false; // No match found
+    }
+
+    public int findRuleIndex(ProductionRule rule, Symbol symbol) {
+        for (ProductionRule r : rules) {
+            if (r.lhs.identifier.equals(rule.lhs.identifier)) {
+                for (int i = 0; i < r.rhs.size(); i++) {
+                    if (r.rhs.get(i).identifier.equals(symbol.identifier)) {
+                        return i;
+                    }
+                }
+            }
+        }
+
+        return -1;
     }
 }
