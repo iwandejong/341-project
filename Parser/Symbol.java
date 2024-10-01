@@ -1,13 +1,11 @@
 package Parser;
 
-public class Rule {
+public class Symbol {
     public String identifier;
-    public Rule next;
     public boolean terminal;
 
-    public Rule(String _identifier, Rule _next, boolean _terminal) {
+    public Symbol(String _identifier, boolean _terminal) {
         identifier = _identifier;
-        next = _next;
         terminal = _terminal;
     }
 }
