@@ -63,9 +63,34 @@ public class Parser {
 
     public void parseHelper(int atToken, Stack<ProductionRule> ruleStack, int currentSymbol, Stack<Node> nodeStack) throws Exception {
         // break if ruleStack is empty
-        if (ruleStack.peek().lhs.identifier.equals("$") && ruleStack.size() == 1) {
+        if ((ruleStack.peek().lhs.identifier.equals("$") && ruleStack.size() == 1)) {
             return;
         }
+
+        // break if nodeStack is empty
+        if (nodeStack.empty()) {
+            return;
+        }
+
+        // print stack
+        System.out.println();
+        System.out.println("\u001B[33m" + "Rule Stack:");
+        System.out.println("----------" + "\u001B[0m");
+        String r = "";
+        for (ProductionRule rule : ruleStack) {
+            r += rule.lhs.identifier + " -> ";
+            for (Symbol s : rule.rhs) {
+                if (s.terminal) {
+                    r += "\u001B[32m" + s.identifier + "\u001B[0m";
+                } else {
+                    r += s.identifier;
+                }
+                r += " ";
+            }
+            System.out.println(r);
+            r = "";
+        }
+        System.out.println();
 
         List<Symbol> rhsSymbols = ruleStack.peek().rhs;
         Symbol curr = null;
@@ -77,6 +102,8 @@ public class Parser {
         if (curr == null || currentSymbol >= rhsSymbols.size()) {
             // Temporarily save current rule
             ProductionRule currentRule = ruleStack.pop();
+            // pop from node stack
+            nodeStack.pop();
             
             int atRule = findRuleIndex(ruleStack.peek(), currentRule.lhs);
             
@@ -122,7 +149,7 @@ public class Parser {
             
                     int atRule = findRuleIndex(ruleStack.peek(), currentRule.lhs);
 
-                    parseHelper(atToken, ruleStack, atRule, nodeStack);
+                    parseHelper(atToken, ruleStack, ++atRule, nodeStack);
                 }
             } else {
                 // * essentially this goes to the next "level(s)" of the tree
@@ -141,15 +168,16 @@ public class Parser {
                         }
 
                         // add to the tree
-                        Node newNode = new Node(curr);
-                        nodeStack.peek().addChild(newNode);
-                        nodeStack.push(newNode);
-
-                        ruleStack.push(nextRule);
-                        parseHelper(atToken, ruleStack, 0, nodeStack);
+                        if (!nodeStack.empty()) {
+                            Node newNode = new Node(curr);
+                            nodeStack.peek().addChild(newNode);
+                            nodeStack.push(newNode);
+    
+                            ruleStack.push(nextRule);
+                            parseHelper(atToken, ruleStack, 0, nodeStack);
+                        }
                     }
                 }
-
             }
         } else {
             // check if current rule has any epsilon transitions
@@ -167,6 +195,7 @@ public class Parser {
             }
 
             if (isEpsilon) {
+                nodeStack.pop();
                 ruleStack.pop(); // pop the current rule if epsilon transition is allowed
             }
 
