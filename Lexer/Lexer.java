@@ -18,10 +18,12 @@ import org.w3c.dom.Element;
 public class Lexer {
     public List<Token> tokens;
     public List<String> reservedKeywords;
+    int id = 0;
 
-    public Lexer() throws FileNotFoundException {
+    public Lexer(int _id) throws FileNotFoundException {
         tokens = new ArrayList<Token>();
         reservedKeywords = new ArrayList<String>();
+        id = _id;
 
         // load reserved keywords
         File file = new File("reservedKeywords.txt");
@@ -274,7 +276,7 @@ public class Lexer {
         Transformer transformer = transformerFactory.newTransformer();
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
         DOMSource source = new DOMSource(doc);
-        StreamResult result = new StreamResult(new File("lexer_output.xml"));
+        StreamResult result = new StreamResult(new File("lexer_output_" + id + ".xml"));
         transformer.transform(source, result);
     }
 }

@@ -2,11 +2,9 @@ main
 begin
     halt ;
 end
-## BREAK ##
-Files below this line have not been tested.
 
 main
-num V_a01 , text V_a02 , num V_a03 ;
+num V_a01 , text V_a02 , num V_a03
 begin
     V_a01 = 5 ;
     V_a02 = "Hello" ;
@@ -15,8 +13,10 @@ begin
     halt ;
 end
 
+## BREAK ##
+
 main
-num V_a01 , num V_a02 , text V_a03 , text V_a04 ;
+num V_a01 , num V_a02 , text V_a03 , text V_a04
 begin
     V_a01 = 10 ;
     V_a02 = V_a01 ;

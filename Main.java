@@ -61,9 +61,9 @@ public class Main {
 
         // perform lexing
         List<Lexer> lexers = new ArrayList<Lexer>();
-        for (String program : programs) {
-            Lexer l = new Lexer();
-            l.performLexing(program);
+        for (int i = 0; i < programs.size(); i++) {
+            Lexer l = new Lexer(i);
+            l.performLexing(programs.get(i));
             lexers.add(l);
         }
 

@@ -72,26 +72,6 @@ public class Parser {
             return;
         }
 
-        // print stack
-        System.out.println();
-        System.out.println("\u001B[33m" + "Rule Stack:");
-        System.out.println("----------" + "\u001B[0m");
-        String r = "";
-        for (ProductionRule rule : ruleStack) {
-            r += rule.lhs.identifier + " -> ";
-            for (Symbol s : rule.rhs) {
-                if (s.terminal) {
-                    r += "\u001B[32m" + s.identifier + "\u001B[0m";
-                } else {
-                    r += s.identifier;
-                }
-                r += " ";
-            }
-            System.out.println(r);
-            r = "";
-        }
-        System.out.println();
-
         List<Symbol> rhsSymbols = ruleStack.peek().rhs;
         Symbol curr = null;
         
@@ -115,6 +95,30 @@ public class Parser {
             
             return; // Prevent any further execution
         }
+
+        // print stack
+        System.out.println();
+        System.out.println("\u001B[33m" + "Rule Stack:");
+        System.out.println("\u001B[34m" + "CurrentSymbol: " + ruleStack.peek().rhs.get(currentSymbol).identifier + "\u001B[0m");
+        if (atToken < tokenList.size()) {
+            System.out.println("\u001B[34m" + "CurrentToken: " + tokenList.get(atToken).tokenValue + "\u001B[0m");
+        }
+        System.out.println("----------" + "\u001B[0m");
+        String r = "";
+        for (ProductionRule rule : ruleStack) {
+            r += rule.lhs.identifier + " -> ";
+            for (Symbol s : rule.rhs) {
+                if (s.terminal) {
+                    r += "\u001B[32m" + s.identifier + "\u001B[0m";
+                } else {
+                    r += s.identifier;
+                }
+                r += " ";
+            }
+            System.out.println(r);
+            r = "";
+        }
+        System.out.println();
         
         // didn't run out of tokens yet
         if (atToken < tokenList.size()) {
@@ -130,7 +134,7 @@ public class Parser {
     
                     if (matcher.matches()) {
                         // add to the tree
-                        Node newNode = new Node(curr);
+                        Node newNode = new Node(new Symbol(currentToken.tokenValue, false));
                         nodeStack.peek().addChild(newNode);
 
                         parseHelper(++atToken, ruleStack, ++currentSymbol, nodeStack);
@@ -154,6 +158,10 @@ public class Parser {
             } else {
                 // * essentially this goes to the next "level(s)" of the tree
                 // non-terminal symbol, therefore, push to the stack and expand each option
+                System.out.println("\u001B[33m" + "Expanding non-terminal symbol: " + curr.identifier + "\u001B[0m");
+                if (atToken + 1 < tokenList.size()) {
+                    System.out.println("Current Token: " + currentToken.tokenValue + " following symbol: " + tokenList.get(atToken + 1).tokenValue);
+                }
                 List<ProductionRule> nextRules = findFIRST(curr, currentToken.tokenValue);
 
                 if (nextRules == null || nextRules.isEmpty()) {
@@ -162,11 +170,6 @@ public class Parser {
                     parseHelper(atToken, ruleStack, ++currentSymbol, nodeStack);
                 } else {
                     for (ProductionRule nextRule : nextRules) {
-                        // do not add if rule is already in stack
-                        if (ruleStack.contains(nextRule)) {
-                            continue;
-                        }
-
                         // add to the tree
                         if (!nodeStack.empty()) {
                             Node newNode = new Node(curr);
@@ -229,10 +232,6 @@ public class Parser {
     }
     
     private boolean findFIRSTHelper(Symbol symbol, String identifier, List<ProductionRule> trail) {
-        // System.out.println("Finding FIRST for: " + symbol.identifier + " with token: " + identifier);
-
-        
-    
         // Find symbol that matches lhs of rule and matches the identifier
         for (ProductionRule rule : rules) {
 
