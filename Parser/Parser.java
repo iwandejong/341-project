@@ -37,34 +37,35 @@ public class Parser {
         Token currentToken;
         if (tokenList.size() < atToken) {
             currentToken = tokenList.get(atToken);
-        } 
+        }
+
+        // define the tree root
+        syntaxTree = new Tree(new Node(rules.get(0).lhs));
+
+        Stack<Node> nodeStack = new Stack<Node>();
+        nodeStack.push(syntaxTree.root);
 
         // use recursive parseHelper
         try {
-            parseHelper(atToken, ruleStack, 0);
+            parseHelper(atToken, ruleStack, 0, nodeStack);
         } catch (Exception e) {
             // Handle the exception (e.g., log it or print an error message)
             e.printStackTrace(); // Or use logging
         }        
 
+        System.out.println();
         System.out.println((ruleStack.peek().lhs.identifier.equals("$") && ruleStack.size() == 1) ? "\u001B[32m" + "Parsing successful." + "\u001B[0m" : "\u001B[31m" + "Parsing unsuccessful." + "\u001B[0m");
+        System.out.println();
+
+        // visualise the tree
+        syntaxTree.visualiseTree(syntaxTree.root, "", true);
     }
 
-    public void parseHelper(int atToken, Stack<ProductionRule> ruleStack, int currentSymbol) throws Exception {
+    public void parseHelper(int atToken, Stack<ProductionRule> ruleStack, int currentSymbol, Stack<Node> nodeStack) throws Exception {
         // break if ruleStack is empty
         if (ruleStack.peek().lhs.identifier.equals("$") && ruleStack.size() == 1) {
             return;
         }
-        
-        // visualize the stack
-        System.out.println();
-        System.out.println("-----------------");
-        System.out.println("Stack: ");
-        for (ProductionRule rule : ruleStack) {
-            System.out.println(rule.lhs.identifier);
-        }
-        System.out.println("-----------------");
-        System.out.println();
 
         List<Symbol> rhsSymbols = ruleStack.peek().rhs;
         Symbol curr = null;
@@ -77,17 +78,12 @@ public class Parser {
             // Temporarily save current rule
             ProductionRule currentRule = ruleStack.pop();
             
-            System.out.println("Current Rule: " + currentRule.lhs.identifier);
-            
             int atRule = findRuleIndex(ruleStack.peek(), currentRule.lhs);
-            
-            System.out.println("Parent Rule: " + ruleStack.peek().lhs.identifier);
-            // System.out.println("At Rule: " + atRule);
             
             // Ensure that the stack is still not empty before continuing
             if (!ruleStack.isEmpty()) {
                 // Reset currentSymbol and continue with the next rule in the stack
-                parseHelper(atToken, ruleStack, ++atRule);
+                parseHelper(atToken, ruleStack, ++atRule, nodeStack);
             }
             
             return; // Prevent any further execution
@@ -97,13 +93,37 @@ public class Parser {
         if (atToken < tokenList.size()) {
             Token currentToken = tokenList.get(atToken);
 
-            System.out.println("Current Symbol: " + curr.identifier);
-
             if (curr.terminal) {
                 // * a dead end, we've reached a terminal symbol
-                // don't change the ruleStack (terminal symbols 'terminates'), instead just traverse to the next symbol
-                // System.out.println("Terminal symbol: " + currentToken.tokenValue);
-                parseHelper(++atToken, ruleStack, ++currentSymbol);
+                // check if the current token matches the terminal symbol
+                if (ruleStack.peek().rhs.get(currentSymbol).identifier.startsWith("RGX_")) {
+                    String regexString = ruleStack.peek().rhs.get(currentSymbol).identifier.substring(4);
+                    Pattern pattern = Pattern.compile(regexString);
+                    Matcher matcher = pattern.matcher(currentToken.tokenValue);
+    
+                    if (matcher.matches()) {
+                        // add to the tree
+                        Node newNode = new Node(curr);
+                        nodeStack.peek().addChild(newNode);
+
+                        parseHelper(++atToken, ruleStack, ++currentSymbol, nodeStack);
+                    }
+                } else if (ruleStack.peek().rhs.get(currentSymbol).identifier.equals(currentToken.tokenValue)) {
+                    // add to the tree
+                    Node newNode = new Node(curr);
+                    nodeStack.peek().addChild(newNode);
+
+                    parseHelper(++atToken, ruleStack, ++currentSymbol, nodeStack);
+                } else {
+                    // pop from stack, maybe the parent's "next" rule will match
+                    nodeStack.pop();
+
+                    ProductionRule currentRule = ruleStack.pop();
+            
+                    int atRule = findRuleIndex(ruleStack.peek(), currentRule.lhs);
+
+                    parseHelper(atToken, ruleStack, atRule, nodeStack);
+                }
             } else {
                 // * essentially this goes to the next "level(s)" of the tree
                 // non-terminal symbol, therefore, push to the stack and expand each option
@@ -112,15 +132,21 @@ public class Parser {
                 if (nextRules == null || nextRules.isEmpty()) {
                     // * epsilon transition
                     // don't change the ruleStack, instead just traverse to the next symbol
-                    parseHelper(atToken, ruleStack, ++currentSymbol);
+                    parseHelper(atToken, ruleStack, ++currentSymbol, nodeStack);
                 } else {
                     for (ProductionRule nextRule : nextRules) {
                         // do not add if rule is already in stack
                         if (ruleStack.contains(nextRule)) {
                             continue;
                         }
+
+                        // add to the tree
+                        Node newNode = new Node(curr);
+                        nodeStack.peek().addChild(newNode);
+                        nodeStack.push(newNode);
+
                         ruleStack.push(nextRule);
-                        parseHelper(atToken, ruleStack, 0);
+                        parseHelper(atToken, ruleStack, 0, nodeStack);
                     }
                 }
 
@@ -130,7 +156,10 @@ public class Parser {
             List<ProductionRule> nextRules = findFIRST(curr, "ε");
             boolean isEpsilon = false;
 
+            System.out.println("Checking if rule " + ruleStack.peek().lhs.identifier + " has epsilon transitions.");
+
             for (ProductionRule nextRule : nextRules) {
+                System.out.println("Next rule: " + nextRule.lhs.identifier);
                 if (nextRule.rhs.get(0).identifier.equals("ε")) {
                     // * epsilon transition allowed
                     isEpsilon = true;
@@ -140,15 +169,6 @@ public class Parser {
             if (isEpsilon) {
                 ruleStack.pop(); // pop the current rule if epsilon transition is allowed
             }
-
-            System.out.println();
-            System.out.println("-----------------");
-            System.out.println("Final Stack: ");
-            for (ProductionRule rule : ruleStack) {
-                System.out.println(rule.lhs.identifier);
-            }
-            System.out.println("-----------------");
-            System.out.println();
 
             return; // Prevent any further execution
         }
