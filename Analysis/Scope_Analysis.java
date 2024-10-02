@@ -3,18 +3,21 @@ package Analysis;
 // import the symbol table
 import java.util.Hashtable;
 
+import Parser.Node;
+import Parser.Tree;
+
 public class Scope_Analysis {
     // create a symbol table
-    Hashtable<String, String> symbolTable = new Hashtable<String, String>();
+    Hashtable<Integer, String> symbolTable = new Hashtable<Integer, String>();
     
     // functions for the symbol table
     // add a new entry
-    public void bind(String id, String type) {
+    public void bind(int id, String type) {
         symbolTable.put(id, type);
     }
     
     // search
-    public String lookup(String id) {
+    public String lookup(int id) {
         return symbolTable.get(id);
     }
 
@@ -24,34 +27,43 @@ public class Scope_Analysis {
             throw new RuntimeException("The symbol table is empty.");
         }
     }
+    
+    // take the parser tree 
+    public void start(Tree tree) {
+        // go through the tree and add
 
-    // generate new unique names for variables and functions (user-defined)
-    public void generateUniqueName() {
-        // for variables assign v1, v2, v3, ...
-        // for functions assign f1, f2, f3, ...
-        // go through symbol table and assign unique names
-        for(String key : symbolTable.keySet()) {
-            // check if the key is a variable
-            int variableCount = 1;
-            if (symbolTable.get(key).equals("variable")) {
-                // assign a unique name
-                symbolTable.put(key, "v" + variableCount);
-            }
+        symbolTable = buildSymbolTable(tree.root, symbolTable);
+    }
 
-            // check if the key is a function
-            int functionCount = 1;
-            if (symbolTable.get(key).equals("function")) {
-                // assign a unique name
-                symbolTable.put(key, "f" + functionCount);
+    public Hashtable<Integer, String> buildSymbolTable(Node node, Hashtable<Integer, String> symbolTable) {
+        // if the node is null, return the symbol table
+        if (node == null) {
+            return symbolTable;
+        }
+
+        // if the node is not a reserved word, add it to the symbol table
+        for (int i = 0; i < node.children.size(); i++) {
+            if (node.children != null && node.children.get(i) != null && 
+                node.children.get(i).token != null) { // Add this check
+              if (!node.children.get(i).token.tokenClass.equals("reserved_keyword")) {
+                symbolTable.put(node.children.get(i).token.id, node.children.get(i).identifier.identifier);
+              }
             }
+          }
+        
+        // recursively call the function for the children
+        for (int i = 0; i < node.children.size(); i++) {
+            symbolTable = buildSymbolTable(node.children.get(i), symbolTable);
+        }
+
+        return symbolTable;
+    }
+
+    public void printSymbolTable() {
+        // print the symbol table
+        System.out.println("Symbol Table:");
+        for (Integer key : symbolTable.keySet()) {
+            System.out.println("ID: " + key + " Type: " + symbolTable.get(key));
         }
     }
-    
-    
-    
-    // read from lexer_output.xml and populate the symbol table
-    public void start() {
-
-    }
-
 }
