@@ -184,10 +184,7 @@ public class Parser {
             List<ProductionRule> nextRules = findFIRST(curr, "ε");
             boolean isEpsilon = false;
 
-            System.out.println("Checking if rule " + ruleStack.peek().lhs.identifier + " has epsilon transitions.");
-
             for (ProductionRule nextRule : nextRules) {
-                System.out.println("Next rule: " + nextRule.lhs.identifier);
                 if (nextRule.rhs.get(0).identifier.equals("ε")) {
                     // * epsilon transition allowed
                     isEpsilon = true;
