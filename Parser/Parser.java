@@ -134,14 +134,14 @@ public class Parser {
     
                     if (matcher.matches()) {
                         // add to the tree
-                        Node newNode = new Node(new Symbol(currentToken.tokenValue, false));
+                        Node newNode = new Node(new Symbol(currentToken.tokenValue, false),currentToken);
                         nodeStack.peek().addChild(newNode);
 
                         parseHelper(++atToken, ruleStack, ++currentSymbol, nodeStack);
                     }
                 } else if (ruleStack.peek().rhs.get(currentSymbol).identifier.equals(currentToken.tokenValue)) {
                     // add to the tree
-                    Node newNode = new Node(curr);
+                    Node newNode = new Node(curr, currentToken);
                     nodeStack.peek().addChild(newNode);
 
                     parseHelper(++atToken, ruleStack, ++currentSymbol, nodeStack);
