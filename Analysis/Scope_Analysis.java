@@ -55,7 +55,12 @@ public class Scope_Analysis {
                 if (!node.children.get(i).token.tokenClass.equals("reserved_keyword")) {
                     if(!isDeclaration){
                         // lookup the value in the symbol table and set that declaration type
-                        String thisDeclarationType = symbolTable.lookupName(node.children.get(i).identifier.identifier).declarationType;
+                        String thisDeclarationType;
+                        try{
+                            thisDeclarationType = symbolTable.lookupName(node.children.get(i).identifier.identifier).declarationType;
+                        }catch(Exception e){
+                            throw new RuntimeException("Variable is used before declaration.");
+                        }
                         //* Rule 4: Every variable must be declared before it is used
                         if(thisDeclarationType == null){
                             throw new RuntimeException("Symbol: " + node.children.get(i).identifier.identifier + " is not declared.");
@@ -126,25 +131,57 @@ public class Scope_Analysis {
     }
 
     public void checkSemanticRules(){
-        // 1) no vairable name may be declared more than once in the same scope of different types
+        // 1) 
+        System.out.println("\u001B[33m" + "Semantic Rules:" + "\u001B[0m");
         Rule1();
-
+        Rule2();
+        Rule3();
+        Rule4();
+        System.out.println("\u001B[32m" + "All semantic rules are valid." + "\u001B[0m");
     }
 
+    // Rule 1: No variable name may be declared more than once in the same scope of different types
     public void Rule1(){
-        System.out.println("\u001B[33m" + "Rule 1:" + "\u001B[0m");
         for(Integer key : symbolTable.table.keySet()){
             // check if the symbol is declared more than once in the same scope
             for(Integer key2 : symbolTable.table.keySet()){
-                // System.out.println("Key: " + key + ", Key2: " + key2);
-                // System.out.println("Value: " + symbolTable.table.get(key).value + ", Value2: " + symbolTable.table.get(key2).value);
-                // System.out.println("Scope: " + symbolTable.table.get(key).scope + ", Scope2: " + symbolTable.table.get(key2).scope);
-                // System.out.println("Type: " + symbolTable.table.get(key).type + ", Type2: " + symbolTable.table.get(key2).type);
                 if(symbolTable.table.get(key).value.equals(symbolTable.table.get(key2).value) && symbolTable.table.get(key).scope == symbolTable.table.get(key2).scope && !symbolTable.table.get(key).declarationType.equals(symbolTable.table.get(key2).declarationType)){
                     throw new RuntimeException("Symbol: " + symbolTable.table.get(key).value + " is declared more than once in the same scope with different types.");
                 }
             }
         }
-        System.out.println("\u001B[32m" + "Rule 1 is valid." + "\u001B[0m");
+    }
+
+    // Rule 2: Declaration of used variable name must be found in either own scope or "higher" (in our case lower since highest scope is 1)
+    public void Rule2(){
+        // TODO: Test this thoroughly to make sure it works at a later time
+        for(Integer key : symbolTable.table.keySet()){
+            // check if the symbol is declared more than once in the same scope
+            for(Integer key2 : symbolTable.table.keySet()){
+                if(symbolTable.table.get(key).value.equals(symbolTable.table.get(key2).value) && symbolTable.table.get(key).scope < symbolTable.table.get(key2).scope && !symbolTable.table.get(key).declarationType.equals(symbolTable.table.get(key2).declarationType)){
+                    throw new RuntimeException("Symbol: " + symbolTable.table.get(key).value + " is declared in a lower scope with a different type.");
+                }
+            }
+        }
+    }
+
+    // Rule 3: If 2 declarations in different scopes have the same name, the one in the higher scope is used
+    public void Rule3(){
+        // TODO: implement this rule
+
+    }
+
+    // Rule 4: Every variable must be declared before it is used
+    public void Rule4(){
+        // look through the symbol table and check if the symbol is declared
+        
+        for(Integer key : symbolTable.table.keySet()){
+            // find type = V, Use that symbol and check if it is declared
+            if(symbolTable.table.get(key).type.equals("V")){
+                if(symbolTable.lookupName(symbolTable.table.get(key).value) == null){
+                    throw new RuntimeException("Symbol: " + symbolTable.table.get(key).value + " is not declared.");
+                }
+            } 
+        }
     }
 }
