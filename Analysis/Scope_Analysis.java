@@ -11,29 +11,14 @@ public class Scope_Analysis {
     // create a symbol table
     Symbol_Table symbolTable = new Symbol_Table();
     Scope_Stack scopeStack = new Scope_Stack();
-    // functions for the symbol table
-    // add a new entry
-    // public void bind(int id, String type) {
-    //     symbolTable.put(id, type);
-    // }
-    
-    // search
-    // public String lookup(int id) {
-    //     return symbolTable.get(id);
-    // }
-
-    // throw exception if the table is empty
-    // public void empty() {
-    //     if (symbolTable.isEmpty()) {
-    //         throw new RuntimeException("The symbol table is empty.");
-    //     }
-    // }
     
     // take the parser tree 
     public void start(Tree tree) {
         // go through the tree and add
-
         symbolTable = buildSymbolTable(tree.root, symbolTable);
+        printScopeStack();
+        validateSymbolTable(symbolTable,scopeStack);
+
     }
 
     public Symbol_Table buildSymbolTable(Node node, Symbol_Table symbolTable) {
@@ -72,5 +57,25 @@ public class Scope_Analysis {
     public void printScopeStack() {
         // print the scope stack
         scopeStack.printStack();
+    }
+
+    public void validateSymbolTable(Symbol_Table symbolTable, Scope_Stack scopeStack){
+        // check if the symbol table is empty
+        if(symbolTable.empty()){
+            System.out.println("The symbol table is empty.");
+        }else{
+            // go through the entire symbol table and check if symbol scope matches the current scope
+            for(Integer key : symbolTable.table.keySet()){
+                if(scopeStack.scopeStack.contains(symbolTable.table.get(key).scope)){
+                    
+                }else{
+                    // print out the scope that is invalid
+                    System.out.println("Symbol: " + key + " is not in scope. Scope: " + symbolTable.table.get(key).scope);
+                    // invalid scope
+                    throw new RuntimeException("Symbol: " + key + " is not in scope.");
+                }
+            }
+            System.out.println("Symbol table is valid.");
+        }
     }
 }

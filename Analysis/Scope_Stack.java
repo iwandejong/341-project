@@ -7,7 +7,8 @@ public class Scope_Stack {
     Stack<Integer> scopeStack = new Stack<Integer>();
 
     public Scope_Stack() {
-        
+        // push initial scope 1 to scope stack
+        this.push(1);
     }
 
     // push the scope
