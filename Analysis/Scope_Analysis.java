@@ -61,7 +61,10 @@ public class Scope_Analysis {
 
     public void printSymbolTable() {
         // print the symbol table
-        System.out.println("Symbol Table:");
+        if(symbolTable.isEmpty()) {
+            System.out.println("The symbol table is empty.");
+        }
+        
         for (Integer key : symbolTable.keySet()) {
             System.out.println("ID: " + key + " Type: " + symbolTable.get(key));
         }

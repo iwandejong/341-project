@@ -140,14 +140,11 @@ public class Main {
         }
 
         // parse
-        for (Parser p : parsers) {
-            p.parse();
-        }
-
         Hashtable<Integer, String> symbolTable = new Hashtable<Integer, String>();
         Scope_Analysis sa = new Scope_Analysis();
-        System.out.println("\u001B[33m" + "Symbol Tables:" + "\u001B[0m");
         for (Parser p : parsers) {
+            p.parse();
+            System.out.println("\u001B[33m" + "Symbol Table:" + "\u001B[0m");
             sa.start(p.syntaxTree);
             sa.printSymbolTable();
         }
