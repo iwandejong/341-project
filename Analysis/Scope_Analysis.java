@@ -46,7 +46,7 @@ public class Scope_Analysis {
         if (node == null) {
             return symbolTable;
         }
-        
+
         // if the node is not a reserved word, add it to the symbol table
         for (int i = 0; i < node.children.size(); i++) {
             // scope++;
@@ -54,7 +54,9 @@ public class Scope_Analysis {
                 // if it is not a reserved keyword
                 if (!node.children.get(i).token.tokenClass.equals("reserved_keyword")) {
                     if(!isDeclaration){
-                        symbolTable.bind(node.children.get(i).token.id, node.children.get(i).identifier.identifier, scope, node.children.get(i).token.tokenClass, "");
+                        // lookup the value in the symbol table and set that declaration type
+                        String thisDeclarationType = symbolTable.lookupName(node.children.get(i).identifier.identifier).declarationType;
+                        symbolTable.bind(node.children.get(i).token.id, node.children.get(i).identifier.identifier, scope, node.children.get(i).token.tokenClass, thisDeclarationType);
                     }else{
                         symbolTable.bind(node.children.get(i).token.id, node.children.get(i).identifier.identifier, scope, "D", declarationType);
                     }

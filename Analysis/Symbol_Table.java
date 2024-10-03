@@ -36,9 +36,15 @@ public class Symbol_Table {
         // do nothing
     }
 
-    // public void buildSymbolTable(Node node, Symbol_Table symbolTable){
-
-    // }
+    public InnerSymbol_Table lookupName(String value){
+        // go through the entire table and find the value
+        for (Integer key : table.keySet()) {
+            if(table.get(key).value.equals(value)){
+                return table.get(key);
+            }
+        }
+        return null;
+    }
 
     public void printTable() {
         if(table.isEmpty()){
