@@ -11,8 +11,8 @@ public class Symbol_Table {
     Hashtable<Integer, InnerSymbol_Table> table = new Hashtable<Integer, InnerSymbol_Table>();
 
     // functions: bind (add a new entry), lookup (search for an entry), empty (an empty table is an empty list), enter (old table is remebered (referenced)), exit (old table is forgotten)
-    public void bind(int id, String value, int scope) {
-        table.put(id, new InnerSymbol_Table(value, scope));
+    public void bind(int id, String value, int scope, String type) {
+        table.put(id, new InnerSymbol_Table(value, scope, type));
     }
 
     public String lookup(int id) {
@@ -46,7 +46,7 @@ public class Symbol_Table {
         }else{
             // go through the entire thing and print out the id, value, and scope
             for (Integer key : table.keySet()) {
-                System.out.println("ID: " + key + ", Value: " + table.get(key).value + ", Scope: " + table.get(key).scope);
+                System.out.println("ID: " + key + ", Value: " + table.get(key).value + ", Scope: " + table.get(key).scope + ", Type: " + table.get(key).type);
             }
         }
     }
