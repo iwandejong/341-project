@@ -38,7 +38,7 @@ public class Scope_Analysis {
         validateSymbolTable(symbolTable,scopeStack);
         System.out.println();
 
-        // checkRules();
+        checkSemanticRules();
     }
     // TODO: check all rules
     public Symbol_Table buildSymbolTable(Node node, Symbol_Table symbolTable) {
@@ -56,6 +56,10 @@ public class Scope_Analysis {
                     if(!isDeclaration){
                         // lookup the value in the symbol table and set that declaration type
                         String thisDeclarationType = symbolTable.lookupName(node.children.get(i).identifier.identifier).declarationType;
+                        //* Rule 4: Every variable must be declared before it is used
+                        if(thisDeclarationType == null){
+                            throw new RuntimeException("Symbol: " + node.children.get(i).identifier.identifier + " is not declared.");
+                        }
                         symbolTable.bind(node.children.get(i).token.id, node.children.get(i).identifier.identifier, scope, node.children.get(i).token.tokenClass, thisDeclarationType);
                     }else{
                         symbolTable.bind(node.children.get(i).token.id, node.children.get(i).identifier.identifier, scope, "D", declarationType);
@@ -106,6 +110,7 @@ public class Scope_Analysis {
         }else{
             // go through the entire symbol table and check if symbol scope matches the current scope
             for(Integer key : symbolTable.table.keySet()){
+                // * check if scopes are correct
                 if(scopeStack.scopeStack.contains(symbolTable.table.get(key).scope)){
                     
                 }else{
@@ -114,13 +119,32 @@ public class Scope_Analysis {
                     // invalid scope
                     throw new RuntimeException("Symbol: " + key + " is not in scope.");
                 }
+
             }
-            System.out.println("\u001B[32m" + "Symbol table is valid." + "\u001B[0m");
+            System.out.println("\u001B[32m" + "Initial symbol table is valid." + "\u001B[0m");
         }
     }
 
     public void checkSemanticRules(){
-        // 1) no vairable name may be declared more than once in the same scope
+        // 1) no vairable name may be declared more than once in the same scope of different types
+        Rule1();
 
+    }
+
+    public void Rule1(){
+        System.out.println("\u001B[33m" + "Rule 1:" + "\u001B[0m");
+        for(Integer key : symbolTable.table.keySet()){
+            // check if the symbol is declared more than once in the same scope
+            for(Integer key2 : symbolTable.table.keySet()){
+                // System.out.println("Key: " + key + ", Key2: " + key2);
+                // System.out.println("Value: " + symbolTable.table.get(key).value + ", Value2: " + symbolTable.table.get(key2).value);
+                // System.out.println("Scope: " + symbolTable.table.get(key).scope + ", Scope2: " + symbolTable.table.get(key2).scope);
+                // System.out.println("Type: " + symbolTable.table.get(key).type + ", Type2: " + symbolTable.table.get(key2).type);
+                if(symbolTable.table.get(key).value.equals(symbolTable.table.get(key2).value) && symbolTable.table.get(key).scope == symbolTable.table.get(key2).scope && !symbolTable.table.get(key).declarationType.equals(symbolTable.table.get(key2).declarationType)){
+                    throw new RuntimeException("Symbol: " + symbolTable.table.get(key).value + " is declared more than once in the same scope with different types.");
+                }
+            }
+        }
+        System.out.println("\u001B[32m" + "Rule 1 is valid." + "\u001B[0m");
     }
 }

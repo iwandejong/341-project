@@ -1,5 +1,5 @@
 Variables: 
-- no vairable name may be declared more than once in the same scope
+- no variable name may be declared more than once in the same scope
 - Declaration of used variable name must be found either in own scope or higher ancestor
 - If 2 declarations in different scopes, choose "nearest" declaration
 - Every variable must have a declaration
