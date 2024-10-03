@@ -147,6 +147,8 @@ public class Main {
             System.out.println("\u001B[33m" + "Symbol Table:" + "\u001B[0m");
             sa.start(p.syntaxTree);
             sa.printSymbolTable();
+            System.out.println("\u001B[33m" + "Scope Stack:" + "\u001B[0m");
+            sa.printScopeStack();
         }
     }
 }

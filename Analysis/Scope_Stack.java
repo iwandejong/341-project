@@ -19,4 +19,12 @@ public class Scope_Stack {
     public void pop() {
         scopeStack.pop();
     }
+
+    public void printStack() {
+        if(scopeStack.isEmpty()){
+            System.out.println("The stack is empty. No functions.");
+        }else{
+            System.out.println(scopeStack);
+        }
+    }
 }
