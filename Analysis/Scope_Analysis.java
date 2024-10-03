@@ -13,12 +13,14 @@ public class Scope_Analysis {
     Scope_Stack scopeStack = new Scope_Stack();
     Tree tree;
     public static int scope = 1;
+    public static boolean isDeclaration = false;
+    public static String declarationType = "";
     
     // take the parser tree 
     public void start(Tree tree) {
         this.tree = tree;
         // build the symbol table
-        symbolTable = buildSymbolTable(tree.root, symbolTable, false);
+        symbolTable = buildSymbolTable(tree.root, symbolTable);
         
         System.out.println();
         // print the symbol table 
@@ -38,27 +40,28 @@ public class Scope_Analysis {
 
         // checkRules();
     }
-    // TODO: fix declaration variables, and check all rules
-    public Symbol_Table buildSymbolTable(Node node, Symbol_Table symbolTable, boolean isDeclaration) {
+    // TODO: check all rules
+    public Symbol_Table buildSymbolTable(Node node, Symbol_Table symbolTable) {
         // if the node is null, return the symbol table
         if (node == null) {
             return symbolTable;
         }
+        
         // if the node is not a reserved word, add it to the symbol table
         for (int i = 0; i < node.children.size(); i++) {
             // scope++;
             if (node.children != null && node.children.get(i) != null && node.children.get(i).token != null) { // Add this check
                 // if it is not a reserved keyword
                 if (!node.children.get(i).token.tokenClass.equals("reserved_keyword")) {
-                    System.out.println(isDeclaration);
                     if(!isDeclaration){
-                        symbolTable.bind(node.children.get(i).token.id, node.children.get(i).identifier.identifier, scope, node.children.get(i).token.tokenClass);
+                        symbolTable.bind(node.children.get(i).token.id, node.children.get(i).identifier.identifier, scope, node.children.get(i).token.tokenClass, "");
                     }else{
-                        symbolTable.bind(node.children.get(i).token.id, node.children.get(i).identifier.identifier, scope, "D");
+                        symbolTable.bind(node.children.get(i).token.id, node.children.get(i).identifier.identifier, scope, "D", declarationType);
                     }
                 }
+
                 // it is the reserved keyword is not , (the declaration "stops")
-                else if(!node.children.get(i).token.tokenValue.equals(",")){
+                if(node.children.get(i).token.tokenClass.equals("reserved_keyword") && !node.children.get(i).token.tokenValue.equals(",")){
                     isDeclaration = false;
                 }
                 
@@ -70,6 +73,7 @@ public class Scope_Analysis {
                 
                 // if reserved keyword = text or num, add the rest of the children to the symbol table with type = D for declaration
                 if (node.children.get(i).token.tokenClass.equals("reserved_keyword") && (node.children.get(i).token.tokenValue.equals("text") || node.children.get(i).token.tokenValue.equals("num"))) {
+                    declarationType = node.children.get(i).token.tokenValue;
                     isDeclaration = true;
                 }
             }
@@ -77,7 +81,7 @@ public class Scope_Analysis {
         
         // recursively call the function for the children
         for (int i = 0; i < node.children.size(); i++) {
-            symbolTable = buildSymbolTable(node.children.get(i), symbolTable, isDeclaration);
+            symbolTable = buildSymbolTable(node.children.get(i), symbolTable);
         }
 
         return symbolTable;
