@@ -16,9 +16,16 @@ public class Scope_Analysis {
     public void start(Tree tree) {
         // go through the tree and add
         symbolTable = buildSymbolTable(tree.root, symbolTable);
+        System.out.println();
+        System.out.println("\u001B[33m" + "Symbol Table:" + "\u001B[0m");
+        printSymbolTable();
+        System.out.println();
+        System.out.println("\u001B[33m" + "Scope Stack:" + "\u001B[0m");
         printScopeStack();
+        System.out.println();
+        System.out.println("\u001B[33m" + "Validate Symbol Table:" + "\u001B[0m");
         validateSymbolTable(symbolTable,scopeStack);
-
+        System.out.println();
     }
 
     public Symbol_Table buildSymbolTable(Node node, Symbol_Table symbolTable) {
@@ -70,12 +77,12 @@ public class Scope_Analysis {
                     
                 }else{
                     // print out the scope that is invalid
-                    System.out.println("Symbol: " + key + " is not in scope. Scope: " + symbolTable.table.get(key).scope);
+                    System.out.println("\u001B[31m" + "Symbol: " + key + " is not in scope. Scope: " + symbolTable.table.get(key).scope + "\u001B[0m");
                     // invalid scope
                     throw new RuntimeException("Symbol: " + key + " is not in scope.");
                 }
             }
-            System.out.println("Symbol table is valid.");
+            System.out.println("\u001B[32m" + "Symbol table is valid." + "\u001B[0m");
         }
     }
 }

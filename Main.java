@@ -144,11 +144,11 @@ public class Main {
         Scope_Analysis sa = new Scope_Analysis();
         for (Parser p : parsers) {
             p.parse();
-            System.out.println("\u001B[33m" + "Symbol Table:" + "\u001B[0m");
+            // System.out.println("\u001B[33m" + "Symbol Table:" + "\u001B[0m");
             sa.start(p.syntaxTree);
-            sa.printSymbolTable();
-            System.out.println("\u001B[33m" + "Scope Stack:" + "\u001B[0m");
-            sa.printScopeStack();
+            // sa.printSymbolTable();
+            // System.out.println("\u001B[33m" + "Scope Stack:" + "\u001B[0m");
+            // sa.printScopeStack();
         }
     }
 }
