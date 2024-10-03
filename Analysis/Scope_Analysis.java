@@ -9,25 +9,25 @@ import Parser.Tree;
 
 public class Scope_Analysis {
     // create a symbol table
-    Hashtable<Integer, String> symbolTable = new Hashtable<Integer, String>();
+    Symbol_Table symbolTable = new Symbol_Table();
     Scope_Stack scopeStack = new Scope_Stack();
     // functions for the symbol table
     // add a new entry
-    public void bind(int id, String type) {
-        symbolTable.put(id, type);
-    }
+    // public void bind(int id, String type) {
+    //     symbolTable.put(id, type);
+    // }
     
     // search
-    public String lookup(int id) {
-        return symbolTable.get(id);
-    }
+    // public String lookup(int id) {
+    //     return symbolTable.get(id);
+    // }
 
     // throw exception if the table is empty
-    public void empty() {
-        if (symbolTable.isEmpty()) {
-            throw new RuntimeException("The symbol table is empty.");
-        }
-    }
+    // public void empty() {
+    //     if (symbolTable.isEmpty()) {
+    //         throw new RuntimeException("The symbol table is empty.");
+    //     }
+    // }
     
     // take the parser tree 
     public void start(Tree tree) {
@@ -36,17 +36,18 @@ public class Scope_Analysis {
         symbolTable = buildSymbolTable(tree.root, symbolTable);
     }
 
-    public Hashtable<Integer, String> buildSymbolTable(Node node, Hashtable<Integer, String> symbolTable) {
+    public Symbol_Table buildSymbolTable(Node node, Symbol_Table symbolTable) {
         // if the node is null, return the symbol table
         if (node == null) {
             return symbolTable;
         }
-
+        int scope = 0;
         // if the node is not a reserved word, add it to the symbol table
         for (int i = 0; i < node.children.size(); i++) {
+            scope++;
             if (node.children != null && node.children.get(i) != null && node.children.get(i).token != null) { // Add this check
                 if (!node.children.get(i).token.tokenClass.equals("reserved_keyword")) {
-                    symbolTable.put(node.children.get(i).token.id, node.children.get(i).identifier.identifier);
+                    symbolTable.bind(node.children.get(i).token.id, node.children.get(i).identifier.identifier, scope);
                 }
             //   check if the node is a function and push it to the stack
                 if(node.children.get(i).identifier.identifier.startsWith("F_")){
@@ -65,13 +66,7 @@ public class Scope_Analysis {
 
     public void printSymbolTable() {
         // print the symbol table
-        if(symbolTable.isEmpty()) {
-            System.out.println("The symbol table is empty.");
-        }
-        
-        for (Integer key : symbolTable.keySet()) {
-            System.out.println("ID: " + key + " Type: " + symbolTable.get(key));
-        }
+        symbolTable.printTable();
     }
 
     public void printScopeStack() {
