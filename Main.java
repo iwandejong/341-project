@@ -70,7 +70,7 @@ public class Main {
         }
 
         // load grammar
-        File grammarFile = new File("CFG.txt");
+        File grammarFile = new File("LL1CFG.txt");
         Scanner sc2 = new Scanner(grammarFile);
         List<String> grammar = new ArrayList<String>(); // read each rule of the CFG separately into a list
         while (sc2.hasNextLine()) {

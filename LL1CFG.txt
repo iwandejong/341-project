@@ -14,8 +14,6 @@ COMMAND ::= CALL
 COMMAND ::= BRANCH
 ATOMIC ::= VNAME
 ATOMIC ::= CONST
-ASSIGN ::= VNAME < input
-ASSIGN ::= VNAME = TERM
 CALL ::= FNAME ( ATOMIC , ATOMIC , ATOMIC )
 BRANCH ::= if COND then ALGO else ALGO
 TERM ::= ATOMIC
@@ -55,3 +53,8 @@ VNAME ::= RGX_V_[a-z]([a-z]|[0-9])*
 FNAME ::= RGX_F_[a-z]([a-z]|[0-9])*
 CONST ::= RGX_^-?\d+(\.\d+)?$
 CONST ::= RGX_\"[A-Z]([a-z]){0,7}\"
+ASSIGN ::= VNAME ASSIGN_OP
+ASSIGN_OP ::= < input
+ASSIGN_OP ::= = TERM
+COND ::= SIMPLE
+COND ::= COMPOSIT
