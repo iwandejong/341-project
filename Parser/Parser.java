@@ -243,18 +243,14 @@ public class Parser {
             if (rule.lhs.identifier.equals(symbol.identifier)) {
                 // Add the current rule to the trail
                 trail.add(rule);
-
-                System.out.println("Rule: " + rule.lhs.identifier + " -> " + rule.rhs.get(0).identifier);
     
                 // Recursively enter the rule, if it's a non-terminal symbol
                 if (rule.rhs.get(0).identifier.startsWith("RGX_")) {
-                    System.out.println("Regex: " + rule.rhs.get(0).identifier);
                     String regexString = rule.rhs.get(0).identifier.substring(4);
                     Pattern pattern = Pattern.compile(regexString);
                     Matcher matcher = pattern.matcher(identifier);
     
                     if (matcher.matches()) {
-                        System.out.println("Match found");
                         return true; // Match found
                     }
                 } else if (rule.rhs.get(0).identifier.equals(identifier)) {
