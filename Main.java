@@ -110,23 +110,23 @@ public class Main {
         }
 
         // Print grammar
-        System.out.println();
-        System.out.println("\u001B[33m" + "CFG Rules:");
-        System.out.println("----------" + "\u001B[0m");
-        String r = "";
-        for (ProductionRule rule : rules) {
-            r += rule.lhs.identifier + " -> ";
-            for (Symbol s : rule.rhs) {
-                if (s.terminal) {
-                    r += "\u001B[32m" + s.identifier + "\u001B[0m";
-                } else {
-                    r += s.identifier;
-                }
-                r += " ";
-            }
-            System.out.println(r);
-            r = "";
-        }
+        // System.out.println();
+        // System.out.println("\u001B[33m" + "CFG Rules:");
+        // System.out.println("----------" + "\u001B[0m");
+        // String r = "";
+        // for (ProductionRule rule : rules) {
+        //     r += rule.lhs.identifier + " -> ";
+        //     for (Symbol s : rule.rhs) {
+        //         if (s.terminal) {
+        //             r += "\u001B[32m" + s.identifier + "\u001B[0m";
+        //         } else {
+        //             r += s.identifier;
+        //         }
+        //         r += " ";
+        //     }
+        //     System.out.println(r);
+        //     r = "";
+        // }
 
         // TODO: traverse the tokens sequentially
         // when you run into a non-terminal symbol such as GLOBVARS, you "enter" the non-terminal symbol by "expanding" the symbol.
@@ -140,15 +140,15 @@ public class Main {
         }
 
         // parse
-        Hashtable<Integer, String> symbolTable = new Hashtable<Integer, String>();
-        Scope_Analysis sa = new Scope_Analysis();
-        for (Parser p : parsers) {
-            p.parse();
-            // System.out.println("\u001B[33m" + "Symbol Table:" + "\u001B[0m");
-            sa.start(p.syntaxTree);
-            // sa.printSymbolTable();
-            // System.out.println("\u001B[33m" + "Scope Stack:" + "\u001B[0m");
-            // sa.printScopeStack();
-        }
+        // Hashtable<Integer, String> symbolTable = new Hashtable<Integer, String>();
+        // Scope_Analysis sa = new Scope_Analysis();
+        // for (Parser p : parsers) {
+        //     p.parse();
+        //     // System.out.println("\u001B[33m" + "Symbol Table:" + "\u001B[0m");
+        //     sa.start(p.syntaxTree);
+        //     // sa.printSymbolTable();
+        //     // System.out.println("\u001B[33m" + "Scope Stack:" + "\u001B[0m");
+        //     // sa.printScopeStack();
+        // }
     }
 }
