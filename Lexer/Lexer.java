@@ -45,9 +45,13 @@ public class Lexer {
         // perform lexing while not in an accepting state (if accepting state, then tokenize)
         // State s = dfa.g.S; // set s to start state of DFA
         String temp = "";
+        boolean isStringLiteral = false;
         for (int i = 0; i < input.length(); i++) {
             // if input at i is ' ' or '\n', reset the DFA.
-            if (Character.isWhitespace(input.charAt(i))) {
+            if (input.charAt(i) == '\"') {
+                isStringLiteral = !isStringLiteral;
+            }
+            if (Character.isWhitespace(input.charAt(i)) && !isStringLiteral) {
                 if (temp == "") continue; // remain hopeful
                 // verify token
                 String tokenClass = verifyToken(temp);
@@ -136,7 +140,6 @@ public class Lexer {
 
             throw new Exception("Invalid function name");
         }
-
 
         // * TOKEN CLASS T
         if (input.startsWith("\"") && !input.endsWith("\"")) {
