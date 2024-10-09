@@ -69,7 +69,7 @@ public class Parser {
 
         // break if nodeStack is empty
         if (nodeStack.empty()) {
-            return;
+            throw new Exception("Node stack is empty.");
         }
 
         List<Symbol> rhsSymbols = ruleStack.peek().rhs;
@@ -146,14 +146,19 @@ public class Parser {
 
                     parseHelper(++atToken, ruleStack, ++currentSymbol, nodeStack);
                 } else {
-                    // pop from stack, maybe the parent's "next" rule will match
-                    nodeStack.pop();
+                    // * no match found, but there are still remaining rules to check
+                    if (currentSymbol < rhsSymbols.size() - 1) {
+                        throw new Exception("Syntax error: " + currentToken.tokenValue + " does not match " + curr.identifier);
+                    } else {
+                        // pop from stack, maybe the parent's "next" rule will match
+                        nodeStack.pop();
 
-                    ProductionRule currentRule = ruleStack.pop();
-            
-                    int atRule = findRuleIndex(ruleStack.peek(), currentRule.lhs);
+                        ProductionRule currentRule = ruleStack.pop();
+                
+                        int atRule = findRuleIndex(ruleStack.peek(), currentRule.lhs);
 
-                    parseHelper(atToken, ruleStack, ++atRule, nodeStack);
+                        parseHelper(atToken, ruleStack, ++atRule, nodeStack);
+                    }
                 }
             } else {
                 // * essentially this goes to the next "level(s)" of the tree
@@ -166,7 +171,7 @@ public class Parser {
 
                 System.out.println(nextRules);
 
-                if (nextRules == null || nextRules.isEmpty()) {
+                if (nextRules == null) {
                     // * epsilon transition
                     // don't change the ruleStack, instead just traverse to the next symbol
                     parseHelper(atToken, ruleStack, ++currentSymbol, nodeStack);
@@ -234,9 +239,6 @@ public class Parser {
     }
     
     private boolean findFIRSTHelper(Symbol symbol, String identifier, List<ProductionRule> trail) {
-
-        System.out.println("Symbol: " + symbol.identifier + " Identifier: " + identifier);
-
         // Find symbol that matches lhs of rule and matches the identifier
         for (ProductionRule rule : rules) {
 
