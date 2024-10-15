@@ -3,6 +3,7 @@ package Parser;
 public class Symbol {
     public String identifier;
     public boolean terminal;
+    public boolean nullable = false;
 
     public Symbol(String _identifier, boolean _terminal) {
         identifier = _identifier;

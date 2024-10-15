@@ -3,9 +3,9 @@ package Parser;
 public class Tree {
     public Node root;
     public int depth;
+    public Node current = root;
 
-    public Tree (Node _root) {
-        root = _root;
+    public Tree () {
         depth = 0;
     }
 
@@ -23,5 +23,13 @@ public class Tree {
             // Recursively call for children, marking if it is the last child
             visualiseTree(node.children.get(i), prefix, i == node.children.size() - 1);
         }
+    }
+
+    //  syntaxTree.current = syntaxTree.addNode(syntaxTree.current, s);
+    public Node addNode(Node parent, Symbol symbol) {
+        Node node = new Node(symbol);
+        node.parent = parent;
+        parent.addChild(node);
+        return node;
     }
 }
