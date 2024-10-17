@@ -293,6 +293,10 @@ public class Parser {
             lookaheadToken = tokenList.get(atToken + 1);
         }
 
+        if (lookaheadToken != null) {
+            System.out.println("\u001B[45m" + "Lookahead Token: " + lookaheadToken.tokenValue + "\u001B[0m");
+        }
+
         // didn't run out of tokens yet
         if (atToken < tokenList.size()) {
             Token currentToken = tokenList.get(atToken);
@@ -438,15 +442,20 @@ public class Parser {
 
                 boolean match = false;
                 if (atPosition < rule.rhs.size() - 1) {
-                    if (findFirst(rule.rhs.get(atPosition + 1)).contains(lookahead.tokenValue)) {
+                    if (lookahead != null && findFirst(rule.rhs.get(atPosition + 1)).contains(lookahead.tokenValue)) {
                         match = true;
                         break;
                     }
                 }
 
-                if (!match) {
-                    continue;
+                if (match) {
+                    System.out.println("Match found.");
+                    System.out.println(findFirst(rule.rhs.get(atPosition + 1)).get(0).identifier);
                 }
+
+                // if (!match && symbol.nullable) {
+                    // continue;
+                // }
 
                 // Add the current rule to the trail
                 trail.add(rule);
