@@ -1,4 +1,11 @@
 main
+begin
+    halt ;
+end
+
+## BREAK ##
+
+main
 num V_a01 , num V_a02 ,
 begin
     V_a01 = 10 ;
@@ -7,13 +14,6 @@ begin
         print "Yes" ;
     else
         print "No" ;
-    halt ;
-end
-
-## BREAK ##
-
-main
-begin
     halt ;
 end
 

@@ -9,6 +9,11 @@ public class Tree {
         depth = 0;
     }
 
+    public Tree (Node _root) {
+        root = _root;
+        depth = 0;
+    }
+
     public void visualiseTree(Node node, String prefix, boolean isTail) {
         if (node == null) return;
     

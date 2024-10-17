@@ -122,9 +122,6 @@ public class Main {
                 }
             }
 
-            System.out.println("non-terminal: " + lhs.identifier);
-            System.out.println("nullable: " + nullable);
-
             ProductionRule r = new ProductionRule(lhs, symbols, nullable);
             rules.add(r);
         }
@@ -209,7 +206,7 @@ public class Main {
             // try {
             p.createFirstFollowTable();
             // p.printFirstFollowTable();
-            // p.parse();
+            p.parse();
             //     sa.start(p.syntaxTree);
             // } catch (Exception e) {
             //     System.out.println(e.getMessage());
