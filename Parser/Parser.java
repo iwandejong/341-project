@@ -3,8 +3,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.Action;
-
 import Lexer.Token;
 
 public class Parser {
@@ -15,10 +13,6 @@ public class Parser {
     public List<Token> tokenList;
 
     public List<FIRSTFOLLOWtable> firstFollowTable;
-
-    private List<LRItem> canonicalCollection;
-    private Map<Integer, Map<Symbol, Action>> actionTable;
-    private Map<Integer, Map<Symbol, Integer>> gotoTable;
 
     public Parser (List<ProductionRule> _rules, List<Token> _tokens) {
         // for SLR, add a first rule S -> PROG $
@@ -33,10 +27,6 @@ public class Parser {
         }
 
         tokenList = _tokens;
-
-        createFirstFollowTable();
-        buildCanonicalCollection();
-        buildParsingTables();
     }
 
     // * FIRST/FOLLOW table
@@ -472,210 +462,5 @@ public class Parser {
         }
 
         return -1;
-    }
-
-    private void buildCanonicalCollection() {
-        canonicalCollection = new ArrayList<>();
-        Set<LRItem> initialSet = closure(new LRItem(rules.get(0), 0));
-        canonicalCollection.add(new ArrayList<>(initialSet));
-
-        boolean changed;
-        do {
-            changed = false;
-            List<LRItem> newItems = new ArrayList<>();
-
-            for (List<LRItem> itemSet : canonicalCollection) {
-                for (Symbol symbol : getAllSymbols()) {
-                    Set<LRItem> gotoSet = gotoOperation(itemSet, symbol);
-                    if (!gotoSet.isEmpty() && !canonicalCollection.contains(gotoSet)) {
-                        newItems.addAll(gotoSet);
-                        changed = true;
-                    }
-                }
-            }
-
-            if (changed) {
-                canonicalCollection.add(newItems);
-            }
-        } while (changed);
-    }
-
-    private Set<LRItem> closure(LRItem item) {
-        Set<LRItem> closure = new HashSet<>();
-        closure.add(item);
-
-        boolean changed;
-        do {
-            changed = false;
-            Set<LRItem> newItems = new HashSet<>();
-
-            for (LRItem currentItem : closure) {
-                if (currentItem.dotPosition < currentItem.rule.rhs.size()) {
-                    Symbol nextSymbol = currentItem.rule.rhs.get(currentItem.dotPosition);
-                    if (!nextSymbol.terminal) {
-                        for (ProductionRule rule : rules) {
-                            if (rule.lhs.equals(nextSymbol)) {
-                                LRItem newItem = new LRItem(rule, 0);
-                                if (!closure.contains(newItem)) {
-                                    newItems.add(newItem);
-                                    changed = true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            closure.addAll(newItems);
-        } while (changed);
-
-        return closure;
-    }
-
-    private Set<LRItem> gotoOperation(List<LRItem> itemSet, Symbol symbol) {
-        Set<LRItem> gotoSet = new HashSet<>();
-
-        for (LRItem item : itemSet) {
-            if (item.dotPosition < item.rule.rhs.size() && item.rule.rhs.get(item.dotPosition).equals(symbol)) {
-                gotoSet.addAll(closure(new LRItem(item.rule, item.dotPosition + 1)));
-            }
-        }
-
-        return gotoSet;
-    }
-
-    private void buildParsingTables() {
-        actionTable = new HashMap<>();
-        gotoTable = new HashMap<>();
-
-        for (int i = 0; i < canonicalCollection.size(); i++) {
-            List<LRItem> itemSet = canonicalCollection.get(i);
-            actionTable.put(i, new HashMap<>());
-            gotoTable.put(i, new HashMap<>());
-
-            for (LRItem item : itemSet) {
-                if (item.dotPosition == item.rule.rhs.size()) {
-                    // Reduce action
-                    if (item.rule.lhs.identifier.equals("S")) {
-                        actionTable.get(i).put(new Symbol("$", true), new Action(ActionType.ACCEPT, 0));
-                    } else {
-                        for (Symbol symbol : findFollow(item.rule.lhs)) {
-                            actionTable.get(i).put(symbol, new Action(ActionType.REDUCE, rules.indexOf(item.rule)));
-                        }
-                    }
-                } else {
-                    Symbol nextSymbol = item.rule.rhs.get(item.dotPosition);
-                    Set<LRItem> gotoSet = gotoOperation(itemSet, nextSymbol);
-                    int gotoIndex = canonicalCollection.indexOf(new ArrayList<>(gotoSet));
-
-                    if (gotoIndex != -1) {
-                        if (nextSymbol.terminal) {
-                            // Shift action
-                            actionTable.get(i).put(nextSymbol, new Action(ActionType.SHIFT, gotoIndex));
-                        } else {
-                            // Goto action
-                            gotoTable.get(i).put(nextSymbol, gotoIndex);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public void parse() {
-        Stack<Integer> stateStack = new Stack<>();
-        Stack<Symbol> symbolStack = new Stack<>();
-        stateStack.push(0);
-        symbolStack.push(new Symbol("$", true));
-
-        int inputIndex = 0;
-        Token currentToken = tokenList.get(inputIndex);
-
-        while (true) {
-            int currentState = stateStack.peek();
-            Symbol currentSymbol = new Symbol(currentToken.tokenValue, true);
-
-            Action action = actionTable.get(currentState).get(currentSymbol);
-
-            if (action == null) {
-                throw new RuntimeException("Syntax error: Unexpected token " + currentToken.tokenValue);
-            }
-
-            switch (action.type) {
-                case SHIFT:
-                    stateStack.push(action.value);
-                    symbolStack.push(currentSymbol);
-                    inputIndex++;
-                    if (inputIndex < tokenList.size()) {
-                        currentToken = tokenList.get(inputIndex);
-                    }
-                    break;
-
-                case REDUCE:
-                    ProductionRule rule = rules.get(action.value);
-                    for (int i = 0; i < rule.rhs.size(); i++) {
-                        stateStack.pop();
-                        symbolStack.pop();
-                    }
-                    int gotoState = gotoTable.get(stateStack.peek()).get(rule.lhs);
-                    stateStack.push(gotoState);
-                    symbolStack.push(rule.lhs);
-                    System.out.println("Reduce: " + rule);
-                    break;
-
-                case ACCEPT:
-                    System.out.println("Parsing completed successfully.");
-                    return;
-
-                default:
-                    throw new RuntimeException("Invalid action type");
-            }
-        }
-    }
-
-    private Set<Symbol> getAllSymbols() {
-        Set<Symbol> symbols = new HashSet<>();
-        for (ProductionRule rule : rules) {
-            symbols.add(rule.lhs);
-            symbols.addAll(rule.rhs);
-        }
-        return symbols;
-    }
-
-    private class LRItem {
-        ProductionRule rule;
-        int dotPosition;
-
-        LRItem(ProductionRule rule, int dotPosition) {
-            this.rule = rule;
-            this.dotPosition = dotPosition;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            LRItem lrItem = (LRItem) o;
-            return dotPosition == lrItem.dotPosition && Objects.equals(rule, lrItem.rule);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(rule, dotPosition);
-        }
-    }
-
-    private enum ActionType {
-        SHIFT, REDUCE, ACCEPT
-    }
-
-    private class Action {
-        ActionType type;
-        int value;
-
-        Action(ActionType type, int value) {
-            this.type = type;
-            this.value = value;
-        }
     }
 }

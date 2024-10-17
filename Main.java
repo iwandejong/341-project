@@ -204,9 +204,9 @@ public class Main {
         Scope_Analysis sa = new Scope_Analysis();
         for (Parser p : parsers) {
             // try {
-            p.createFirstFollowTable();
+            // p.createFirstFollowTable();
             // p.printFirstFollowTable();
-            p.parse();
+            // p.parse();
             //     sa.start(p.syntaxTree);
             // } catch (Exception e) {
             //     System.out.println(e.getMessage());
