@@ -206,7 +206,7 @@ public class Main {
             // try {
             // p.createFirstFollowTable();
             // p.printFirstFollowTable();
-            // p.parse();
+            p.parse();
             //     sa.start(p.syntaxTree);
             // } catch (Exception e) {
             //     System.out.println(e.getMessage());

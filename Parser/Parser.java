@@ -194,7 +194,7 @@ public class Parser {
         ruleStack.push(new ProductionRule(new Symbol("$", true), new ArrayList<Symbol>()));
 
         // add first rule to the stack
-        ruleStack.push(rules.get(0));
+        ruleStack.push(rules.get(1));
 
         // define token "iterator" in stream
         int atToken = 0;
@@ -204,7 +204,7 @@ public class Parser {
         }
 
         // define the tree root
-        syntaxTree = new Tree(new Node(rules.get(0).lhs));
+        syntaxTree = new Tree(new Node(rules.get(1).lhs));
 
         Stack<Node> nodeStack = new Stack<Node>();
         nodeStack.push(syntaxTree.root);
@@ -288,6 +288,11 @@ public class Parser {
         }
         System.out.println();
         
+        Token lookaheadToken = null;
+        if (atToken + 1 < tokenList.size()) {
+            lookaheadToken = tokenList.get(atToken + 1);
+        }
+
         // didn't run out of tokens yet
         if (atToken < tokenList.size()) {
             Token currentToken = tokenList.get(atToken);
@@ -332,10 +337,7 @@ public class Parser {
                 // * essentially this goes to the next "level(s)" of the tree
                 // non-terminal symbol, therefore, push to the stack and expand each option
                 System.out.println("\u001B[33m" + "Expanding non-terminal symbol: " + curr.identifier + "\u001B[0m");
-                if (atToken + 1 < tokenList.size()) {
-                    System.out.println("Current Token: " + currentToken.tokenValue + " following symbol: " + tokenList.get(atToken + 1).tokenValue);
-                }
-                List<ProductionRule> nextRules = findFIRST(curr, currentToken.tokenValue);
+                List<ProductionRule> nextRules = findNext(curr, currentToken.tokenValue, lookaheadToken);
 
                 if (nextRules != null) {
                     for (ProductionRule nextRule : nextRules) {
@@ -369,7 +371,7 @@ public class Parser {
             }
         } else {
             // check if current rule has any epsilon transitions
-            List<ProductionRule> nextRules = findFIRST(curr, "ε");
+            List<ProductionRule> nextRules = findNext(curr, "ε", null);
             boolean isEpsilon = false;
 
             for (ProductionRule nextRule : nextRules) {
@@ -398,9 +400,9 @@ public class Parser {
         return null;
     }
 
-    public List<ProductionRule> findFIRST(Symbol symbol, String identifier) {
+    public List<ProductionRule> findNext(Symbol symbol, String identifier, Token lookahead) {
         List<ProductionRule> trail = new ArrayList<>();
-        boolean matchFound = findFIRSTHelper(symbol, identifier, trail);
+        boolean matchFound = findNextHelper(symbol, identifier, lookahead, trail);
 
         // if no match is found, but there is an epsilon-transition, then continue building the tree
         if (!matchFound) {
@@ -416,11 +418,36 @@ public class Parser {
         return trail;
     }
     
-    private boolean findFIRSTHelper(Symbol symbol, String identifier, List<ProductionRule> trail) {
+    private boolean findNextHelper(Symbol symbol, String identifier, Token lookahead, List<ProductionRule> trail) {
         // Find symbol that matches lhs of rule and matches the identifier
         for (ProductionRule rule : rules) {
-
+            // before checking for equality, we need to ensure we pick the right rule
+            // e.g if we have a rule A -> BC and A -> BD, we need to pick the right rule
             if (rule.lhs.identifier.equals(symbol.identifier)) {
+                // Check if the lookahead symbol matches the current rule
+                int atPosition = -1;
+                for (Symbol s : rule.rhs) {
+                    if (s.identifier.equals(symbol.identifier)) {
+                        break;
+                    }
+                    atPosition++;
+                }
+
+                System.out.println("At position: " + atPosition);
+                System.out.println("Rule: " + rule.lhs.identifier + " -> " + rule.rhs.get(atPosition).identifier);
+
+                boolean match = false;
+                if (atPosition < rule.rhs.size() - 1) {
+                    if (findFirst(rule.rhs.get(atPosition + 1)).contains(lookahead.tokenValue)) {
+                        match = true;
+                        break;
+                    }
+                }
+
+                if (!match) {
+                    continue;
+                }
+
                 // Add the current rule to the trail
                 trail.add(rule);
     
@@ -437,7 +464,7 @@ public class Parser {
                     return true; // Exact match found
                 } else {
                     // Recursive check on the next symbol in rhs
-                    boolean found = findFIRSTHelper(rule.rhs.get(0), identifier, trail);
+                    boolean found = findNextHelper(rule.rhs.get(0), identifier, lookahead, trail);
                     if (found) {
                         return true; // Propagate match found
                     }
