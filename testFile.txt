@@ -1,21 +1,25 @@
 main
-num V_a01 , num V_a02 ,
-begin
-    V_a01 = 10 ;
-    V_a02 = 20 ;
-    if V_a01 grt 5 then
-        print "Yes" ;
-    else
-        print "No" ;
-    halt ;
-end
-
+    num V_a01 ,
+    num V_a02 ,
+    begin
+        V_a01 = 10 ;
+        V_a02 = 20 ;
+        if grt ( 5 , V_a01 ) then
+            begin
+                print "Yes" ;
+            end
+        else
+            begin
+                print "No" ;
+            end ;
+        halt ;
+    end
 ## BREAK ##
 
 main
-begin
-    halt ;
-end
+    begin
+        halt ;
+    end
 
 main
 num V_a01 , text V_a02 , num V_a03 ,
