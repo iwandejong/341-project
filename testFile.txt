@@ -15,11 +15,16 @@ main
         halt ;
     end
 ## BREAK ##
-
 main
     begin
         halt ;
     end
+## BREAK ##
+main
+    begin
+        V_a01 = 10 ;
+    end
+## BREAK ##
 
 main
 num V_a01 , text V_a02 , num V_a03 ,
