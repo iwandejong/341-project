@@ -99,6 +99,11 @@ public class Parser {
 
     // find FIRST set of a non-terminal symbol
     public List<Symbol> findFirst(Symbol nonTerminal) {
+        if (nonTerminal.terminal) {
+            List<Symbol> temp = new ArrayList<Symbol>();
+            temp.add(nonTerminal);
+            return temp;
+        }
         List<Symbol> first = new ArrayList<Symbol>();
         for (ProductionRule rule : rules) {
             if (rule.lhs.identifier.equals(nonTerminal.identifier)) {
@@ -234,6 +239,13 @@ public class Parser {
         List<Symbol> rhsSymbols = ruleStack.peek().rhs;
         Symbol curr = null;
         int currentSymbol = positionStack.peek();
+
+        // ! we get the lookahead token to help us decide which rule to choose
+        Token lookaheadToken = null;
+        if (atToken + 1 < tokenList.size()) {
+            lookaheadToken = tokenList.get(atToken + 1);
+            // System.out.println("\u001B[45m" + "Lookahead Token: " + lookaheadToken.tokenValue + "\u001B[0m");
+        }
         
         // * check if we've reached the end of the rule
         if (currentSymbol < rhsSymbols.size()) {
@@ -261,37 +273,30 @@ public class Parser {
         }
 
         // print stack
-        System.out.println();
-        System.out.println("\u001B[33m" + "Rule Stack:");
-        System.out.println("\u001B[34m" + "CurrentSymbol: " + ruleStack.peek().rhs.get(currentSymbol).identifier + "\u001B[0m");
-        if (atToken < tokenList.size()) {
-            System.out.println("\u001B[34m" + "CurrentToken: " + tokenList.get(atToken).tokenValue + "\u001B[0m");
-        }
-        System.out.println("----------" + "\u001B[0m");
-        String r = "";
-        for (ProductionRule rule : ruleStack) {
-            r += rule.lhs.identifier + " -> ";
-            for (Symbol s : rule.rhs) {
-                if (rule.rhs.indexOf(s) == currentSymbol) {
-                    r += "\u001B[41m" + s.identifier + "\u001B[0m";
-                } else if (s.terminal) {
-                    r += "\u001B[32m" + s.identifier + "\u001B[0m";
-                } else {
-                    r += s.identifier;
-                }
-                r += " ";
-            }
-            System.out.println(r);
-            r = "";
-        }
-        System.out.println();
-        
-        // ! we get the lookahead token to help us decide which rule to choose
-        Token lookaheadToken = null;
-        if (atToken + 1 < tokenList.size()) {
-            lookaheadToken = tokenList.get(atToken + 1);
-            System.out.println("\u001B[45m" + "Lookahead Token: " + lookaheadToken.tokenValue + "\u001B[0m");
-        }
+        // System.out.println();
+        // System.out.println("\u001B[33m" + "Rule Stack:");
+        // System.out.println("\u001B[34m" + "CurrentSymbol: " + ruleStack.peek().rhs.get(currentSymbol).identifier + "\u001B[0m");
+        // if (atToken < tokenList.size()) {
+        //     System.out.println("\u001B[34m" + "CurrentToken: " + tokenList.get(atToken).tokenValue + "\u001B[0m");
+        // }
+        // System.out.println("----------" + "\u001B[0m");
+        // String r = "";
+        // for (ProductionRule rule : ruleStack) {
+        //     r += rule.lhs.identifier + " -> ";
+        //     for (Symbol s : rule.rhs) {
+        //         if (rule.rhs.indexOf(s) == currentSymbol) {
+        //             r += "\u001B[41m" + s.identifier + "\u001B[0m";
+        //         } else if (s.terminal) {
+        //             r += "\u001B[32m" + s.identifier + "\u001B[0m";
+        //         } else {
+        //             r += s.identifier;
+        //         }
+        //         r += " ";
+        //     }
+        //     System.out.println(r);
+        //     r = "";
+        // }
+        // System.out.println();
 
         // didn't run out of tokens yet
         if (atToken < tokenList.size()) {
@@ -325,9 +330,6 @@ public class Parser {
 
                         // increment parent rule's current symbol
                         positionStack = incrementTop(positionStack);
-                
-                        // find the index of the current rule in the parent rule
-                        // int atRule = findRuleIndex(ruleStack.peek(), currentRule.lhs);
 
                         parseHelper(atToken, ruleStack, nodeStack, positionStack);
                     }
@@ -335,26 +337,26 @@ public class Parser {
             } else {
                 // * essentially this goes to the next "level(s)" of the tree
                 // non-terminal symbol, therefore, push to the stack and expand each option
-                System.out.println("\u001B[33m" + "Expanding non-terminal symbol: " + curr.identifier + "\u001B[0m");
+                // System.out.println("\u001B[33m" + "Expanding non-terminal symbol: " + curr.identifier + "\u001B[0m");
 
                 // this produces a trail of rules that match the current token
                 // we also pass in the lookahead token to help us decide which rule to choose
                 List<ProductionRule> nextRules = findNext(curr, currentToken.tokenValue, lookaheadToken);
 
-                if (nextRules != null) {
-                    for (ProductionRule nextRule : nextRules) {
-                        System.out.print("\u001B[43m" + nextRule.lhs.identifier + " ->");
-                        for (Symbol s : nextRule.rhs) {
-                            System.out.print(" " + s.identifier);
-                        }
-                        System.out.println("\u001B[0m");
-                    }
-                }
+                // if (nextRules != null) {
+                //     for (ProductionRule nextRule : nextRules) {
+                //         System.out.print("\u001B[43m" + nextRule.lhs.identifier + " ->");
+                //         for (Symbol s : nextRule.rhs) {
+                //             System.out.print(" " + s.identifier);
+                //         }
+                //         System.out.println("\u001B[0m");
+                //     }
+                // }
 
                 if (nextRules == null) {
                     // * epsilon transition
                     // print the nullable rule
-                    System.out.println("\u001B[106m" + "Epsilon transition: " + curr.identifier + " -> ε" + "\u001B[0m");
+                    // System.out.println("\u001B[106m" + "Epsilon transition: " + curr.identifier + " -> ε" + "\u001B[0m");
                     // don't change the ruleStack, instead just traverse to the next symbol
                     // increment the current symbol
                     positionStack = incrementTop(positionStack);
@@ -363,11 +365,11 @@ public class Parser {
                 } else {
                     for (ProductionRule nextRule : nextRules) {
                         // print these rules
-                        System.out.print("\u001B[43m" + nextRule.lhs.identifier + " ->");
-                        for (Symbol s : nextRule.rhs) {
-                            System.out.print(" " + s.identifier);
-                        }
-                        System.out.println("\u001B[0m");
+                        // System.out.print("\u001B[43m" + nextRule.lhs.identifier + " ->");
+                        // for (Symbol s : nextRule.rhs) {
+                        //     System.out.print(" " + s.identifier);
+                        // }
+                        // System.out.println("\u001B[0m");
 
                         // add to the tree
                         if (!nodeStack.empty()) {
@@ -455,16 +457,103 @@ public class Parser {
                     lhscount++;
                 }
             }
-            System.out.println("lhscount: " + lhscount);
 
+            
             if (rule.lhs.identifier.equals(symbol.identifier)) {
-                // TODO: Check if the lookahead matches the FIRST set of the rule's RHS
+                // Check if the lookahead matches the FIRST set of the rule's RHS
+                // if (lookahead != null) {
+                //     System.out.println("\u001B[45m" + "Lookahead Token: " + lookahead.tokenValue + "\u001B[0m");
+                // }
+
+                // get all rules with the same LHS
+                List<ProductionRule> possibleRules = new ArrayList<>();
+                for (ProductionRule r : rules) {
+                    if (r.lhs.identifier.equals(rule.lhs.identifier)) {
+                        possibleRules.add(r);
+                    }
+                }
+
+                // for (ProductionRule rule2 : possibleRules) {
+                //     System.out.print("\u001B[43m" + rule2.lhs.identifier + " ->");
+                //     for (Symbol s : rule2.rhs) {
+                //         System.out.print(" " + s.identifier);
+                //     }
+                //     System.out.println("\u001B[0m");
+                // }
 
                 // * Example:
-                // b c
-                // * X -> A
-                // * A -> b b
-                // * A -> b c
+                // b c d
+                // * X -> C
+                // * C -> A
+                // * A -> b c x
+                // * A -> b c d
+
+                boolean correctRule = false;
+                if (rule.rhs.size() < 2) {
+                    correctRule = true;
+                }
+                
+                List<List<List<Symbol>>> firstSets = new ArrayList<>();
+                List<List<Boolean>> matches = new ArrayList<>();
+                for (ProductionRule pr : possibleRules) {
+                    List<List<Symbol>> firstSet = new ArrayList<>();
+                    for (int i = 0; i < pr.rhs.size(); i++) {
+                        firstSet.add(findFirst(pr.rhs.get(i)));
+                    }
+                    firstSets.add(firstSet);
+
+                    // print first sets
+                    // for (List<Symbol> fS : firstSet) {
+                    //     String first = " ";
+                    //     for (Symbol sym : fS) {
+                    //         first += sym.identifier + " ";
+                    //     }
+                    //     System.out.println("First: {" + first + "}");
+                    // }
+
+                    // check if the lookahead token is in the FIRST set of the rule's RHS
+                    List<Boolean> subMatches = new ArrayList<>();
+                    for (int i = 0; i < pr.rhs.size(); i++) {
+                        if (firstSet.get(i).size() > 0) {
+                            for (Symbol sym : firstSet.get(i)) {
+                                if (lookahead != null && sym.identifier.equals(lookahead.tokenValue)) {
+                                    subMatches.add(true);
+                                }
+                            }
+                        }
+                    }
+                    matches.add(subMatches);
+                }
+
+                // print matches
+                // for (List<Boolean> match : matches) {
+                //     String m = " ";
+                //     for (Boolean b : match) {
+                //         m += b + " ";
+                //     }
+                //     System.out.println("Matches: {" + m + "}");
+                // }
+
+                // pick the rule with the most matches
+                int maxMatches = 0;
+                int maxIndex = 0;
+                for (int i = 0; i < matches.size(); i++) {
+                    if (matches.get(i).size() > maxMatches) {
+                        maxMatches = matches.get(i).size();
+                        maxIndex = i;
+                    }
+                }
+
+                if (maxMatches > 0) {
+                    rule = possibleRules.get(maxIndex);
+                }
+
+                // print rule
+                // System.out.print("\u001B[44m" + rule.lhs.identifier + " ->");
+                // for (Symbol s : rule.rhs) {
+                //     System.out.print(" " + s.identifier);
+                // }
+                // System.out.println("\u001B[0m");
 
                 // Add the current rule to the trail
                 trail.add(rule);
@@ -492,20 +581,6 @@ public class Parser {
             }
         }
         return false; // No match found
-    }
-
-    public int findRuleIndex(ProductionRule rule, Symbol symbol) {
-        for (ProductionRule r : rules) {
-            if (r.lhs.identifier.equals(rule.lhs.identifier)) {
-                for (int i = 0; i < r.rhs.size(); i++) {
-                    if (r.rhs.get(i).identifier.equals(symbol.identifier)) {
-                        return i;
-                    }
-                }
-            }
-        }
-
-        return -1;
     }
 
     public boolean checkRegex(String input, String regex) {
