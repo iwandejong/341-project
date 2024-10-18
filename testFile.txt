@@ -1,12 +1,4 @@
 main
-    begin
-        halt ;
-    end
-
-## BREAK ##
-
-
-main
     num V_a01 ,
     num V_a02 ,
     begin
@@ -22,6 +14,13 @@ main
             end ;
         halt ;
     end
+## BREAK ##
+
+main
+    begin
+        halt ;
+    end
+
 main
 num V_a01 , text V_a02 , num V_a03 ,
 begin

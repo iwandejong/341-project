@@ -176,16 +176,6 @@ public class Parser {
         return follow;
     }
 
-    public boolean checkRegex(String input, String regex) {
-        if (!regex.startsWith("RGX_")) {
-            return false;
-        }
-        String regexString = regex.substring(4);
-        Pattern pattern = Pattern.compile(regexString);
-        Matcher matcher = pattern.matcher(input);
-        return matcher.matches();
-    }
-
     public void parse() {
         // define the stack
         Stack<ProductionRule> ruleStack = new Stack<ProductionRule>();
@@ -236,13 +226,18 @@ public class Parser {
             throw new Exception("Node stack is empty.");
         }
 
+        // get all the right hand symbols
         List<Symbol> rhsSymbols = ruleStack.peek().rhs;
         Symbol curr = null;
-        Symbol next = null;
+
+        // * PROG -> main GLOBVARS ALGO FUNCTIONS
         
+        // * check if we've reached the end of the rule
         if (currentSymbol < rhsSymbols.size()) {
+            // * if not, get the current symbol
             curr = rhsSymbols.get(currentSymbol);
         } else {
+            // * we've reached the end of the rule, pop the rule from the stack
             // Temporarily save current rule
             ProductionRule currentRule = ruleStack.pop();
             // pop from node stack
@@ -259,11 +254,6 @@ public class Parser {
             return; // Prevent any further execution
         }
 
-        if (currentSymbol + 1 < rhsSymbols.size()) {
-            next = rhsSymbols.get(currentSymbol + 1);
-            System.out.println("\u001B[45m" + "Next Symbol: " + next.identifier + "\u001B[0m");
-        }
-
         // print stack
         System.out.println();
         System.out.println("\u001B[33m" + "Rule Stack:");
@@ -276,7 +266,9 @@ public class Parser {
         for (ProductionRule rule : ruleStack) {
             r += rule.lhs.identifier + " -> ";
             for (Symbol s : rule.rhs) {
-                if (s.terminal) {
+                if (rule.rhs.indexOf(s) == currentSymbol) {
+                    r += "\u001B[41m" + s.identifier + "\u001B[0m";
+                } else if (s.terminal) {
                     r += "\u001B[32m" + s.identifier + "\u001B[0m";
                 } else {
                     r += s.identifier;
@@ -288,12 +280,10 @@ public class Parser {
         }
         System.out.println();
         
+        // ! we get the lookahead token to help us decide which rule to choose
         Token lookaheadToken = null;
         if (atToken + 1 < tokenList.size()) {
             lookaheadToken = tokenList.get(atToken + 1);
-        }
-
-        if (lookaheadToken != null) {
             System.out.println("\u001B[45m" + "Lookahead Token: " + lookaheadToken.tokenValue + "\u001B[0m");
         }
 
@@ -304,21 +294,9 @@ public class Parser {
             if (curr.terminal) {
                 // * a dead end, we've reached a terminal symbol
                 // check if the current token matches the terminal symbol
-                if (ruleStack.peek().rhs.get(currentSymbol).identifier.startsWith("RGX_")) {
-                    String regexString = ruleStack.peek().rhs.get(currentSymbol).identifier.substring(4);
-                    Pattern pattern = Pattern.compile(regexString);
-                    Matcher matcher = pattern.matcher(currentToken.tokenValue);
-    
-                    if (matcher.matches()) {
-                        // add to the tree
-                        Node newNode = new Node(new Symbol(currentToken.tokenValue, false),currentToken);
-                        nodeStack.peek().addChild(newNode);
-
-                        parseHelper(++atToken, ruleStack, ++currentSymbol, nodeStack);
-                    }
-                } else if (ruleStack.peek().rhs.get(currentSymbol).identifier.equals(currentToken.tokenValue)) {
+                if (checkRegex(currentToken.tokenValue, curr.identifier) || checkDirectMatch(currentToken.tokenValue, curr.identifier)) {
                     // add to the tree
-                    Node newNode = new Node(curr, currentToken);
+                    Node newNode = new Node(new Symbol(currentToken.tokenValue, false), currentToken);
                     nodeStack.peek().addChild(newNode);
 
                     parseHelper(++atToken, ruleStack, ++currentSymbol, nodeStack);
@@ -330,8 +308,10 @@ public class Parser {
                         // pop from stack, maybe the parent's "next" rule will match
                         nodeStack.pop();
 
+                        // Temporarily save current rule
                         ProductionRule currentRule = ruleStack.pop();
                 
+                        // find the index of the current rule in the parent rule
                         int atRule = findRuleIndex(ruleStack.peek(), currentRule.lhs);
 
                         parseHelper(atToken, ruleStack, ++atRule, nodeStack);
@@ -341,6 +321,9 @@ public class Parser {
                 // * essentially this goes to the next "level(s)" of the tree
                 // non-terminal symbol, therefore, push to the stack and expand each option
                 System.out.println("\u001B[33m" + "Expanding non-terminal symbol: " + curr.identifier + "\u001B[0m");
+
+                // this produces a trail of rules that match the current token
+                // we also pass in the lookahead token to help us decide which rule to choose
                 List<ProductionRule> nextRules = findNext(curr, currentToken.tokenValue, lookaheadToken);
 
                 if (nextRules != null) {
@@ -361,19 +344,30 @@ public class Parser {
                     parseHelper(atToken, ruleStack, ++currentSymbol, nodeStack);
                 } else {
                     for (ProductionRule nextRule : nextRules) {
+                        // print these rules
+                        System.out.print("\u001B[43m" + nextRule.lhs.identifier + " ->");
+                        for (Symbol s : nextRule.rhs) {
+                            System.out.print(" " + s.identifier);
+                        }
+                        System.out.println("\u001B[0m");
+
                         // add to the tree
                         if (!nodeStack.empty()) {
                             Node newNode = new Node(curr);
                             nodeStack.peek().addChild(newNode);
                             nodeStack.push(newNode);
-    
                             ruleStack.push(nextRule);
-                            parseHelper(atToken, ruleStack, 0, nodeStack);
                         }
                     }
+                    // ? after adding all the rules to the stack, we continue with the first rule on top of the stack
+                    parseHelper(atToken, ruleStack, 0, nodeStack);
                 }
             }
         } else {
+            // we ran out of tokens, but there are still rules to check
+            // if those rules are nullable, we can continue
+            // otherwise, we need to backtrack
+
             // check if current rule has any epsilon transitions
             List<ProductionRule> nextRules = findNext(curr, "ε", null);
             boolean isEpsilon = false;
@@ -390,7 +384,12 @@ public class Parser {
                 ruleStack.pop(); // pop the current rule if epsilon transition is allowed
             }
 
-            return; // Prevent any further execution
+            // check if the stack is in an acceptable state
+            if ((ruleStack.peek().lhs.identifier.equals("$") && ruleStack.size() == 1)) {
+                return;
+            }
+
+            throw new Exception("Syntax error: ran out of tokens.");
         }
     }
 
@@ -425,64 +424,48 @@ public class Parser {
     private boolean findNextHelper(Symbol symbol, String identifier, Token lookahead, List<ProductionRule> trail) {
         // Find symbol that matches lhs of rule and matches the identifier
         for (ProductionRule rule : rules) {
-            // before checking for equality, we need to ensure we pick the right rule
-            // e.g if we have a rule A -> BC and A -> BD, we need to pick the right rule
+            int lhscount = 0;
+            for (ProductionRule r : rules) {
+                if (r.lhs.identifier.equals(rule.lhs.identifier)) {
+                    lhscount++;
+                }
+            }
+            System.out.println("lhscount: " + lhscount);
+
             if (rule.lhs.identifier.equals(symbol.identifier)) {
-                // Check if the lookahead symbol matches the current rule
-                int atPosition = -1;
-                for (Symbol s : rule.rhs) {
-                    if (s.identifier.equals(symbol.identifier)) {
-                        break;
-                    }
-                    atPosition++;
-                }
+                // TODO: Check if the lookahead matches the FIRST set of the rule's RHS
 
-                System.out.println("At position: " + atPosition);
-                System.out.println("Rule: " + rule.lhs.identifier + " -> " + rule.rhs.get(atPosition).identifier);
-
-                boolean match = false;
-                if (atPosition < rule.rhs.size() - 1) {
-                    if (lookahead != null && findFirst(rule.rhs.get(atPosition + 1)).contains(lookahead.tokenValue)) {
-                        match = true;
-                        break;
-                    }
-                }
-
-                if (match) {
-                    System.out.println("Match found.");
-                    System.out.println(findFirst(rule.rhs.get(atPosition + 1)).get(0).identifier);
-                }
-
-                // if (!match && symbol.nullable) {
-                    // continue;
-                // }
+                // * Example:
+                // b c
+                // * X -> A
+                // * A -> b b
+                // * A -> b c
 
                 // Add the current rule to the trail
                 trail.add(rule);
     
-                // Recursively enter the rule, if it's a non-terminal symbol
-                if (rule.rhs.get(0).identifier.startsWith("RGX_")) {
-                    String regexString = rule.rhs.get(0).identifier.substring(4);
-                    Pattern pattern = Pattern.compile(regexString);
-                    Matcher matcher = pattern.matcher(identifier);
-    
-                    if (matcher.matches()) {
-                        return true; // Match found
+                // Check if the first symbol in RHS is a terminal (regex or exact match)
+                boolean match = false;
+                if (rule.rhs.get(0).terminal) {
+                    if (checkRegex(identifier, rule.rhs.get(0).identifier) || checkDirectMatch(identifier, rule.rhs.get(0).identifier)) {
+                        match = true;
                     }
-                } else if (rule.rhs.get(0).identifier.equals(identifier)) {
-                    return true; // Exact match found
                 } else {
                     // Recursive check on the next symbol in rhs
                     boolean found = findNextHelper(rule.rhs.get(0), identifier, lookahead, trail);
                     if (found) {
-                        return true; // Propagate match found
+                        match = true;
                     }
                 }
-                // If no match was found, remove the last rule added to the trail
-                trail.remove(trail.size() - 1);
+
+                if (match) {
+                    return true;
+                } else {
+                    // If no match was found, remove the last rule added to the trail
+                    trail.remove(trail.size() - 1);
+                }
             }
         }
-    
         return false; // No match found
     }
 
@@ -498,5 +481,19 @@ public class Parser {
         }
 
         return -1;
+    }
+
+    public boolean checkRegex(String input, String regex) {
+        if (!regex.startsWith("RGX_")) {
+            return false;
+        }
+        String regexString = regex.substring(4);
+        Pattern pattern = Pattern.compile(regexString);
+        Matcher matcher = pattern.matcher(input);
+        return matcher.matches();
+    }
+
+    public boolean checkDirectMatch(String input, String match) {
+        return input.equals(match);
     }
 }
