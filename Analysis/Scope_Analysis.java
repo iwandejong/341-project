@@ -48,7 +48,7 @@ public class Scope_Analysis {
         }
         
         if(node.token != null && node.token.tokenValue != null){
-            System.out.println("Node value: " + node.token.tokenValue);
+            // System.out.println("Node value: " + node.token.tokenValue);
         }
 
         // if the node is not a reserved word, add it to the symbol table

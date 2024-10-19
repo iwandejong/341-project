@@ -1,6 +1,7 @@
 import Lexer.*;
 import Parser.*;
 import Type_Checker.*;
+import Code_Generator.*;
 
 import java.io.*;
 import java.util.*;
@@ -199,11 +200,12 @@ public class Main {
             Parser p = new Parser(rules, l.tokens);
             parsers.add(p);
         }
-
+        
         // parse
         Hashtable<Integer, String> symbolTable = new Hashtable<Integer, String>();
         Scope_Analysis sa = new Scope_Analysis();
         Type_Checker tc = new Type_Checker();
+        CodeGenerator cg = new CodeGenerator();
         for (Parser p : parsers) {
             try {
                 p.parse();
@@ -212,6 +214,7 @@ public class Main {
             }
             sa.start(p.syntaxTree);
             tc.check(p.syntaxTree.root, sa.symbolTable);
+            cg.generateCode(rules, p.syntaxTree);
         }
     }
 }

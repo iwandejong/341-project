@@ -1,4 +1,5 @@
 package Parser;
+import java.util.*;
 
 public class Tree {
     public Node root;
@@ -12,6 +13,22 @@ public class Tree {
     public Tree (Node _root) {
         root = _root;
         depth = 0;
+    }
+
+    public List<Node> getNodes (String identifier) {
+        List<Node> nodes = new ArrayList<>();
+        return getNodesHelper(root, identifier, nodes);
+    }
+
+    public List<Node> getNodesHelper (Node node, String identifier, List<Node> nodes) {
+        if (node == null) return nodes;
+        if (node.identifier.identifier.equals(identifier)) {
+            nodes.add(node);
+        }
+        for (int i = 0; i < node.children.size(); i++) {
+            getNodesHelper(node.children.get(i), identifier, nodes);
+        }
+        return nodes;
     }
 
     public void visualiseTree(Node node, String prefix, boolean isTail) {
@@ -30,7 +47,6 @@ public class Tree {
         }
     }
 
-    //  syntaxTree.current = syntaxTree.addNode(syntaxTree.current, s);
     public Node addNode(Node parent, Symbol symbol) {
         Node node = new Node(symbol);
         node.parent = parent;
