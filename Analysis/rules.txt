@@ -3,8 +3,8 @@ Variables:
 2) Declaration of used variable name must be found either in own scope or higher ancestor
 3) If 2 declarations in different scopes, choose "nearest" declaration
 4) Every variable must have a declaration
-5) Variable name != any function name
-6) Variable name != reserved keyword
+5) Variable name != any function name, NA since Variable = V_... and Function = F_...
+6) Variable name != reserved keyword, NA since Variable = V_...
 7) 2 variable with same name are different entities if they are rooted in different scopes
 
 Functions:
@@ -20,4 +20,7 @@ If any rule is broken throw Error Report
 
 
 Implemented Rules:
-1,2,4
+1,2,4,5,6
+
+TODO:
+3,7,8-14

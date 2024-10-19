@@ -16,10 +16,19 @@ public class Type_Checker {
     public boolean[] childrenTypeChecks;
     // pass in root node of syntax tree
     public void check(Node node, Symbol_Table symbolTable){
+        // print in yellow "Type Checking"
+        System.out.println();
+        System.out.println("\u001B[33m" + "Type Checking:" + "\u001B[0m");
         this.symbolTable = symbolTable;
         this.node = node;
         // loop through tree and do typecheck for each non terminal?
-        typeCheck(node, symbolTable);
+        boolean result = typeCheck(node, symbolTable);
+        // print in green "Type Checking Complete"
+        if(result){
+            System.out.println("\u001B[32m" + "Type Checking Passed" + "\u001B[0m");
+        }else{
+            System.out.println("\u001B[31m" + "Type Checking Failed" + "\u001B[0m");
+        }
     }
     
     // 2 functions: typecheck, typeof. typecheck = main procedure, typeof = helps typecheck procedure. has access to existing symbol table and reports type info

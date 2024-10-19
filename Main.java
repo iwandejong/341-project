@@ -1,5 +1,6 @@
 import Lexer.*;
 import Parser.*;
+import Type_Checker.*;
 
 import java.io.*;
 import java.util.*;
@@ -202,9 +203,11 @@ public class Main {
         // parse
         Hashtable<Integer, String> symbolTable = new Hashtable<Integer, String>();
         Scope_Analysis sa = new Scope_Analysis();
+        Type_Checker tc = new Type_Checker();
         for (Parser p : parsers) {
             p.parse();
             sa.start(p.syntaxTree);
+            tc.check(p.syntaxTree.root, sa.symbolTable);
         }
     }
 }
