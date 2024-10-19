@@ -205,10 +205,6 @@ public class Main {
         for (Parser p : parsers) {
             p.parse();
             sa.start(p.syntaxTree);
-            System.out.println("\u001B[33m" + "Symbol Table:" + "\u001B[0m");
-            sa.printSymbolTable();
-            System.out.println("\u001B[33m" + "Scope Stack:" + "\u001B[0m");
-            sa.printScopeStack();
         }
     }
 }
