@@ -60,17 +60,32 @@ public class Scope_Analysis {
                 if (!node.children.get(i).token.tokenClass.equals("reserved_keyword")) {
                     if(!isDeclaration){
                         // lookup the value in the symbol table and set that declaration type
-                        String thisDeclarationType;
+                        String thisDeclarationType = "";
                         try{
-                            thisDeclarationType = symbolTable.lookupName(node.children.get(i).identifier.identifier).declarationType;
+                            // check if it is a actual number
+                            String numberRegex = "[0-9]+";
+                            // String has the form "words"
+                            String stringRegex = "\"[a-zA-Z0-9]*\"";
+                            // if its not a number, get the declaration type from the symbol table
+                            if(!node.children.get(i).token.tokenValue.matches(numberRegex) && !node.children.get(i).token.tokenValue.matches(stringRegex)){
+                                thisDeclarationType = symbolTable.lookupName(node.children.get(i).identifier.identifier).declarationType;
+                            }
                         }catch(Exception e){
+                            // print current symbol that throws the exception
+                            System.out.println("Symbol: " + node.children.get(i).identifier.identifier);
+                            // print symbol table for now
+                            symbolTable.printTable();
                             throw new RuntimeException("Variable is used before declaration.");
                         }
                         //* Rule 4: Every variable must be declared before it is used
                         if(thisDeclarationType == null){
                             throw new RuntimeException("Symbol: " + node.children.get(i).identifier.identifier + " is not declared.");
                         }
-                        symbolTable.bind(node.children.get(i).token.id, node.children.get(i).identifier.identifier, scope, node.children.get(i).token.tokenClass, thisDeclarationType);
+                        String stringRegex = "\"[a-zA-Z0-9]*\"";
+                        String numberRegex = "[0-9]+";
+                        if(!node.children.get(i).token.tokenValue.matches(numberRegex) && !node.children.get(i).token.tokenValue.matches(stringRegex)){
+                            symbolTable.bind(node.children.get(i).token.id, node.children.get(i).identifier.identifier, scope, node.children.get(i).token.tokenClass, thisDeclarationType);
+                        }
                     }else{
                         symbolTable.bind(node.children.get(i).token.id, node.children.get(i).identifier.identifier, scope, "D", declarationType);
                     }
@@ -142,6 +157,7 @@ public class Scope_Analysis {
         Rule2();
         Rule3();
         Rule4();
+        Rule5();
         System.out.println("\u001B[32m" + "All semantic rules are valid." + "\u001B[0m");
     }
 
@@ -188,5 +204,9 @@ public class Scope_Analysis {
                 }
             } 
         }
+    }
+
+    public void Rule5(){
+        
     }
 }

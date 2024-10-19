@@ -1,19 +1,23 @@
 Variables: 
-- no variable name may be declared more than once in the same scope
-- Declaration of used variable name must be found either in own scope or higher ancestor
-- If 2 declarations in different scopes, choose "nearest" declaration
-- Every variable must have a declaration
-- Variable name != any function name
-- Variable name != reserved keyword
-- 2 variable with same name are different entities if they are rooted in different scopes
+1) no variable name may be declared more than once in the same scope
+2) Declaration of used variable name must be found either in own scope or higher ancestor
+3) If 2 declarations in different scopes, choose "nearest" declaration
+4) Every variable must have a declaration
+5) Variable name != any function name
+6) Variable name != reserved keyword
+7) 2 variable with same name are different entities if they are rooted in different scopes
 
 Functions:
-- Main = highest scope
-- Every function declaration is its own scope
-- child scope may not have same name as immediate parent scope
-- child scope may not have the same name as any sibling scopes in same parent
-- call command may refer to an immediate child scope
-- call command may refer to own scope (recursion)
-- no recursive calls to Main
+8) Main = highest scope
+9) Every function declaration is its own scope
+10) child scope may not have same name as immediate parent scope
+11) child scope may not have the same name as any sibling scopes in same parent
+12) call command may refer to an immediate child scope
+13) call command may refer to own scope (recursion)
+14) no recursive calls to Main
 
 If any rule is broken throw Error Report
+
+
+Implemented Rules:
+1,2,4
