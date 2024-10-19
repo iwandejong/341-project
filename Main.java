@@ -203,18 +203,12 @@ public class Main {
         Hashtable<Integer, String> symbolTable = new Hashtable<Integer, String>();
         Scope_Analysis sa = new Scope_Analysis();
         for (Parser p : parsers) {
-            // try {
-            // p.createFirstFollowTable();
-            // p.printFirstFollowTable();
             p.parse();
-            //     sa.start(p.syntaxTree);
-            // } catch (Exception e) {
-            //     System.out.println(e.getMessage());
-            // }
-            // System.out.println("\u001B[33m" + "Symbol Table:" + "\u001B[0m");
-            // sa.printSymbolTable();
-            // System.out.println("\u001B[33m" + "Scope Stack:" + "\u001B[0m");
-            // sa.printScopeStack();
+            sa.start(p.syntaxTree);
+            System.out.println("\u001B[33m" + "Symbol Table:" + "\u001B[0m");
+            sa.printSymbolTable();
+            System.out.println("\u001B[33m" + "Scope Stack:" + "\u001B[0m");
+            sa.printScopeStack();
         }
     }
 }
