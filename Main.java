@@ -203,7 +203,11 @@ public class Main {
         Hashtable<Integer, String> symbolTable = new Hashtable<Integer, String>();
         Scope_Analysis sa = new Scope_Analysis();
         for (Parser p : parsers) {
-            p.parse();
+            try {
+                p.parse();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             sa.start(p.syntaxTree);
         }
     }

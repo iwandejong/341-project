@@ -1,0 +1,61 @@
+
+[33mCFG Rules:
+----------[0m
+PROG -> [32mmain[0m [33mGLOBVARS[0m ALGO [33mFUNCTIONS[0m 
+[33mGLOBVARS -> [0m[33mε[0m 
+[33mGLOBVARS -> [0mVTYP VNAME [32m,[0m [33mGLOBVARS[0m 
+VTYP -> [32mnum[0m 
+VTYP -> [32mtext[0m 
+ALGO -> [32mbegin[0m [33mINSTRUC[0m [32mend[0m 
+[33mINSTRUC -> [0m[33mε[0m 
+[33mINSTRUC -> [0mCOMMAND [32m;[0m [33mINSTRUC[0m 
+COMMAND -> [32mskip[0m 
+COMMAND -> [32mhalt[0m 
+COMMAND -> [32mprint[0m ATOMIC 
+COMMAND -> ASSIGN 
+COMMAND -> CALL 
+COMMAND -> BRANCH 
+ATOMIC -> VNAME 
+ATOMIC -> CONST 
+ASSIGN -> VNAME [32m<[0m [32minput[0m 
+ASSIGN -> VNAME [32m=[0m TERM 
+CALL -> FNAME [32m([0m ATOMIC [32m,[0m ATOMIC [32m,[0m ATOMIC [32m)[0m 
+BRANCH -> [32mif[0m COND [32mthen[0m ALGO [32melse[0m ALGO 
+TERM -> ATOMIC 
+TERM -> CALL 
+TERM -> OP 
+OP -> UNOP [32m([0m ARG [32m)[0m 
+OP -> BINOP [32m([0m ARG [32m,[0m ARG [32m)[0m 
+ARG -> ATOMIC 
+ARG -> OP 
+COND -> SIMPLE 
+COND -> COMPOSIT 
+SIMPLE -> BINOP [32m([0m ATOMIC [32m,[0m ATOMIC [32m)[0m 
+COMPOSIT -> BINOP [32m([0m SIMPLE [32m,[0m SIMPLE [32m)[0m 
+COMPOSIT -> UNOP [32m([0m SIMPLE [32m)[0m 
+UNOP -> [32mnot[0m 
+UNOP -> [32msqrt[0m 
+BINOP -> [32mor[0m 
+BINOP -> [32mand[0m 
+BINOP -> [32meq[0m 
+BINOP -> [32mgrt[0m 
+BINOP -> [32madd[0m 
+BINOP -> [32msub[0m 
+BINOP -> [32mmul[0m 
+BINOP -> [32mdiv[0m 
+[33mFUNCTIONS -> [0m[33mε[0m 
+[33mFUNCTIONS -> [0mDECL [33mFUNCTIONS[0m 
+DECL -> HEADER BODY 
+HEADER -> FTYP FNAME [32m([0m VNAME [32m,[0m VNAME [32m,[0m VNAME [32m)[0m 
+FTYP -> [32mnum[0m 
+FTYP -> [32mvoid[0m 
+BODY -> PROLOG LOCVARS ALGO EPILOG [33mSUBFUNCS[0m [32mend[0m 
+PROLOG -> [32m{[0m 
+EPILOG -> [32m}[0m 
+LOCVARS -> VTYP VNAME [32m,[0m VTYP VNAME [32m,[0m VTYP VNAME [32m,[0m 
+[33mSUBFUNCS -> [0m[33mFUNCTIONS[0m 
+VNAME -> [32mRGX_V_[a-z]([a-z]|[0-9])*[0m 
+FNAME -> [32mRGX_F_[a-z]([a-z]|[0-9])*[0m 
+CONST -> [32mRGX_^-?\d+(\.\d+)?$[0m 
+CONST -> [32mRGX_\"[A-Z]([a-z]){0,7}\"[0m 
+
