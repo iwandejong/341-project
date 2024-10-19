@@ -254,7 +254,7 @@ public class Parser {
         } else {
             // * we've reached the end of the rule, pop the rule from the stack
             // Temporarily save current rule
-            ProductionRule currentRule = ruleStack.pop();
+            ruleStack.pop();
             // pop from node stack
             nodeStack.pop();
             // pop from position stack
@@ -323,7 +323,7 @@ public class Parser {
                         nodeStack.pop();
 
                         // Temporarily save current rule
-                        ProductionRule currentRule = ruleStack.pop();
+                        ruleStack.pop();
 
                         // pop from position stack
                         positionStack.pop();
@@ -389,20 +389,24 @@ public class Parser {
             // if those rules are nullable, we can continue
             // otherwise, we need to backtrack
 
-            // check if current rule has any epsilon transitions
-            List<ProductionRule> nextRules = findNext(curr, "ε", null);
-            boolean isEpsilon = false;
+            // check all remaining rules on the stack, by popping them if they are nullable
+            ListIterator<ProductionRule> ruleIterator = ruleStack.listIterator(ruleStack.size());
+            List<ProductionRule> rulesToPop = new ArrayList<>();
 
-            for (ProductionRule nextRule : nextRules) {
-                if (nextRule.rhs.get(0).identifier.equals("ε")) {
-                    // * epsilon transition allowed
-                    isEpsilon = true;
+            while (ruleIterator.hasPrevious()) {
+                ProductionRule currRule = ruleIterator.previous();
+                if (currRule.nullable) {
+                    rulesToPop.add(currRule);
+                    positionStack.pop();
+                    nodeStack.pop();
+                } else if (!currRule.nullable && currRule.rhs.size() > 0 && currRule.rhs.get(positionStack.peek()).identifier.equals(curr.identifier)) {
+                    rulesToPop.add(currRule);
                 }
             }
 
-            if (isEpsilon) {
-                nodeStack.pop();
-                ruleStack.pop(); // pop the current rule if epsilon transition is allowed
+            // Now pop the elements after the iteration is complete
+            for (ProductionRule rule : rulesToPop) {
+                ruleStack.pop();
             }
 
             // check if the stack is in an acceptable state
@@ -496,6 +500,7 @@ public class Parser {
                 List<List<List<Symbol>>> firstSets = new ArrayList<>();
                 List<List<Boolean>> matches = new ArrayList<>();
                 for (ProductionRule pr : possibleRules) {
+                    // get the FIRST set of the rule's RHS
                     List<List<Symbol>> firstSet = new ArrayList<>();
                     for (int i = 0; i < pr.rhs.size(); i++) {
                         firstSet.add(findFirst(pr.rhs.get(i)));

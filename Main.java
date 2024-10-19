@@ -205,7 +205,11 @@ public class Main {
         Scope_Analysis sa = new Scope_Analysis();
         Type_Checker tc = new Type_Checker();
         for (Parser p : parsers) {
-            p.parse();
+            try {
+                p.parse();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             sa.start(p.syntaxTree);
             tc.check(p.syntaxTree.root, sa.symbolTable);
         }
