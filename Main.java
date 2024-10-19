@@ -7,6 +7,7 @@ import java.io.*;
 import java.util.*;
 
 import Analysis.Scope_Analysis;
+import Analysis.Symbol_Table;
 
 public class Main {
     static Symbol findSymbol(String identifier, List<Symbol> symbols) {
@@ -212,9 +213,9 @@ public class Main {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            sa.start(p.syntaxTree);
+            Symbol_Table st = sa.start(p.syntaxTree);
             tc.check(p.syntaxTree.root, sa.symbolTable);
-            cg.generateCode(rules, p.syntaxTree);
+            cg.generateCode(rules, p.syntaxTree, st);
         }
     }
 }

@@ -2,13 +2,18 @@ package Code_Generator;
 import Parser.*;
 import java.util.*;
 
+import Analysis.Symbol_Table;
+
 public class CodeGenerator {
     List<ProductionRule> productionRules = new ArrayList<>();
     Tree syntaxTree = new Tree();
+    Symbol_Table symbolTable = new Symbol_Table();
 
-    public void generateCode(List<ProductionRule> _productionRules, Tree _syntaxTree) {
+    public void generateCode(List<ProductionRule> _productionRules, Tree _syntaxTree, Symbol_Table _symbolTable) {
         productionRules = _productionRules;
         syntaxTree = _syntaxTree;
+        symbolTable = _symbolTable;
+
         // find first ALGO node from ROOT and create a tree from it
         List<Node> root = syntaxTree.getNodes("ALGO");
         root.get(0).parent = null;
@@ -32,6 +37,19 @@ public class CodeGenerator {
     // VNAME ::= a token of Token-Class V from the Lexer
     // The user-defined names were already re-named in the foregoing Scope Analysis.
     // The translator function can find their new names in the Symbol Table.
+    private String VNAME (Tree VNAME) {
+        // take the first child of VNAME
+        Node node = VNAME.root.children.get(0);
+
+        // get the value of the token
+        String token = node.token.tokenValue;
+
+        // get the new name from the symbol table
+        String newName = symbolTable.lookupName(token).value;
+
+        return newName;
+    }
+
     // PROG ::= main GLOBVARS ALGO FUNCTIONS
     // The source-word main remains un-translated (can be ignored by the translator).
     // We translate ALGO, and append behind the ALGO-code the translation of FUNCTIONS.
@@ -46,8 +64,6 @@ public class CodeGenerator {
         INSTRUC_nodes.get(0).parent = null;
         Tree INSTRUC = new Tree(INSTRUC_nodes.get(0));
         String aCode = ALGO(INSTRUC);
-
-        INSTRUC.visualiseTree(INSTRUC.root, "", true);
 
         // String fCode = FUNCTIONS(FUNCTIONS);
         return aCode + " STOP ";
@@ -74,25 +90,20 @@ public class CodeGenerator {
     // Translate this sequence such as Stat1 ; Stat2 in Figure 6.5 of our Textbook.
     private String INSTRUC (Tree INSTRUC) {
         // get last child of INSTRUC
-        // List<Node> lastChild = INSTRUC.getNodes("INSTRUC");
-        // lastChild.get(0).parent = null;
-        // Tree INSTRUC2 = new Tree(lastChild.get(0));
-
-        // check if INSTRUC2 has children
-        // if (INSTRUC2.root.children.size() == 0) {
-        //     return COMMAND(INSTRUC) + INSTRUC();
-        // } else {
-        //     return COMMAND(INSTRUC) + INSTRUC(INSTRUC2);
-        // }
-        return COMMAND(INSTRUC);
+        if (INSTRUC.root.children.size() == 3) {
+            Node lastChild = INSTRUC.root.children.get(2);
+            lastChild.parent = null;
+            Tree INSTRUC2 = new Tree(lastChild);
+            
+            return COMMAND(INSTRUC) + INSTRUC(INSTRUC2);
+        }
+        return COMMAND(INSTRUC) + INSTRUC();
     }
 
     private String COMMAND (Tree INSTRUC) {
         List<Node> COMMAND_nodes = INSTRUC.getNodes("COMMAND");
         COMMAND_nodes.get(0).parent = null;
         Tree COMMAND = new Tree(COMMAND_nodes.get(0));
-
-        COMMAND.visualiseTree(COMMAND.root, "", true);
 
         switch (COMMAND.root.children.get(0).identifier.identifier) {
             case "skip":
@@ -150,8 +161,11 @@ public class CodeGenerator {
         ASSIGN_nodes.get(0).parent = null;
         Tree ASSIGN = new Tree(ASSIGN_nodes.get(0));
 
-        ASSIGN.visualiseTree(ASSIGN.root, "", true);
-        return "";
+        if (ASSIGN.root.children.get(2).identifier.identifier.equals("input")) {
+            return ASSIGN_INPUT(ASSIGN);
+        } else {
+            return ASSIGN_TERM(ASSIGN);
+        }
     }
 
     // COMMAND ::= CALL translate(COMMAND) = translate(CALL)
@@ -167,8 +181,18 @@ public class CodeGenerator {
     // ATOMIC ::= VNAME
     // translate(ATOMIC) → returns as code-string the new name of VNAME as found in the Symbol Table
     // ATOMIC ::= CONST translate(ATOMIC) = translate(CONST)
-    private String ATOMIC (Tree ATOMIC) {
-        return "";
+    private String ATOMIC (Tree ATOMIC) throws RuntimeException {
+
+        if (ATOMIC.root.children.get(0).identifier.identifier.equals("VNAME")) {
+            return VNAME(ATOMIC);
+        } else if (ATOMIC.root.children.get(0).identifier.identifier.equals("CONST")) {
+            List<Node> CONST_nodes = ATOMIC.getNodes("CONST");
+            CONST_nodes.get(0).parent = null;
+            Tree CONST = new Tree(CONST_nodes.get(0));
+
+            return CONST(CONST);
+        }
+        throw new RuntimeException("Invalid ATOMIC.");
     }
 
     // CONST ::= a token of Token-Class N from the Lexer
@@ -177,37 +201,55 @@ public class CodeGenerator {
     // Example for a number constant: translate(235) → return " 235 "
     // Example for a text constant: translate("hello") → return " "hello" "
     // ! Note that the returned code-string must also contain these "quotation marks" !
-    private String CONST (String token) {
+    private String CONST (Tree CONST) {
+        String token = CONST.root.children.get(0).token.tokenValue;
         return " " + token + " ";
     }
 
     // ASSIGN ::= VNAME < input // The symbol < remains un-translated
     // codeString = translate(VNAME)
     // return( "INPUT"++" "++codeString )
-    private String ASSIGN_INPUT () {
+    private String ASSIGN_INPUT (Tree ASSIGN) {
         String codeString = ATOMIC(new Tree());
         return "INPUT" + " " + codeString;
     }
 
     // ASSIGN ::= VNAME = TERM
     // Translate this case such as id := Exp in Figure 6.5 of our Textbook.
-    private String ASSIGN_TERM () {
-        return "";
+    private String ASSIGN_TERM (Tree ASSIGN) {
+        List<Node> VNAME_nodes = ASSIGN.getNodes("VNAME");
+        VNAME_nodes.get(0).parent = null;
+        Tree VNAME = new Tree(VNAME_nodes.get(0));
+
+        List<Node> TERM_nodes = ASSIGN.getNodes("TERM");
+        TERM_nodes.get(0).parent = null;
+        Tree TERM = new Tree(TERM_nodes.get(0));
+
+        VNAME.visualiseTree(VNAME.root, "", true);
+        TERM.visualiseTree(TERM.root, "", true);
+
+        String p1 = VNAME(VNAME);
+        String p2 = TERM(TERM);
+
+        return p1 + " := " + p2;
     }
     
     // TERM ::= ATOMIC translate(TERM) = translate(ATOMIC)
-    private String TERM_ATOMIC () {
-        return "";
-    }
-
     // TERM ::= CALL translate(TERM) = translate(CALL)
-    private String TERM_CALL () {
-        return "";
-    }
-
     // TERM ::= OP translate(TERM) = translate(OP)
-    private String TERM_OP () {
-        return "";
+    private String TERM (Tree TERM) throws RuntimeException {
+        if (TERM.root.children.get(0).identifier.identifier.equals("ATOMIC")) {
+            List<Node> ATOMIC_nodes = TERM.getNodes("ATOMIC");
+            ATOMIC_nodes.get(0).parent = null;
+            Tree ATOMIC = new Tree(ATOMIC_nodes.get(0));
+
+            return ATOMIC(ATOMIC);
+        } else if (TERM.root.children.get(0).identifier.identifier.equals("CALL")) {
+            return CALL();
+        } else if (TERM.root.children.get(0).identifier.identifier.equals("OP")) {
+            return OP(TERM);
+        }
+        throw new RuntimeException("Invalid TERM.");
     }
 
     // CALL ::= FNAME( ATOMIC1 , ATOMIC2 , ATOMIC3 )
@@ -240,7 +282,9 @@ public class CodeGenerator {
     // however with the brackets!
     // In other words:
     // return code1++place++":="++opName++"("++place1++")"
-    private String OP_UNOP () {
+    // OP ::= BINOP( ARG1 , ARG2 )
+    // Translate this case such as Exp1 binop Exp2 in Figure 6.3 of our Textbook.
+    private String OP (Tree OP) {
         return "";
     }
 
@@ -264,12 +308,6 @@ public class CodeGenerator {
     // translate(sqrt) → return "SQR" // That is the operator's syntax in our Target Language
     private String UNOP_SQRT () {
         return "SQR";
-    }
-
-    // OP ::= BINOP( ARG1 , ARG2 )
-    // Translate this case such as Exp1 binop Exp2 in Figure 6.3 of our Textbook.
-    private String OP_BINOP () {
-        return "";
     }
 
     // BINOP ::= or
