@@ -7,6 +7,14 @@ import java.util.*;
 import Analysis.Scope_Analysis;
 
 public class Main {
+    static Symbol findSymbol(String identifier, List<Symbol> symbols) {
+        for (Symbol s : symbols) {
+            if (s.identifier.equals(identifier)) {
+                return s;
+            }
+        }
+        return null;
+    }
     public static void main(String[] args) throws Exception {
         // read each "Test" from a txt file into a list
         List<String> programs = new ArrayList<>();
@@ -43,10 +51,10 @@ public class Main {
             sc1.close();
 
             // Visualize inputs
-            for (String s : programs) {
-                System.out.println(s);
-                System.out.println("----- End of Program -----");
-            }
+            // for (String s : programs) {
+            //     System.out.println(s);
+            //     System.out.println("----- End of Program -----");
+            // }
         } catch (FileNotFoundException e) {
             System.out.println("File not found: " + e.getMessage());
         }
@@ -70,7 +78,7 @@ public class Main {
         }
 
         // load grammar
-        File grammarFile = new File("LL1CFG.txt");
+        File grammarFile = new File("CFG.txt");
         Scanner sc2 = new Scanner(grammarFile);
         List<String> grammar = new ArrayList<String>(); // read each rule of the CFG separately into a list
         while (sc2.hasNextLine()) {
@@ -80,10 +88,10 @@ public class Main {
 
         // define CFG
         // first get all rules
-        List<String> ruleNames = new ArrayList<String>();
+        List<Symbol> ruleNames = new ArrayList<Symbol>();
         for (int i = 0; i < grammar.size(); i++) {
             String[] rule = grammar.get(i).split(" ::= ");
-            ruleNames.add(rule[0]);
+            ruleNames.add(new Symbol(rule[0], false));
         }
 
         // generate all rules
@@ -95,18 +103,56 @@ public class Main {
             String identifier = rule[0];
             String[] next = rule[1].split(" ");
 
-            Symbol lhs = new Symbol(identifier, false);
+            Symbol lhs = findSymbol(identifier, ruleNames);
+
+            boolean nullable = false;
 
             for (int j = 0; j < next.length; j++) {
-                if (ruleNames.contains(next[j])) {
-                    symbols.add(new Symbol(next[j], false));
+                Symbol s = findSymbol(next[j], ruleNames);
+                if (s != null) {
+                    symbols.add(s);
                 } else {
-                    symbols.add(new Symbol(next[j], true));
+                    s = new Symbol(next[j], true);
+                    if (next[j].equals("ε")) {
+                        lhs.nullable = true;
+                        s.nullable = true;
+                        nullable = true;
+                    }
+                    symbols.add(s);
                 }
             }
 
-            ProductionRule r = new ProductionRule(lhs, symbols);
+            ProductionRule r = new ProductionRule(lhs, symbols, nullable);
             rules.add(r);
+        }
+
+        // perform OR operation: if one production rule is nullable, then so is the other production rule with the same LHS symbol
+        for (ProductionRule rule : rules) {
+            for (ProductionRule r : rules) {
+                if (rule.lhs.identifier.equals(r.lhs.identifier)) {
+                    if (r.nullable) {
+                        rule.nullable = true;
+                        rule.lhs.nullable = true;
+                    }
+                }
+            }
+        }
+
+        // iterate again through all the production rules, then perform AND operation on the nullable property of the symbols
+        // if all symbols are nullable, then the lhs symbol is nullable
+        for (ProductionRule rule : rules) {
+            boolean nullable = true;
+            if (rule.nullable) {
+                continue;
+            }
+            for (Symbol s : rule.rhs) {
+                if (!s.nullable) {
+                    nullable = false;
+                    break;
+                }
+            }
+            rule.lhs.nullable = nullable;
+            rule.nullable = nullable;
         }
 
         // Print grammar
@@ -115,18 +161,32 @@ public class Main {
         System.out.println("----------" + "\u001B[0m");
         String r = "";
         for (ProductionRule rule : rules) {
-            r += rule.lhs.identifier + " -> ";
+            if (rule.nullable) {
+                r += "\u001B[33m" + rule.lhs.identifier + " -> " + "\u001B[0m";
+            } else {
+                r += rule.lhs.identifier + " -> ";
+            }
             for (Symbol s : rule.rhs) {
                 if (s.terminal) {
-                    r += "\u001B[32m" + s.identifier + "\u001B[0m";
+                    if (s.nullable) {
+                        r += "\u001B[33m" + s.identifier + "\u001B[0m";
+                    } else {
+                        r += "\u001B[32m" + s.identifier + "\u001B[0m";
+                    }
                 } else {
-                    r += s.identifier;
+                    // r += s.identifier;
+                    if (s.nullable) {
+                        r += "\u001B[33m" + s.identifier + "\u001B[0m";
+                    } else {
+                        r += s.identifier;
+                    }
                 }
                 r += " ";
             }
             System.out.println(r);
             r = "";
         }
+        System.out.println();
 
         // TODO: traverse the tokens sequentially
         // when you run into a non-terminal symbol such as GLOBVARS, you "enter" the non-terminal symbol by "expanding" the symbol.
@@ -143,9 +203,15 @@ public class Main {
         Hashtable<Integer, String> symbolTable = new Hashtable<Integer, String>();
         Scope_Analysis sa = new Scope_Analysis();
         for (Parser p : parsers) {
+            // try {
+            // p.createFirstFollowTable();
+            // p.printFirstFollowTable();
             p.parse();
+            //     sa.start(p.syntaxTree);
+            // } catch (Exception e) {
+            //     System.out.println(e.getMessage());
+            // }
             // System.out.println("\u001B[33m" + "Symbol Table:" + "\u001B[0m");
-            sa.start(p.syntaxTree);
             // sa.printSymbolTable();
             // System.out.println("\u001B[33m" + "Scope Stack:" + "\u001B[0m");
             // sa.printScopeStack();

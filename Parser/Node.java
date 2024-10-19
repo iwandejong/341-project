@@ -7,6 +7,7 @@ public class Node {
     public Symbol identifier;
     public boolean terminal;
     public Token token;
+    public Node parent = null;
 
     public Node(Symbol _identifier) {
         children = new ArrayList<Node>();
