@@ -1,10 +1,10 @@
 package Analysis;
 
 public class InnerSymbol_Table {
-    String value;
-    int scope;
-    String type;
-    String declarationType;
+    public String value;
+    public int scope;
+    public String type;
+    public String declarationType;
 
     public InnerSymbol_Table(String value, int scope, String type, String declarationType) {
         this.value = value;

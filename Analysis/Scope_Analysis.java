@@ -9,7 +9,7 @@ import Parser.Tree;
 
 public class Scope_Analysis {
     // create a symbol table
-    Symbol_Table symbolTable = new Symbol_Table();
+    public Symbol_Table symbolTable = new Symbol_Table();
     Scope_Stack scopeStack = new Scope_Stack();
     Tree tree;
     public static int scope = 1;
@@ -46,9 +46,14 @@ public class Scope_Analysis {
         if (node == null) {
             return symbolTable;
         }
+        
+        if(node.token != null && node.token.tokenValue != null){
+            System.out.println("Node value: " + node.token.tokenValue);
+        }
 
         // if the node is not a reserved word, add it to the symbol table
         for (int i = 0; i < node.children.size(); i++) {
+            // print the current node;
             // scope++;
             if (node.children != null && node.children.get(i) != null && node.children.get(i).token != null) { // Add this check
                 // if it is not a reserved keyword
