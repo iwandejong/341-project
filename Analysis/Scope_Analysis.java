@@ -17,7 +17,7 @@ public class Scope_Analysis {
     public static String declarationType = "";
     
     // take the parser tree 
-    public void start(Tree tree) {
+    public Symbol_Table start(Tree tree) {
         this.tree = tree;
         // build the symbol table
         symbolTable = buildSymbolTable(tree.root, symbolTable);
@@ -39,6 +39,8 @@ public class Scope_Analysis {
         System.out.println();
 
         checkSemanticRules();
+
+        return symbolTable;
     }
     // TODO: check all rules
     public Symbol_Table buildSymbolTable(Node node, Symbol_Table symbolTable) {
