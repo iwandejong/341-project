@@ -36,16 +36,21 @@ public class Type_Checker {
         if(node == null){
             return true;
         }
+        System.out.println("Current node:" + node.identifier.identifier);
         if(node.children.size() == 0){
+            System.out.println("No children");
             return true;
         }
         boolean[] childrenTypeChecks = new boolean[node.children.size()];
-        if(node.identifier.identifier == "PROG"){
+        System.out.println("Children size: " + node.children.size());
+        if(node.identifier.identifier.equals("PROG")){
+            System.out.println("in PROG");
             // check children
             for(Node child : node.children){
-                if(child != null && child.token != null && child.token.tokenValue != "main"){
+                System.out.println("Current child: " + child.identifier.identifier);
+                if(child != null && child.token != null && !child.token.tokenValue.equals("main")){
                     childrenTypeChecks[node.children.indexOf(child)] = typeCheck(child, symbolTable);
-                }else if(child != null && child.token != null && child.token.tokenValue == "main"){
+                }else if(child != null && child.token != null && child.token.tokenValue.equals("main")){
                     // main function to true automatically
                     childrenTypeChecks[node.children.indexOf(child)] = true;
                 }
@@ -57,31 +62,32 @@ public class Type_Checker {
                 }
             }
             return true;
-        }else if(node.identifier.identifier == "GLOBVARS"){
+        }else if(node.identifier.identifier.equals("GLOBVARS")){
+            System.out.println("In GLOBVARS");
             // epsilon transition
             if(node.children.size() == 0){
                 return true;
             }
 
             for(Node child : node.children){
-                if(child.identifier.identifier == "GLOBVARS"){
+                if(child.identifier.identifier.equals("GLOBVARS")){
                     return childrenTypeChecks[node.children.indexOf(child)] = typeCheck(child, symbolTable);
                 }
             }
-        }else if(node.identifier.identifier == "ALGO"){
+        }else if(node.identifier.identifier.equals("ALGO")){
             // epsilon transition
             for(Node child : node.children){
-                if(child.identifier.identifier == "ALGO"){
+                if(child.identifier.identifier.equals("ALGO")){
                     return childrenTypeChecks[node.children.indexOf(child)] = typeCheck(child, symbolTable);
                 }
             }
-        }else if(node.identifier.identifier == "INSTRUC"){
+        }else if(node.identifier.identifier.equals("INSTRUC")){
             // epsilon transition
             if(node.children.size() == 0){
                 return true;
             }
             for(Node child : node.children){
-                if(child.identifier.identifier == "INSTRUC" || child.identifier.identifier == "COMMAND"){
+                if(child.identifier.identifier.equals("INSTRUC") || child.identifier.identifier.equals("COMMAND")){
                     childrenTypeChecks[node.children.indexOf(child)] = typeCheck(child, symbolTable);
                 }else{
                     // if ;
@@ -94,23 +100,23 @@ public class Type_Checker {
                 }
             }
             return true;
-        }else if(node.identifier.identifier == "COMMAND"){
+        }else if(node.identifier.identifier.equals("COMMAND")){
             for(Node child: node.children){
-                if(child.token != null && child.token.tokenValue == "skip" || child.token.tokenValue == "halt"){
+                if(child.token != null && child.token.tokenValue.equals("skip") || child.token.tokenValue.equals("halt")){
                     return true;
                 }
-                if(child.identifier.identifier == "ATOMIC"){
-                    if(typeOf(symbolTable, child) == "num" || typeOf(symbolTable, child) == "text"){
+                if(child.identifier.identifier.equals("ATOMIC")){
+                    if(typeOf(symbolTable, child).equals("num") || typeOf(symbolTable, child).equals("text")){
                         return true;
                     }else{
                         return false;
                     }
                 }
-                if(child.identifier.identifier == "ASSIGN" || child.identifier.identifier == "BRANCH"){
+                if(child.identifier.identifier.equals("ASSIGN") || child.identifier.identifier.equals("BRANCH")){
                     return typeCheck(child, symbolTable);
                 }
-                if(child.identifier.identifier == "CALL"){
-                    if(typeOf(symbolTable, child) == "void"){
+                if(child.identifier.identifier.equals("CALL")){
+                    if(typeOf(symbolTable, child).equals("void")){
                         return true;
                     }else{
                         return false;
@@ -118,11 +124,11 @@ public class Type_Checker {
                 }
                 // TODO: return ATOMIC for FUNCTIONS
             }
-        }else if(node.identifier.identifier == "ASSIGN"){
+        }else if(node.identifier.identifier.equals("ASSIGN")){
             // 2 types of assign: VNAME < input, VNAME = TERM. 
             // VNAME < input. 0 = VNAME, 1 = <, 2 = input
-            if(node.children.get(2).token != null && node.children.get(2).token.tokenValue == "input"){
-                if(typeOf(symbolTable, node.children.get(0)) == "num"){
+            if(node.children.get(2).token != null && node.children.get(2).token.tokenValue.equals("input")){
+                if(typeOf(symbolTable, node.children.get(0)).equals("num")){
                     return true;
                 }else{
                     return false;
@@ -134,19 +140,19 @@ public class Type_Checker {
                     return false;
                 }
             }
-        }else if(node.identifier.identifier == "BRANCH"){
+        }else if(node.identifier.identifier.equals("BRANCH")){
             for(Node child : node.children){
-                if(child.identifier.identifier == "COND"){
-                    if(typeOf(symbolTable, child) == "bool"){
+                if(child.identifier.identifier.equals("COND")){
+                    if(typeOf(symbolTable, child).equals("bool")){
                         
                     }else{
                         return false;
                     }
                 }
-                if(child.identifier.identifier == "ALGO"){
+                if(child.identifier.identifier.equals("ALGO")){
                     childrenTypeChecks[node.children.indexOf(child)] = typeCheck(child, symbolTable);
                 }
-                else if(child.identifier.identifier == "if" || child.identifier.identifier == "else" || child.identifier.identifier == "then"){
+                else if(child.identifier.identifier.equals("if") || child.identifier.identifier.equals("else") || child.identifier.identifier.equals("then")){
                     childrenTypeChecks[node.children.indexOf(child)] = true;
                 }
             }
@@ -156,19 +162,19 @@ public class Type_Checker {
                 }
             }
             return true;
-        }else if(node.identifier.identifier == "FUNCTIONS"){
+        }else if(node.identifier.identifier.equals("FUNCTIONS")){
             // epsilon transition
             if(node.children.size() == 0){
                 return true;
             }
             for(Node child : node.children){
-                if(child.identifier.identifier == "FUNCTIONS" || child.identifier.identifier == "DECL"){
+                if(child.identifier.identifier.equals("FUNCTIONS") || child.identifier.identifier.equals("DECL")){
                     childrenTypeChecks[node.children.indexOf(child)] = typeCheck(child, symbolTable);
                 }
             }
-        }else if(node.identifier.identifier == "DECL"){
+        }else if(node.identifier.identifier.equals("DECL")){
             for(Node child: node.children){
-                if(child.identifier.identifier == "HEADER" || child.identifier.identifier == "BODY"){
+                if(child.identifier.identifier.equals("HEADER") || child.identifier.identifier.equals("BODY")){
                     childrenTypeChecks[node.children.indexOf(child)] = typeCheck(child, symbolTable);
                 }
             }
@@ -178,11 +184,11 @@ public class Type_Checker {
                 }
             }
             return true;
-        }else if(node.identifier.identifier == "HEADER"){
+        }else if(node.identifier.identifier.equals("HEADER")){
             int count = 0;
             for(Node child : node.children){
-                if(child.identifier.identifier == "VNAME"){
-                    if(typeOf(symbolTable, child) == "n"){
+                if(child.identifier.identifier.equals("VNAME")){
+                    if(typeOf(symbolTable, child).equals("n")){
                         count++;
                     }else{
                         return false;
@@ -195,11 +201,11 @@ public class Type_Checker {
             }else{
                 return false;
             }
-        }else if(node.identifier.identifier == "BODY"){
+        }else if(node.identifier.identifier.equals("BODY")){
             for(Node child : node.children){
-                if(child.identifier.identifier == "PROLOG" || child.identifier.identifier == "LOCVARS" || child.identifier.identifier == "ALGO" || child.identifier.identifier == "EPILOG" || child.identifier.identifier == "SUBFUNCS"){
+                if(child.identifier.identifier.equals("PROLOG") || child.identifier.identifier.equals("LOCVARS") || child.identifier.identifier.equals("ALGO") || child.identifier.identifier.equals("EPILOG") || child.identifier.identifier.equals("SUBFUNCS")){
                     childrenTypeChecks[node.children.indexOf(child)] = typeCheck(child, symbolTable);                    
-                }else if(child.token != null && child.token.tokenValue == "end"){
+                }else if(child.token != null && child.token.tokenValue.equals("end")){
                     childrenTypeChecks[node.children.indexOf(child)] = true;
                 }
             }
@@ -209,14 +215,15 @@ public class Type_Checker {
                 }
             }
             return true;
-        }else if(node.identifier.identifier == "PROLOG" || node.identifier.identifier == "EPILOG"){
+        }else if(node.identifier.identifier.equals("PROLOG") || node.identifier.identifier.equals("EPILOG")){
             return true;
-        }else if(node.identifier.identifier == "LOCVARS"){
+        }else if(node.identifier.identifier.equals("LOCVARS")){
 
-        }else if(node.identifier.identifier == "SUBFUNCS"){
+        }else if(node.identifier.identifier.equals("SUBFUNCS")){
             // only has 1 child aka FUNCTIONS
             return typeCheck(node.children.get(0), symbolTable);
         }
+        System.out.println("returning true");
         return true;
     }
 
@@ -224,16 +231,16 @@ public class Type_Checker {
         // Passes in nodes and returns the type, type = child of that node
         Node child = node.children.get(0);
         if(child != null){
-            if(node.identifier.identifier == "VNAME"){
-                if(child.token != null || child.token.tokenValue == "num"){
+            if(node.identifier.identifier.equals("VNAME")){
+                if(child.token != null || child.token.tokenValue.equals("num")){
                     return "n";
-                }else if(child.token != null || child.token.tokenValue == "text"){
+                }else if(child.token != null || child.token.tokenValue.equals("text")){
                     return "t";
                 }
-            }else if(node.identifier.identifier == "ATOMIC"){
+            }else if(node.identifier.identifier.equals("ATOMIC")){
                 // child can either be VNAME or CONST
                 return typeOf(symbol_Table, child);
-            }else if(node.identifier.identifier == "CONST"){
+            }else if(node.identifier.identifier.equals("CONST")){
                 // token can be of class N/numbers or T/text
                 // test if its a num with regex expression
                 String numberClassRegex = "^(0|[0-9]*[1-9]|-0[0-9]*[1-9]|[1-9][0-9]*|-[1-9][0-9]*|[1-9][0-9]*.[0-9]*[1-9]|-[1-9][0-9]*.[0-9]*[1-9])$";
@@ -244,46 +251,46 @@ public class Type_Checker {
                 if(child.token != null && child.token.tokenValue.matches(textClassRegex)){
                     return "t";
                 }
-            }else if(node.identifier.identifier == "TERM"){
+            }else if(node.identifier.identifier.equals("TERM")){
                 return typeOf(symbol_Table, child);
-            }else if(node.identifier.identifier == "CALL"){
+            }else if(node.identifier.identifier.equals("CALL")){
                 for(Node childNode : node.children){
                 // check if all 3 ATOMIC nodes are type "n". if it is return the typeOf(FNAME), else return 'u'
-                    if(childNode.identifier.identifier == "ATOMIC"){
-                        if(typeOf(symbol_Table, childNode) != "n"){
+                    if(childNode.identifier.identifier.equals("ATOMIC")){
+                        if(!typeOf(symbol_Table, childNode).equals("n")){
                             return "u";
                         }
                     }
                 }
                 // return typeOf(FNAME)
                 return typeOf(symbol_Table, node.children.get(0));
-            }else if(node.identifier.identifier == "OP"){
-                if(node.children.get(0).identifier.identifier == "UNOP"){
-                    if(typeOf(symbol_Table, node.children.get(0)) == typeOf(symbol_Table, node.children.get(2)) && typeOf(symbol_Table, node.children.get(0)) == "b"){
+            }else if(node.identifier.identifier.equals("OP")){
+                if(node.children.get(0).identifier.identifier.equals("UNOP")){
+                    if(typeOf(symbol_Table, node.children.get(0)).equals(typeOf(symbol_Table, node.children.get(2))) && typeOf(symbol_Table, node.children.get(0)).equals("b")){
                         return "b";
-                    }else if(typeOf(symbol_Table, node.children.get(0)) == typeOf(symbol_Table, node.children.get(2)) && typeOf(symbol_Table, node.children.get(0)) == "n"){
+                    }else if(typeOf(symbol_Table, node.children.get(0)).equals(typeOf(symbol_Table, node.children.get(2))) && typeOf(symbol_Table, node.children.get(0)).equals("n")){
                         return "n";
                     }else{
                         return "u";
                     }
-                }else if(node.children.get(0).identifier.identifier == "BINOP"){
-                    if(typeOf(symbol_Table, node.children.get(0)) == typeOf(symbol_Table, node.children.get(2)) && typeOf(symbol_Table, node.children.get(0)) == typeOf(symbol_Table, node.children.get(4)) && typeOf(symbol_Table, node.children.get(0)) == "n"){
+                }else if(node.children.get(0).identifier.identifier.equals("BINOP")){
+                    if(typeOf(symbol_Table, node.children.get(0)) == typeOf(symbol_Table, node.children.get(2)) && typeOf(symbol_Table, node.children.get(0)) == typeOf(symbol_Table, node.children.get(4)) && typeOf(symbol_Table, node.children.get(0)).equals("n")){
                         return "n";
-                    }else if(typeOf(symbol_Table, node.children.get(0)) == typeOf(symbol_Table, node.children.get(2)) && typeOf(symbol_Table, node.children.get(0)) == typeOf(symbol_Table, node.children.get(4)) && typeOf(symbol_Table, node.children.get(0)) == "b"){
+                    }else if(typeOf(symbol_Table, node.children.get(0)) == typeOf(symbol_Table, node.children.get(2)) && typeOf(symbol_Table, node.children.get(0)) == typeOf(symbol_Table, node.children.get(4)) && typeOf(symbol_Table, node.children.get(0)).equals("b")){
                         return "b";
-                    }else if(typeOf(symbol_Table, node.children.get(0)) == "c" && typeOf(symbol_Table, node.children.get(2)) == "n" && typeOf(symbol_Table, node.children.get(4)) == "n"){
+                    }else if(typeOf(symbol_Table, node.children.get(0)).equals("c") && typeOf(symbol_Table, node.children.get(2)).equals("n") && typeOf(symbol_Table, node.children.get(4)).equals("n")){
                         return "b";
                     }else{
                         return "u";
                     }
                 } 
-            }else if(node.identifier.identifier == "ARG"){
+            }else if(node.identifier.identifier.equals("ARG")){
                 // return typeOf(ATOMIC) || typeOf(OP)
                 return typeOf(symbol_Table, child);
-            }else if(node.identifier.identifier == "UNOP"){
-                if(child.token != null && child.token.tokenValue == "not"){
+            }else if(node.identifier.identifier.equals("UNOP")){
+                if(child.token != null && child.token.tokenValue.equals("not")){
                     return "b";
-                }else if(child.token != null && child.token.tokenValue == "sqrt"){
+                }else if(child.token != null && child.token.tokenValue.equals("sqrt")){
                     return "n";
                 } 
             }

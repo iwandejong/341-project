@@ -19,8 +19,4 @@ Functions:
 If any rule is broken throw Error Report
 
 
-Implemented Rules:
-1,2,4,5,6
-
-TODO:
-3,7,8-14
+Just make sure of all the rules

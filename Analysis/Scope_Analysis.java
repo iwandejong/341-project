@@ -48,13 +48,27 @@ public class Scope_Analysis {
         }
         
         if(node.token != null && node.token.tokenValue != null){
-            System.out.println("Node value: " + node.token.tokenValue);
+            // System.out.println("Node value: " + node.token.tokenValue);
         }
 
         // if the node is not a reserved word, add it to the symbol table
         for (int i = 0; i < node.children.size(); i++) {
             // print the current node;
             // scope++;
+            if(node.children.get(i).identifier.identifier.startsWith("F_")){
+                // every function opens a new scope
+                // see if the function is already in the symbol table ( could be due to call in main )
+                if(symbolTable.lookupName(node.children.get(i).identifier.identifier) == null){
+                    symbolTable.bind(node.children.get(i).token.id, node.children.get(i).identifier.identifier, scope, "F", "void");
+                    // scopeStack.push(scope);
+                    continue;
+                }else{
+                    // if the function is already in the symbol table, push the scope
+                    symbolTable.bind(node.children.get(i).token.id, node.children.get(i).identifier.identifier, scope, "F", "void");
+                    // scopeStack.push(symbolTable.lookupName(node.children.get(i).identifier.identifier).scope);
+                    continue;
+                }
+            }
             if (node.children != null && node.children.get(i) != null && node.children.get(i).token != null) { // Add this check
                 // if it is not a reserved keyword
                 if (!node.children.get(i).token.tokenClass.equals("reserved_keyword")) {
@@ -90,17 +104,17 @@ public class Scope_Analysis {
                         symbolTable.bind(node.children.get(i).token.id, node.children.get(i).identifier.identifier, scope, "D", declarationType);
                     }
                 }
-
+                else if(node.children.get(i).token.tokenClass.equals("reserved_keyword") && node.children.get(i).token.tokenValue.equals("void")){
+                    ++scope;
+                    scopeStack.push(scope);
+                }
                 // it is the reserved keyword is not , (the declaration "stops")
                 if(node.children.get(i).token.tokenClass.equals("reserved_keyword") && !node.children.get(i).token.tokenValue.equals(",")){
                     isDeclaration = false;
                 }
                 
                 //   check if the node is a function and push it to the stack
-                if(node.children.get(i).identifier.identifier.startsWith("F_")){
-                    // every function opens a new scope
-                    scopeStack.push(++scope);
-                }
+                
                 
                 // if reserved keyword = text or num, add the rest of the children to the symbol table with type = D for declaration
                 if (node.children.get(i).token.tokenClass.equals("reserved_keyword") && (node.children.get(i).token.tokenValue.equals("text") || node.children.get(i).token.tokenValue.equals("num"))) {
@@ -150,14 +164,26 @@ public class Scope_Analysis {
         }
     }
 
-    public void checkSemanticRules(){
-        // 1) 
+    public void checkSemanticRules(){ 
         System.out.println("\u001B[33m" + "Semantic Rules:" + "\u001B[0m");
+        // no double declarations
         Rule1();
+        // Declaration must be in same or lower scope
         Rule2();
+        // If 2 declarations in different scopes have the same name, the one in the higher scope is used
         Rule3();
+        // Every variable must be declared before it is used
         Rule4();
-        Rule5();
+        // 5) N/A since variables = V_... and functions = F_...
+        // 6) N/A since variables = V_... and doesnt include reserved keywords
+        // 7) completed by different id's
+        // 8) main = scope 1
+        // 9) every void increases the scope thus also 10 + 11
+        // 12) + 13) ?? Call commands?
+        // 14) no calls to main
+
+        Rule10();
+        Rule11();
         System.out.println("\u001B[32m" + "All semantic rules are valid." + "\u001B[0m");
     }
 
@@ -206,7 +232,11 @@ public class Scope_Analysis {
         }
     }
 
-    public void Rule5(){
+    public void Rule10(){
         
+    }
+
+    public void Rule11(){
+
     }
 }
