@@ -36,19 +36,14 @@ public class Type_Checker {
         if(node == null){
             return true;
         }
-        System.out.println("Current node:" + node.identifier.identifier);
         if(node.children.size() == 0){
-            System.out.println("No children");
             return true;
         }
         boolean[] childrenTypeChecks = new boolean[node.children.size()];
-        System.out.println("Children size: " + node.children.size());
         if(node.identifier.identifier.equals("PROG")){
-            System.out.println("in PROG");
             // check children
             for(Node child : node.children){
-                System.out.println("Current child: " + child.identifier.identifier);
-                if(child != null && child.token != null && !child.token.tokenValue.equals("main")){
+                if(child != null && child.identifier.identifier.equals("GLOBVARS") || child.identifier.identifier.equals("FUNCTIONS") || child.identifier.identifier.equals("ALGO")){
                     childrenTypeChecks[node.children.indexOf(child)] = typeCheck(child, symbolTable);
                 }else if(child != null && child.token != null && child.token.tokenValue.equals("main")){
                     // main function to true automatically
@@ -63,7 +58,7 @@ public class Type_Checker {
             }
             return true;
         }else if(node.identifier.identifier.equals("GLOBVARS")){
-            System.out.println("In GLOBVARS");
+            
             // epsilon transition
             if(node.children.size() == 0){
                 return true;
@@ -77,8 +72,8 @@ public class Type_Checker {
         }else if(node.identifier.identifier.equals("ALGO")){
             // epsilon transition
             for(Node child : node.children){
-                if(child.identifier.identifier.equals("ALGO")){
-                    return childrenTypeChecks[node.children.indexOf(child)] = typeCheck(child, symbolTable);
+                if(child.identifier.identifier.equals("INSTRUC")){
+                    return typeCheck(child, symbolTable);
                 }
             }
         }else if(node.identifier.identifier.equals("INSTRUC")){
@@ -88,6 +83,11 @@ public class Type_Checker {
             }
             for(Node child : node.children){
                 if(child.identifier.identifier.equals("INSTRUC") || child.identifier.identifier.equals("COMMAND")){
+                    // if(child.identifier.identifier.equals("COMMAND")){
+                    //     System.out.println("Checking COMMAND in INSTRUC returns:" + typeCheck(child, symbolTable));
+                    // }else{
+                    //     System.out.println("Checking INSTRUC in INSTRUC returns:" + typeCheck(child, symbolTable));
+                    // }
                     childrenTypeChecks[node.children.indexOf(child)] = typeCheck(child, symbolTable);
                 }else{
                     // if ;
@@ -102,11 +102,11 @@ public class Type_Checker {
             return true;
         }else if(node.identifier.identifier.equals("COMMAND")){
             for(Node child: node.children){
-                if(child.token != null && child.token.tokenValue.equals("skip") || child.token.tokenValue.equals("halt")){
+                if (child != null && child.token != null && child.token.tokenValue != null && (child.token.tokenValue.equals("skip") || child.token.tokenValue.equals("halt"))){
                     return true;
                 }
                 if(child.identifier.identifier.equals("ATOMIC")){
-                    if(typeOf(symbolTable, child).equals("num") || typeOf(symbolTable, child).equals("text")){
+                    if(typeOf(symbolTable, child).equals("n") || typeOf(symbolTable, child).equals("t")){
                         return true;
                     }else{
                         return false;
@@ -116,7 +116,7 @@ public class Type_Checker {
                     return typeCheck(child, symbolTable);
                 }
                 if(child.identifier.identifier.equals("CALL")){
-                    if(typeOf(symbolTable, child).equals("void")){
+                    if(typeOf(symbolTable, child).equals("v")){
                         return true;
                     }else{
                         return false;
@@ -128,7 +128,7 @@ public class Type_Checker {
             // 2 types of assign: VNAME < input, VNAME = TERM. 
             // VNAME < input. 0 = VNAME, 1 = <, 2 = input
             if(node.children.get(2).token != null && node.children.get(2).token.tokenValue.equals("input")){
-                if(typeOf(symbolTable, node.children.get(0)).equals("num")){
+                if(typeOf(symbolTable, node.children.get(0)).equals("n")){
                     return true;
                 }else{
                     return false;
@@ -143,7 +143,7 @@ public class Type_Checker {
         }else if(node.identifier.identifier.equals("BRANCH")){
             for(Node child : node.children){
                 if(child.identifier.identifier.equals("COND")){
-                    if(typeOf(symbolTable, child).equals("bool")){
+                    if(typeOf(symbolTable, child).equals("b")){
                         
                     }else{
                         return false;
@@ -172,6 +172,12 @@ public class Type_Checker {
                     childrenTypeChecks[node.children.indexOf(child)] = typeCheck(child, symbolTable);
                 }
             }
+            for(boolean check : childrenTypeChecks){
+                if(check == false){
+                    return false;
+                }
+            }
+            return true;
         }else if(node.identifier.identifier.equals("DECL")){
             for(Node child: node.children){
                 if(child.identifier.identifier.equals("HEADER") || child.identifier.identifier.equals("BODY")){
@@ -218,12 +224,11 @@ public class Type_Checker {
         }else if(node.identifier.identifier.equals("PROLOG") || node.identifier.identifier.equals("EPILOG")){
             return true;
         }else if(node.identifier.identifier.equals("LOCVARS")){
-
+            return true;
         }else if(node.identifier.identifier.equals("SUBFUNCS")){
             // only has 1 child aka FUNCTIONS
             return typeCheck(node.children.get(0), symbolTable);
         }
-        System.out.println("returning true");
         return true;
     }
 
@@ -231,7 +236,7 @@ public class Type_Checker {
         // Passes in nodes and returns the type, type = child of that node
         Node child = node.children.get(0);
         if(child != null){
-            if(node.identifier.identifier.equals("VNAME")){
+            if(node.identifier.identifier.equals("VTYP")){
                 if(child.token != null || child.token.tokenValue.equals("num")){
                     return "n";
                 }else if(child.token != null || child.token.tokenValue.equals("text")){
@@ -293,11 +298,60 @@ public class Type_Checker {
                 }else if(child.token != null && child.token.tokenValue.equals("sqrt")){
                     return "n";
                 } 
+            }else if(node.identifier.identifier.equals("BINOP")){
+                if(child.token != null && child.token.tokenValue.equals("and") || child.token.tokenValue.equals("or")){
+                    return "b";
+                }else if(child.token != null && child.token.tokenValue.equals("eq") || child.token.tokenValue.equals("grt")){
+                    return "c";
+                }else if(child.token != null && child.token.tokenValue.equals("add") || child.token.tokenValue.equals("sub") || child.token.tokenValue.equals("mul") || child.token.tokenValue.equals("div")){
+                    return "n";
+                }
+            }else if(node.identifier.identifier.equals("COND")){
+                if(typeOf(symbol_Table, node.children.get(0)).equals("SIMPLE") || typeOf(symbol_Table, node.children.get(0)).equals("COMPOSIT")){
+                    return typeOf(symbol_Table, node.children.get(0));
+                }
+            }else if(node.identifier.identifier.equals("SIMPLE")){
+                // if typeof(BINOP) == typeof(ATOMIC1) == typeof(ATOMIC2) == 'b' then  return 'b'
+                if(typeOf(symbol_Table, node.children.get(0)).equals("b") && typeOf(symbol_Table, node.children.get(2)).equals("b") && typeOf(symbol_Table, node.children.get(4)).equals("b")){
+                    return "b";
+                }else if(typeOf(symbol_Table, node.children.get(0)).equals("c") && typeOf(symbol_Table, node.children.get(2)).equals("n") && typeOf(symbol_Table, node.children.get(4)).equals("n")){
+                    return "b";
+                }else{
+                    return "u";
+                }              
+            }else if(node.identifier.identifier.equals("COMPOSIT")){
+                // if typeof(BINOP) == typeof(ATOMIC1) == typeof(ATOMIC2) == 'b' then  return 'b'
+                if(node.children.get(0).equals("BINOP") && typeOf(symbol_Table, node.children.get(0)).equals("b") && typeOf(symbol_Table, node.children.get(2)).equals("b") && typeOf(symbol_Table, node.children.get(4)).equals("b")){
+                    return "b";
+                }else if(node.children.get(0).equals("UNOP") && typeOf(symbol_Table, node.children.get(0)).equals("b") && typeOf(symbol_Table, node.children.get(2)).equals("b")){
+                    return "b";
+                }else{
+                    return "u";
+                }
+            }else if(node.identifier.identifier.equals("FTYP")){
+                if(child.token != null && child.token.tokenValue.equals("num")){
+                    return "n";
+                }else if(child.token != null && child.token.tokenValue.equals("void")){
+                    return "v";
+                }
+            }else if(node.identifier.identifier.equals("VNAME")){
+                // check if VNAME is in symbol table
+                if(symbol_Table.lookupName(child.token.tokenValue) != null){
+                    if(symbol_Table.lookupName(child.token.tokenValue).declarationType.equals("num")){
+                        return "n";
+                    }else if(symbol_Table.lookupName(child.token.tokenValue).declarationType.equals("text")){
+                        return "t";
+                    }
+                    else{
+                        
+                        return "u";
+                    }
+                }
+                    
             }
+                     
         }
-
-            
-        return "";
+        return "u";
     }
 
 }
