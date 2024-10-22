@@ -44,6 +44,14 @@ public class Type_Checker {
             // check children
             for(Node child : node.children){
                 if(child != null && child.identifier.identifier.equals("GLOBVARS") || child.identifier.identifier.equals("FUNCTIONS") || child.identifier.identifier.equals("ALGO")){
+                    if(child.identifier.identifier.equals("GLOBVARS")){
+                        // System.out.println("Checking GLOBVARS in PROG returns:" + typeCheck(child, symbolTable));
+                    }else if(child.identifier.identifier.equals("FUNCTIONS")){
+                        // System.out.println("Checking FUNCTIONS in PROG returns:" + typeCheck(child, symbolTable));
+                    }else if(child.identifier.identifier.equals("ALGO")){
+                        // System.out.println("Checking ALGO in PROG returns:" + typeCheck(child, symbolTable));
+                    }
+
                     childrenTypeChecks[node.children.indexOf(child)] = typeCheck(child, symbolTable);
                 }else if(child != null && child.token != null && child.token.tokenValue.equals("main")){
                     // main function to true automatically
@@ -73,6 +81,7 @@ public class Type_Checker {
             // epsilon transition
             for(Node child : node.children){
                 if(child.identifier.identifier.equals("INSTRUC")){
+                    // System.out.println("Chekcing INSTRUC in ALGO returns:" + typeCheck(child, symbolTable));
                     return typeCheck(child, symbolTable);
                 }
             }
@@ -83,9 +92,9 @@ public class Type_Checker {
             }
             for(Node child : node.children){
                 if(child.identifier.identifier.equals("INSTRUC") || child.identifier.identifier.equals("COMMAND")){
-                    // if(child.identifier.identifier.equals("COMMAND")){
+                    // if(child.identifier.identifier.equals("COMMAND") && !typeCheck(child, symbolTable)){
                     //     System.out.println("Checking COMMAND in INSTRUC returns:" + typeCheck(child, symbolTable));
-                    // }else{
+                    // }else if(child.identifier.identifier.equals("INSTRUC") && !typeCheck(child, symbolTable)){
                     //     System.out.println("Checking INSTRUC in INSTRUC returns:" + typeCheck(child, symbolTable));
                     // }
                     childrenTypeChecks[node.children.indexOf(child)] = typeCheck(child, symbolTable);
@@ -109,19 +118,31 @@ public class Type_Checker {
                     if(typeOf(symbolTable, child).equals("n") || typeOf(symbolTable, child).equals("t")){
                         return true;
                     }else{
+                        // System.out.println("ATOMIC returns false");
                         return false;
                     }
                 }
                 if(child.identifier.identifier.equals("ASSIGN") || child.identifier.identifier.equals("BRANCH")){
+                    if(child.identifier.identifier.equals("ASSIGN") && !typeCheck(child, symbolTable)){
+                        // System.out.println("Checking ASSIGN in COMMAND returns:" + typeCheck(child, symbolTable));
+                    }else if(child.identifier.identifier.equals("BRANCH") && !typeCheck(child, symbolTable)){
+                        // System.out.println("Checking BRANCH in COMMAND returns:" + typeCheck(child, symbolTable));
+                    }
+                
                     return typeCheck(child, symbolTable);
                 }
                 if(child.identifier.identifier.equals("CALL")){
                     if(typeOf(symbolTable, child).equals("v")){
+                        // System.out.println("CALL returns true");
                         return true;
                     }else{
+                        // System.out.println("typeOf(symbolTable, CALL) returns:" + typeOf(symbolTable, child));
+                        // System.out.println("CALL returns false");
                         return false;
                     }
                 }
+                // System.out.println("COMMAND returns true");
+                return true;
                 // TODO: return ATOMIC for FUNCTIONS
             }
         }else if(node.identifier.identifier.equals("ASSIGN")){
@@ -144,20 +165,30 @@ public class Type_Checker {
             for(Node child : node.children){
                 if(child.identifier.identifier.equals("COND")){
                     if(typeOf(symbolTable, child).equals("b")){
-                        
+                        childrenTypeChecks[node.children.indexOf(child)] = true;
                     }else{
+                        // System.out.println("COND returns false in BRANCH");
+                        // System.out.println("typeOf(symbolTable, COND) returns:" + typeOf(symbolTable, child));
                         return false;
                     }
                 }
                 if(child.identifier.identifier.equals("ALGO")){
+                    if(typeCheck(child, symbolTable) == false){
+                        // System.out.println("ALGO returns false in BRANCH");
+                        return false;
+                    }
+                        
                     childrenTypeChecks[node.children.indexOf(child)] = typeCheck(child, symbolTable);
                 }
                 else if(child.identifier.identifier.equals("if") || child.identifier.identifier.equals("else") || child.identifier.identifier.equals("then")){
                     childrenTypeChecks[node.children.indexOf(child)] = true;
                 }
             }
+            int count = 0;
             for(boolean check : childrenTypeChecks){
+                // System.out.println("position of check: " + count++ + " has " + check);
                 if(check == false){
+                    // System.out.println("BRANCH returns false with check loop");
                     return false;
                 }
             }
@@ -263,11 +294,13 @@ public class Type_Checker {
                 // check if all 3 ATOMIC nodes are type "n". if it is return the typeOf(FNAME), else return 'u'
                     if(childNode.identifier.identifier.equals("ATOMIC")){
                         if(!typeOf(symbol_Table, childNode).equals("n")){
+                            // System.out.println("ATOMIC lookup returns:" + typeOf(symbol_Table, childNode));
                             return "u";
                         }
                     }
                 }
                 // return typeOf(FNAME)
+                // System.out.println("typeOf(FNAME) returns:" + typeOf(symbol_Table, node.children.get(0)));
                 return typeOf(symbol_Table, node.children.get(0));
             }else if(node.identifier.identifier.equals("OP")){
                 if(node.children.get(0).identifier.identifier.equals("UNOP")){
@@ -307,9 +340,15 @@ public class Type_Checker {
                     return "n";
                 }
             }else if(node.identifier.identifier.equals("COND")){
-                if(typeOf(symbol_Table, node.children.get(0)).equals("SIMPLE") || typeOf(symbol_Table, node.children.get(0)).equals("COMPOSIT")){
-                    return typeOf(symbol_Table, node.children.get(0));
-                }
+                // System.out.println("COND returns:" + typeOf(symbol_Table, node.children.get(0)));
+                // if(typeOf(symbol_Table, node.children.get(0)).equals("SIMPLE") || typeOf(symbol_Table, node.children.get(0)).equals("COMPOSIT")){
+                //     if(node.children.get(0).identifier.identifier.equals("SIMPLE")){
+                //         System.out.println("aaaaaaaaaaaaaaaaaaaaaSIMPLE returns:" + typeOf(symbol_Table, node.children.get(0)));
+                //     }else if(node.children.get(0).identifier.identifier.equals("COMPOSIT")){
+                //         System.out.println("aaaaaaaaaaaaaaaaaaaaaaCOMPOSIT returns:" + typeOf(symbol_Table, node.children.get(0)));
+                //     }
+                // }
+                return typeOf(symbol_Table, node.children.get(0));
             }else if(node.identifier.identifier.equals("SIMPLE")){
                 // if typeof(BINOP) == typeof(ATOMIC1) == typeof(ATOMIC2) == 'b' then  return 'b'
                 if(typeOf(symbol_Table, node.children.get(0)).equals("b") && typeOf(symbol_Table, node.children.get(2)).equals("b") && typeOf(symbol_Table, node.children.get(4)).equals("b")){
@@ -321,9 +360,9 @@ public class Type_Checker {
                 }              
             }else if(node.identifier.identifier.equals("COMPOSIT")){
                 // if typeof(BINOP) == typeof(ATOMIC1) == typeof(ATOMIC2) == 'b' then  return 'b'
-                if(node.children.get(0).equals("BINOP") && typeOf(symbol_Table, node.children.get(0)).equals("b") && typeOf(symbol_Table, node.children.get(2)).equals("b") && typeOf(symbol_Table, node.children.get(4)).equals("b")){
+                if(node.children.get(0).identifier.identifier.equals("BINOP") && typeOf(symbol_Table, node.children.get(0)).equals("b") && typeOf(symbol_Table, node.children.get(2)).equals("b") && typeOf(symbol_Table, node.children.get(4)).equals("b")){
                     return "b";
-                }else if(node.children.get(0).equals("UNOP") && typeOf(symbol_Table, node.children.get(0)).equals("b") && typeOf(symbol_Table, node.children.get(2)).equals("b")){
+                }else if(node.children.get(0).identifier.identifier.equals("UNOP") && typeOf(symbol_Table, node.children.get(0)).equals("b") && typeOf(symbol_Table, node.children.get(2)).equals("b")){
                     return "b";
                 }else{
                     return "u";
@@ -346,8 +385,16 @@ public class Type_Checker {
                         
                         return "u";
                     }
+                }  
+            }else if(node.identifier.identifier.equals("FNAME")){
+                // check if FNAME is in symbol table
+                if(symbol_Table.lookupName(child.token.tokenValue) != null){
+                    if(symbol_Table.lookupName(child.token.tokenValue).declarationType.equals("void")){
+                        return "v";
+                    }else{
+                        return "u";
+                    }
                 }
-                    
             }
                      
         }
