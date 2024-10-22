@@ -14,6 +14,25 @@ main
                 print "No" ;
             end ;
         V_a03 = V_a01 ;
+        halt ;
+    end
+## BREAK ##
+main
+    num V_a01 ,
+    num V_a02 ,
+    num V_a03 ,
+    begin
+        V_a01 = 10 ;
+        V_a02 = 20 ;
+        if grt ( 5 , V_a01 ) then
+            begin
+                print "Yes" ;
+            end
+        else
+            begin
+                print "No" ;
+            end ;
+        V_a03 = V_a01 ;
         F_func ( V_a01 , V_a02 , V_a03 ) ;
         halt ;
     end
@@ -50,25 +69,6 @@ main
     begin
         V_a01 = 10 ;
         V_a02 = 10 ;
-    end
-## BREAK ##
-main
-    num V_a01 ,
-    num V_a02 ,
-    num V_a03 ,
-    begin
-        V_a01 = 10 ;
-        V_a02 = 20 ;
-        if grt ( 5 , V_a01 ) then
-            begin
-                print "Yes" ;
-            end
-        else
-            begin
-                print "No" ;
-            end ;
-        V_a03 = V_a01 ;
-        halt ;
     end
 ## BREAK ##
 main
