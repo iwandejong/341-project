@@ -14,6 +14,6 @@ public class InnerSymbol_Table {
     }
     
     public void print() {
-        System.out.println("Value: " + value + " Scope: " + scope + " Type: " + type + " Declaration Type: " + declarationType);
+        System.out.println("Value: " + value + " Scope: " + scope  + " Declaration Type: " + declarationType);
     }
 }

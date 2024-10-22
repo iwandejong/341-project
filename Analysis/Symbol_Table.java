@@ -62,7 +62,7 @@ public class Symbol_Table {
         }else{
             // go through the entire thing and print out the id, value, and scope
             for (String key : table.keySet()) {
-                System.out.println("ID: " + key + ", Value: " + table.get(key).value + ", Scope: " + table.get(key).scope + ", Type: " + table.get(key).type + ", Declaration Type: " + table.get(key).declarationType);
+                System.out.println("ID: " + key + ", Value: " + table.get(key).value + ", Scope: " + table.get(key).scope  + ", Declaration Type: " + table.get(key).declarationType);
             }
         }
     }

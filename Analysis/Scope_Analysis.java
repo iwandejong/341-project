@@ -56,6 +56,7 @@ public class Scope_Analysis {
     // TODO: check all rules
     public Symbol_Table buildSymbolTable(Node node, Symbol_Table symbolTable) {
         // if the node is null, return the symbol table
+        // isDeclaration = false;
         if (node == null) {
             return symbolTable;
         }
@@ -66,8 +67,7 @@ public class Scope_Analysis {
 
         // if the node is not a reserved word, add it to the symbol table
         for (int i = 0; i < node.children.size(); i++) {
-            // print the current node;
-            // scope++;
+            // if the node is a function
             if(node.children.get(i).identifier.identifier.startsWith("F_")){
                 // every function opens a new scope
                 // see if the function is already in the symbol table ( could be due to call in main )
@@ -82,6 +82,7 @@ public class Scope_Analysis {
                     continue;
                 }
             }
+            // if the node is a variable
             if (node.children != null && node.children.get(i) != null && node.children.get(i).token != null) { // Add this check
                 // if it is not a reserved keyword
                 if (!node.children.get(i).token.tokenClass.equals("reserved_keyword")) {
@@ -110,8 +111,12 @@ public class Scope_Analysis {
                         }
                         String stringRegex = "\"[a-zA-Z0-9]*\"";
                         String numberRegex = "[0-9]+";
+                        // it is not a string or number
                         if(!node.children.get(i).token.tokenValue.matches(numberRegex) && !node.children.get(i).token.tokenValue.matches(stringRegex)){
-                            symbolTable.bind(genNewVar(), node.children.get(i).identifier.identifier, scope, node.children.get(i).token.tokenClass, thisDeclarationType);
+                            // it is not already in table with the same scope
+                            if(symbolTable.lookupName(node.children.get(i).identifier.identifier) == null){
+                                symbolTable.bind(genNewVar(), node.children.get(i).identifier.identifier, scope, node.children.get(i).token.tokenClass, thisDeclarationType);
+                            }
                         }
                     }else{
                         symbolTable.bind(genNewVar(), node.children.get(i).identifier.identifier, scope, "D", declarationType);
@@ -235,14 +240,14 @@ public class Scope_Analysis {
     public void Rule4(){
         // look through the symbol table and check if the symbol is declared
         
-        for(String key : symbolTable.table.keySet()){
-            // find type = V, Use that symbol and check if it is declared
-            if(symbolTable.table.get(key).type.equals("V")){
-                if(symbolTable.lookupName(symbolTable.table.get(key).value) == null){
-                    throw new RuntimeException("Symbol: " + symbolTable.table.get(key).value + " is not declared.");
-                }
-            } 
-        }
+        // for(String key : symbolTable.table.keySet()){
+        //     // find type = V, Use that symbol and check if it is declared
+        //     if(symbolTable.table.get(key).type.equals("V")){
+        //         if(symbolTable.lookupName(symbolTable.table.get(key).value) == null){
+        //             throw new RuntimeException("Symbol: " + symbolTable.table.get(key).value + " is not declared.");
+        //         }
+        //     } 
+        // }
     }
 
     public void Rule10(){
