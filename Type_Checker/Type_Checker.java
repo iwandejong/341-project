@@ -340,14 +340,6 @@ public class Type_Checker {
                     return "n";
                 }
             }else if(node.identifier.identifier.equals("COND")){
-                // System.out.println("COND returns:" + typeOf(symbol_Table, node.children.get(0)));
-                // if(typeOf(symbol_Table, node.children.get(0)).equals("SIMPLE") || typeOf(symbol_Table, node.children.get(0)).equals("COMPOSIT")){
-                //     if(node.children.get(0).identifier.identifier.equals("SIMPLE")){
-                //         System.out.println("aaaaaaaaaaaaaaaaaaaaaSIMPLE returns:" + typeOf(symbol_Table, node.children.get(0)));
-                //     }else if(node.children.get(0).identifier.identifier.equals("COMPOSIT")){
-                //         System.out.println("aaaaaaaaaaaaaaaaaaaaaaCOMPOSIT returns:" + typeOf(symbol_Table, node.children.get(0)));
-                //     }
-                // }
                 return typeOf(symbol_Table, node.children.get(0));
             }else if(node.identifier.identifier.equals("SIMPLE")){
                 // if typeof(BINOP) == typeof(ATOMIC1) == typeof(ATOMIC2) == 'b' then  return 'b'
