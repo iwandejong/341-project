@@ -30,21 +30,21 @@ public class CodeGenerator {
     public String newvar() throws RuntimeException {
         if (newvar == "") {
             newvar = "t0";
-            return " " + newvar + " ";
+            return newvar;
         }
         int temp = Integer.parseInt(newvar.substring(1));
         newvar = "t" + (temp + 1);
-        return " " + newvar + " ";
+        return newvar;
     }
 
     public String newlabel() throws RuntimeException {
         if (newlabel == "") {
             newlabel = "L1";
-            return " " + newlabel + " ";
+            return newlabel;
         }
         int temp = Integer.parseInt(newlabel.substring(1));
         newlabel = "L" + (temp + 1);
-        return " " + newlabel + " ";
+        return newlabel;
     }
 
     public Tree newBaseSubTree(Tree tree, String identifier) {
@@ -526,25 +526,18 @@ public class CodeGenerator {
                 Tree SIMPLE1 = newBaseSubTree(COMPOSIT, "SIMPLE");
                 Tree SIMPLE2 = newBaseSubTree(COMPOSIT, "SIMPLE", 1);
                 
-                return SIMPLE(SIMPLE1, label1) +
-                       " GOTO " + labelF + " " +
-                       " LABEL " + label1 + " " +
-                       SIMPLE(SIMPLE2, labelT) +
-                       " GOTO " + labelF + " ";
+                return SIMPLE(SIMPLE1, label1) + " GOTO " + labelF + " " + " LABEL " + label1 + " " + SIMPLE(SIMPLE2, labelT) + " GOTO " + labelF + " ";
             } else if (op.equals("or")) {
                 // Handle OR operation
                 Tree SIMPLE1 = newBaseSubTree(COMPOSIT, "SIMPLE");
                 Tree SIMPLE2 = newBaseSubTree(COMPOSIT, "SIMPLE", 1);
                 
-                return SIMPLE(SIMPLE1, labelT) +
-                       SIMPLE(SIMPLE2, labelT) +
-                       " GOTO " + labelF + " \n";
+                return SIMPLE(SIMPLE1, labelT) + SIMPLE(SIMPLE2, labelT) + " GOTO " + labelF + " \n";
             }
         } else if (COMPOSIT.root.children.get(0).identifier.identifier.equals("UNOP")) {
             // Handle NOT operation by swapping labels
             Tree SIMPLE = newBaseSubTree(COMPOSIT, "SIMPLE");
-            return SIMPLE(SIMPLE, labelF) +
-                   " GOTO " + labelT + " \n";
+            return SIMPLE(SIMPLE, labelF) + " GOTO " + labelT + " \n";
         }
         throw new RuntimeException("Invalid COMPOSIT.");
     }
@@ -558,7 +551,7 @@ public class CodeGenerator {
         String token = node.token.tokenValue;
 
         // get the new name from the symbol table
-        String newName = symbolTable.lookupName(token).value;
+        String newName = symbolTable.lookupID(token);
 
         return newName;
     }
