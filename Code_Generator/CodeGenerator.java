@@ -79,7 +79,7 @@ public class CodeGenerator {
         Node node = VNAME.root.children.get(0);
 
         // get the value of the token
-        String token = node.token.tokenValue; // V_a01
+        String token = node.token.tokenValue;
 
         // get the new name from the symbol table
         String newName = symbolTable.lookupID(token); // V_a01
@@ -212,7 +212,11 @@ public class CodeGenerator {
 
     // COMMAND ::= CALL translate(COMMAND) = translate(CALL)
     private String COMMAND_CALL (Tree COMMAND) {
-        return "";
+        Tree CALL = newBaseSubTree(COMMAND, "CALL");
+        Tree ATOMIC1 = newBaseSubTree(CALL, "ATOMIC");
+        Tree ATOMIC2 = newBaseSubTree(CALL, "ATOMIC", 1);
+        Tree ATOMIC3 = newBaseSubTree(CALL, "ATOMIC", 2);
+        return CALL(CALL, ATOMIC1, ATOMIC2, ATOMIC3);
     }
 
     // COMMAND ::= BRANCH translate(COMMAND) = translate(BRANCH)
@@ -320,7 +324,7 @@ public class CodeGenerator {
         String p1 = ATOMIC(ATOMIC1, newvar());
         String p2 = ATOMIC(ATOMIC2, newvar());
         String p3 = ATOMIC(ATOMIC3, newvar());
-        String newName = FNAME(CALL);
+        String newName = FNAME(newBaseSubTree(CALL, "FNAME"));
         return "CALL_" + newName + "(" + p1 + "," + p2 + "," + p3 + ")";
     }
 
@@ -551,7 +555,7 @@ public class CodeGenerator {
         // get the new name from the symbol table
         String newName = symbolTable.lookupID(token);
 
-        return newName;
+        return newName + "\n";
     }
 
     // The user-defined names were already re-named in the foregoing Scope Analysis.
@@ -582,8 +586,11 @@ public class CodeGenerator {
         }
 
         Tree DECL = newBaseSubTree(FUNCTIONS, "DECL");
-        Tree FUNCTIONS2 = newBaseSubTree(FUNCTIONS, "FUNCTIONS");
-        return DECL(DECL) + FUNCTIONS(FUNCTIONS2);
+        if (FUNCTIONS.root.children.size() == 2) {
+            Tree FUNCTIONS2 = newBaseSubTree(FUNCTIONS, "FUNCTIONS", 1);
+            return DECL(DECL) + FUNCTIONS(FUNCTIONS2);
+        }
+        return DECL(DECL);
     }
 
     // Also important is the generation of a stop command behind DECL, such that the running
