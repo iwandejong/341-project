@@ -13,4 +13,7 @@ public class InnerSymbol_Table {
         this.declarationType = declarationType;
     }
     
+    public void print() {
+        System.out.println("Value: " + value + " Scope: " + scope + " Type: " + type + " Declaration Type: " + declarationType);
+    }
 }

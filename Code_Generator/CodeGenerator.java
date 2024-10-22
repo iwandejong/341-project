@@ -2,14 +2,14 @@ package Code_Generator;
 import Parser.*;
 import java.util.*;
 
+import Analysis.InnerSymbol_Table;
 import Analysis.Symbol_Table;
 
 public class CodeGenerator {
     List<ProductionRule> productionRules = new ArrayList<>();
     Tree syntaxTree = new Tree();
     Symbol_Table symbolTable = new Symbol_Table();
-    String newstring = "";
-    String newnum = "";
+    String newvar = "";
     String newlabel = "";
 
     public void generateCode(List<ProductionRule> _productionRules, Tree _syntaxTree, Symbol_Table _symbolTable) {
@@ -27,26 +27,14 @@ public class CodeGenerator {
         System.out.println("\u001B[32m" + "Code Generation Successfully Completed." + "\u001B[0m");
     }
 
-    public String newvar(String type) throws RuntimeException {
-        if (type == "N") {
-            if (newnum == "") {
-                newnum = "N0%";
-                return " " + newnum + " ";
-            }
-            int temp = Integer.parseInt(newnum.substring(1, newnum.length() - 1));
-            newnum = "V" + (temp + 1) + "%";
-            return " " + newnum + " ";
-        } else if (type == "T") {
-            if (newstring == "") {
-                newstring = "T0$";
-                return " " + newstring + " ";
-            }
-            int temp = Integer.parseInt(newstring.substring(1, newstring.length() - 1));
-            newstring = "T" + (temp + 1) + "$";
-            return " " + newstring + " ";
+    public String newvar() throws RuntimeException {
+        if (newvar == "") {
+            newvar = "t0";
+            return " " + newvar + " ";
         }
-
-        throw new RuntimeException("Invalid type.");
+        int temp = Integer.parseInt(newvar.substring(1));
+        newvar = "t" + (temp + 1);
+        return " " + newvar + " ";
     }
 
     public String newlabel() throws RuntimeException {
@@ -76,14 +64,16 @@ public class CodeGenerator {
     // GLOBVARS1 ::= VTYP VNAME , GLOBVARS2
     // The variable declarations were needed only for Scope-Analysis and for Type-Checking.
     // They remain un-translated (can be ignored by the translator).
+
     // VTYP ::= num
     // VTYP ::= text
     // The type declarations were needed only for Scope-Analysis and for Type-Checking.
     // They remain un-translated (can be ignored by the translator).
+
     // VNAME ::= a token of Token-Class V from the Lexer
     // The user-defined names were already re-named in the foregoing Scope Analysis.
     // The translator function can find their new names in the Symbol Table.
-    private String VNAME (Tree VNAME, String place) {
+    private String VNAME (Tree VNAME) {
         // x = lookup(vtable, getname(id))
         // [place := x]
 
@@ -96,7 +86,7 @@ public class CodeGenerator {
         // get the new name from the symbol table
         String newName = symbolTable.lookupName(token).value;
 
-        return place + " := " + newName;
+        return newName;
     }
 
     // PROG ::= main GLOBVARS ALGO FUNCTIONS
@@ -113,7 +103,7 @@ public class CodeGenerator {
         Tree INSTRUC = newBaseSubTree(ALGO, "INSTRUC");
         String aCode = ALGO(INSTRUC);
 
-        // String fCode = FUNCTIONS(FUNCTIONS);
+        // TODO: String fCode = FUNCTIONS(FUNCTIONS);
         return aCode + " STOP ";
     }
 
@@ -164,11 +154,11 @@ public class CodeGenerator {
             case "halt":
                 return COMMAND_HALT();
             case "print":
-                return COMMAND_PRINT(COMMAND, newvar("T"));
+                return COMMAND_PRINT(COMMAND);
             case "return":
-                return COMMAND_ATOMIC(COMMAND, newvar("T"));
+                return COMMAND_ATOMIC(COMMAND);
             case "ASSIGN":
-                return COMMAND_ASSIGN(COMMAND, newvar("T"));
+                return COMMAND_ASSIGN(COMMAND);
             case "CALL":
                 return COMMAND_CALL(COMMAND);
             case "BRANCH":
@@ -193,9 +183,9 @@ public class CodeGenerator {
     // COMMAND ::= print ATOMIC
     // codeString = translate(ATOMIC)
     // return( "PRINT"++" "++codeString )
-    private String COMMAND_PRINT (Tree COMMAND, String place) {
+    private String COMMAND_PRINT (Tree COMMAND) {
         Tree ATOMIC = newBaseSubTree(COMMAND, "ATOMIC");
-        String codeString = ATOMIC(ATOMIC, place);
+        String codeString = ATOMIC(ATOMIC);
         return "PRINT" + " " + codeString;
     }
 
@@ -205,18 +195,18 @@ public class CodeGenerator {
     // was found inside the MAIN program then a semantic error must have already been thrown
     // in the Semantic Analysis phase, such that the translation phase would not even start.
     // Advice: Translation as per Chapter #9 of our Textbook, or per INLINING (as lectured).
-    private String COMMAND_ATOMIC (Tree COMMAND, String place) {
+    private String COMMAND_ATOMIC (Tree COMMAND) {
         Tree ATOMIC = newBaseSubTree(COMMAND, "ATOMIC");
-        String codeString = ATOMIC(ATOMIC, place);
+        String codeString = ATOMIC(ATOMIC);
         return "RETURN" + " " + codeString;
     }
 
     // COMMAND ::= ASSIGN translate(COMMAND) = translate(ASSIGN)
-    private String COMMAND_ASSIGN (Tree COMMAND, String place) {
+    private String COMMAND_ASSIGN (Tree COMMAND) {
         Tree ASSIGN = newBaseSubTree(COMMAND, "ASSIGN");
 
         if (ASSIGN.root.children.get(2).identifier.identifier.equals("input")) {
-            return ASSIGN_INPUT(ASSIGN, place);
+            return ASSIGN_INPUT(ASSIGN);
         } else {
             return ASSIGN_TERM(ASSIGN);
         }
@@ -236,16 +226,13 @@ public class CodeGenerator {
     // ATOMIC ::= VNAME
     // translate(ATOMIC) → returns as code-string the new name of VNAME as found in the Symbol Table
     // ATOMIC ::= CONST translate(ATOMIC) = translate(CONST)
-    private String ATOMIC (Tree ATOMIC, String place) throws RuntimeException {
-
+    private String ATOMIC (Tree ATOMIC) throws RuntimeException {
         if (ATOMIC.root.children.get(0).identifier.identifier.equals("VNAME")) {
             Tree VNAME = newBaseSubTree(ATOMIC, "VNAME");
-
-            return VNAME(VNAME, place);
+            return VNAME(VNAME);
         } else if (ATOMIC.root.children.get(0).identifier.identifier.equals("CONST")) {
             Tree CONST = newBaseSubTree(ATOMIC, "CONST");
-
-            return CONST(CONST, place);
+            return CONST(CONST);
         }
         throw new RuntimeException("Invalid ATOMIC.");
     }
@@ -255,15 +242,12 @@ public class CodeGenerator {
     // Constants are translated to themselves.
     // Example for a number constant: translate(235) → return " 235 "
     // Example for a text constant: translate("hello") → return " "hello" "
-    // ! Note that the returned code-string must also contain these "quotation marks" !
-    private String CONST (Tree CONST, String place) throws RuntimeException {
-        // v = getvalue(num)
-        // [place := v]
+    private String CONST (Tree CONST) throws RuntimeException {
         String token = CONST.root.children.get(0).token.tokenValue;
         if (CONST.root.children.get(0).token.tokenClass.equals("N")) {
-            return place + " := " + token + " ";
+            return " " + token + " ";
         } else if (CONST.root.children.get(0).token.tokenClass.equals("T")) {
-            return place + " := \"" + token + "\" ";
+            return " " + token + " ";
         }
 
         throw new RuntimeException("Invalid CONST.");
@@ -272,9 +256,9 @@ public class CodeGenerator {
     // ASSIGN ::= VNAME < input // The symbol < remains un-translated
     // codeString = translate(VNAME)
     // return( "INPUT"++" "++codeString )
-    private String ASSIGN_INPUT (Tree ASSIGN, String place) {
+    private String ASSIGN_INPUT (Tree ASSIGN) {
         Tree VNAME = newBaseSubTree(ASSIGN, "VNAME");
-        String codeString = ATOMIC(VNAME, place);
+        String codeString = ATOMIC(VNAME);
         return "INPUT" + " " + codeString;
     }
 
@@ -288,25 +272,21 @@ public class CodeGenerator {
         // x = lookup(vtable, getname(id))
         // TransExp(Exp,vtable,ftable,place)++[x := place]
 
-        String place = newvar("T");
-        String x = VNAME(VNAME, place);
-        String code = TERM(TERM);
+        String place = newvar();
+        String x = VNAME(VNAME);
+        String code = TERM(TERM, place);
 
-        return code + x;
+        return code + x + " := " + place;
     }
     
     // TERM ::= ATOMIC translate(TERM) = translate(ATOMIC)
     // TERM ::= CALL translate(TERM) = translate(CALL)
     // TERM ::= OP translate(TERM) = translate(OP)
-    private String TERM (Tree TERM) throws RuntimeException {
+    private String TERM(Tree TERM, String place) throws RuntimeException {
         if (TERM.root.children.get(0).identifier.identifier.equals("ATOMIC")) {
             Tree ATOMIC = newBaseSubTree(TERM, "ATOMIC");
-
-            String place = newvar("T");
-
-            return ATOMIC(ATOMIC, place);
+            return place + " := " + ATOMIC(ATOMIC);
         } else if (TERM.root.children.get(0).identifier.identifier.equals("CALL")) {
-            // get all atomics
             Tree CALL = newBaseSubTree(TERM, "CALL");
             Tree ATOMIC1 = newBaseSubTree(CALL, "ATOMIC");
             Tree ATOMIC2 = newBaseSubTree(CALL, "ATOMIC", 1);
@@ -314,9 +294,6 @@ public class CodeGenerator {
             return CALL(CALL, ATOMIC1, ATOMIC2, ATOMIC3);
         } else if (TERM.root.children.get(0).identifier.identifier.equals("OP")) {
             Tree OP = newBaseSubTree(TERM, "OP");
-
-            String place = newvar("T");
-
             return OP(OP, place);
         }
         throw new RuntimeException("Invalid TERM.");
@@ -342,13 +319,9 @@ public class CodeGenerator {
     // the final translation will continue from there either by way of INLINING (as lectured),
     // or by the code generation method described in Chapter #9 of our Textbook (with stack).
     private String CALL(Tree CALL, Tree ATOMIC1, Tree ATOMIC2, Tree ATOMIC3) {
-        String place1 = newvar("N");
-        String place2 = newvar("N");
-        String place3 = newvar("N");
-
-        String p1 = ATOMIC(ATOMIC1, place1);
-        String p2 = ATOMIC(ATOMIC2, place2);
-        String p3 = ATOMIC(ATOMIC3, place3);
+        String p1 = ATOMIC(ATOMIC1);
+        String p2 = ATOMIC(ATOMIC2);
+        String p3 = ATOMIC(ATOMIC3);
         String newName = FNAME(CALL);
         return "CALL_" + newName + "(" + p1 + "," + p2 + "," + p3 + ")";
     }
@@ -359,53 +332,38 @@ public class CodeGenerator {
     // return code1++place++":="++opName++"("++place1++")"
     // OP ::= BINOP( ARG1 , ARG2 )
     // Translate this case such as Exp1 binop Exp2 in Figure 6.3 of our Textbook.
-    private String OP (Tree OP, String place) throws RuntimeException {
+    private String OP(Tree OP, String place) throws RuntimeException {
         if (OP.root.children.get(0).identifier.identifier.equals("UNOP")) {
             Tree ARG = newBaseSubTree(OP, "ARG");
-
-            // place1 = newvar()
-            // code1 = TransExp(Exp1,vtable,ftable,place1)
-            // op = transop(getopname(unop))
-            // code1++[place := op place1]
-            String place1 = newvar("N");
-            String code1 = ARG(ARG);
+            String place1 = newvar();
+            String code1 = ARG(ARG, place1);
             String op = UNOP(OP);
-            return code1 + place + " := " + op + place1;
 
+            return code1 + place + " := " + op + "(" + place1 + ")";
         } else if (OP.root.children.get(0).identifier.identifier.equals("BINOP")) {
-            Tree ARG1 = newBaseSubTree(OP, "ATOMIC");
-            Tree ARG2 = newBaseSubTree(OP, "ATOMIC", 1);
-
-            // place1 = newvar()
-            // place2 = newvar()
-            // code1 = TransExp(Exp1,vtable,ftable,place1)
-            // code2 = TransExp(Exp2,vtable,ftable,place2)
-            // op = transop(getopname(binop))
-            // code1++code2++[place := place1 op place2]
-            String place1 = newvar("N");
-            String place2 = newvar("N");
-            String code1 = ARG(ARG1);
-            String code2 = ARG(ARG2);
+            Tree ARG1 = newBaseSubTree(OP, "ARG");
+            Tree ARG2 = newBaseSubTree(OP, "ARG", 1);
+            String place1 = newvar();
+            String place2 = newvar();
+            String code1 = ARG(ARG1, place1);
+            String code2 = ARG(ARG2, place2);
             String op = BINOP(OP);
+
             return code1 + code2 + place + " := " + place1 + op + place2;
         }
-
         throw new RuntimeException("Invalid OP.");
     }
 
+
     // ARG ::= ATOMIC translate(ARG) = translate(ATOMIC)
     // ARG ::= OP translate(ARG) = translate(OP)
-    private String ARG (Tree ARG) {
+    private String ARG (Tree ARG, String place) throws RuntimeException {
         if (ARG.root.children.get(0).identifier.identifier.equals("ATOMIC")) {
             Tree ATOMIC = newBaseSubTree(ARG, "ATOMIC");
 
-            String place = newvar("N");
-
-            return ATOMIC(ATOMIC, place);
+            return ATOMIC(ATOMIC);
         } else if (ARG.root.children.get(0).identifier.identifier.equals("OP")) {
             Tree OP = newBaseSubTree(ARG, "OP");
-
-            String place = newvar("N");
 
             return OP(OP, place);
         }
@@ -450,7 +408,6 @@ public class CodeGenerator {
     // BINOP ::= mul translate(mul)→ return " * "
     // BINOP ::= div translate(div) → return " / "
     private String BINOP (Tree BINOP) throws RuntimeException {
-        BINOP.visualiseTree(BINOP.root, "", true);
         if (BINOP.root.children.get(0).identifier.identifier.equals("or")) {
             return " || ";
         } else if (BINOP.root.children.get(0).identifier.identifier.equals("and")) {
@@ -478,43 +435,10 @@ public class CodeGenerator {
     // If the COND is SIMPLE,
     // then translate the whole BRANCH command as in Figure 6.5 of the Textbook,
     // case: if COND then Stat1 else Stat2
-    private String BRANCH (Tree BRANCH) throws RuntimeException {
+    private String BRANCH(Tree BRANCH) throws RuntimeException {
         Tree COND = newBaseSubTree(BRANCH, "COND");
         
-        if (COND.root.children.get(0).identifier.identifier.equals("COMPOSIT")) {
-            // COMPOSIT ::= BINOP ( SIMPLE , SIMPLE )
-            // COMPOSIT ::= UNOP ( SIMPLE )
-            if (BRANCH.root.children.size() == 5) {
-                // label1 = newlabel()
-                // label2 = newlabel()
-                // label3 = newlabel()
-                // code1 = TransCond(Cond,label1,label2,vtable,ftable)
-                // code2 = TransStat(Stat1,vtable,ftable)
-                // code3 = TransStat(Stat2,vtable,ftable)
-                // code1++[LABEL label1]++code2++[GOTO label3, LABEL label2] ++code3++[LABEL label3]
-                String label1 = newlabel();
-                String label2 = newlabel();
-                String label3 = newlabel();
-                String code1 = COND(COND, label1, label2);
-                String code2 = ALGO(newBaseSubTree(BRANCH, "ALGO"));
-                String code3 = ALGO(newBaseSubTree(BRANCH, "ALGO", 1));
-                return code1 + "LABEL " + label1 + code2 + "GOTO " + label3 + "LABEL " + label2 + code3 + "LABEL " + label3;
-            } else if (BRANCH.root.children.size() == 3) {
-                // label1 = newlabel()
-                // label2 = newlabel()
-                // code1 = TransCond(Cond,label1,label2,vtable,ftable)
-                // code2 = TransStat(Stat1,vtable,ftable)
-                // code1++[LABEL label1]++code2++[LABEL label2]
-                String label1 = newlabel();
-                String label2 = newlabel();
-                String code1 = COND(COND, label1, label2);
-                String code2 = ALGO(newBaseSubTree(BRANCH, "ALGO"));
-                return code1 + "LABEL " + label1 + code2 + "LABEL " + label2;
-            }
-            
-            throw new RuntimeException("Invalid BRANCH.");
-        } else if (COND.root.children.get(0).identifier.identifier.equals("SIMPLE")) {
-
+        if (BRANCH.root.children.size() == 6) {
             // label1 = newlabel()
             // label2 = newlabel()
             // label3 = newlabel()
@@ -525,42 +449,41 @@ public class CodeGenerator {
             String label1 = newlabel();
             String label2 = newlabel();
             String label3 = newlabel();
+            Tree ALGO1 = newBaseSubTree(BRANCH, "ALGO");
+            Tree ALGO2 = newBaseSubTree(BRANCH, "ALGO", 1);
             String code1 = COND(COND, label1, label2);
-            String code2 = ALGO(newBaseSubTree(BRANCH, "ALGO"));
-            String code3 = ALGO(newBaseSubTree(BRANCH, "ALGO", 1));
-            return code1 + "LABEL " + label1 + code2 + "GOTO " + label3 + "LABEL " + label2 + code3 + "LABEL " + label3;
+            String code2 = ALGO(ALGO1);
+            String code3 = ALGO(ALGO2);
+            return code1 + " LABEL " + label1 + " \n" +
+                   code2 + " GOTO " + label3 + " LABEL " + label2 + " \n" +
+                   code3 + " LABEL " + label3 + " \n";
         }
-
-        throw new RuntimeException("Invalid BRANCH.");
+        throw new RuntimeException("Invalid BRANCH structure.");
     }
     
     // COND ::= SIMPLE Translation as explained above
     // COND ::= COMPOSIT Translation as explained above
-    private String COND (Tree COND, String labelT, String labelF) throws RuntimeException {
+    private String COND(Tree COND, String labelT, String labelF) throws RuntimeException {
         if (COND.root.children.get(0).identifier.identifier.equals("SIMPLE")) {
             Tree SIMPLE = newBaseSubTree(COND, "SIMPLE");
             Tree BINOP = newBaseSubTree(SIMPLE, "BINOP");
             Tree ATOMIC1 = newBaseSubTree(SIMPLE, "ATOMIC");
             Tree ATOMIC2 = newBaseSubTree(SIMPLE, "ATOMIC", 1);
 
-            // t1 = newvar()
-            // t2 = newvar()
-            // code1 = TransExp(Exp1,vtable,ftable,t1)
-            // code2 = TransExp(Exp2,vtable,ftable,t2)
-            // op = transop(getopname(relop))
-            // code1++code2++[IF t1 op t2 THEN labelt ELSE labelf ]
-            String t1 = newvar("N");
-            String t2 = newvar("N");
-            String code1 = ATOMIC(ATOMIC1, t1);
-            String code2 = ATOMIC(ATOMIC2, t2);
+            String t1 = newvar();
+            String t2 = newvar();
+            String code1 = ATOMIC(ATOMIC1);
+            String code2 = ATOMIC(ATOMIC2);
             String op = BINOP(BINOP);
-            return code1 + code2 + "IF " + t1 + op + t2 + " THEN " + labelT + " ELSE " + labelF;
+            
+            return code1 + code2 + 
+                   " IF " + t1 + op + t2 + 
+                   " THEN GOTO " + labelT + 
+                   " ELSE GOTO " + labelF;
         } else if (COND.root.children.get(0).identifier.identifier.equals("COMPOSIT")) {
             Tree COMPOSIT = newBaseSubTree(COND, "COMPOSIT");
-
             return COMPOSIT(COMPOSIT, labelT, labelF);
         }
-
         throw new RuntimeException("Invalid COND.");
     }
 
@@ -579,10 +502,10 @@ public class CodeGenerator {
             // code2 = TransExp(Exp2,vtable,ftable,place2)
             // op = transop(getopname(binop))
             // code1++code2++[place := place1 op place2]
-            String place1 = newvar("N");
-            String place2 = newvar("N");
-            String code1 = ATOMIC(ATOMIC1, place1);
-            String code2 = ATOMIC(ATOMIC2, place2);
+            String place1 = newvar();
+            String place2 = newvar();
+            String code1 = ATOMIC(ATOMIC1);
+            String code2 = ATOMIC(ATOMIC2);
             String op = BINOP(BINOP);
             return code1 + code2 + place + " := " + place1 + op + place2;
         }
@@ -592,19 +515,37 @@ public class CodeGenerator {
 
     // COMPOSIT ::= BINOP( SIMPLE1 , SIMPLE2 ) Translation as explained above
     // COMPOSIT ::= UNOP ( SIMPLE ) Translation as explained above
-    private String COMPOSIT (Tree COMPOSIT, String labelT, String labelF) throws RuntimeException {
+    private String COMPOSIT(Tree COMPOSIT, String labelT, String labelF) throws RuntimeException {
         if (COMPOSIT.root.children.get(0).identifier.identifier.equals("BINOP")) {
-            Tree SIMPLE1 = newBaseSubTree(COMPOSIT, "SIMPLE");
-            Tree SIMPLE2 = newBaseSubTree(COMPOSIT, "SIMPLE", 1);
-
-            String code1 = SIMPLE(SIMPLE1, labelT);
-            String code2 = SIMPLE(SIMPLE2, labelF);
-            return code1 + code2;
+            Tree BINOP = newBaseSubTree(COMPOSIT, "BINOP");
+            String op = BINOP.root.children.get(0).identifier.identifier;
+            
+            if (op.equals("and")) {
+                // Handle AND operation
+                String label1 = newlabel();
+                Tree SIMPLE1 = newBaseSubTree(COMPOSIT, "SIMPLE");
+                Tree SIMPLE2 = newBaseSubTree(COMPOSIT, "SIMPLE", 1);
+                
+                return SIMPLE(SIMPLE1, label1) +
+                       " GOTO " + labelF + " \n" +
+                       " LABEL " + label1 + " \n" +
+                       SIMPLE(SIMPLE2, labelT) +
+                       " GOTO " + labelF + " \n";
+            } else if (op.equals("or")) {
+                // Handle OR operation
+                Tree SIMPLE1 = newBaseSubTree(COMPOSIT, "SIMPLE");
+                Tree SIMPLE2 = newBaseSubTree(COMPOSIT, "SIMPLE", 1);
+                
+                return SIMPLE(SIMPLE1, labelT) +
+                       SIMPLE(SIMPLE2, labelT) +
+                       " GOTO " + labelF + " \n";
+            }
         } else if (COMPOSIT.root.children.get(0).identifier.identifier.equals("UNOP")) {
+            // Handle NOT operation by swapping labels
             Tree SIMPLE = newBaseSubTree(COMPOSIT, "SIMPLE");
-            return SIMPLE(SIMPLE, labelT);
+            return SIMPLE(SIMPLE, labelF) +
+                   " GOTO " + labelT + " \n";
         }
-
         throw new RuntimeException("Invalid COMPOSIT.");
     }
 
