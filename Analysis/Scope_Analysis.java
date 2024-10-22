@@ -15,6 +15,8 @@ public class Scope_Analysis {
     public static int scope = 1;
     public static boolean isDeclaration = false;
     public static String declarationType = "";
+    public int varCount = 0;
+    public int funcCount = 0;
     
     // take the parser tree 
     public Symbol_Table start(Tree tree) {
@@ -42,6 +44,15 @@ public class Scope_Analysis {
 
         return symbolTable;
     }
+
+    public String genNewVar() {
+        return "V" + varCount++;
+    }
+
+    public String genNewFunc() {
+        return "F" + funcCount++;
+    }
+
     // TODO: check all rules
     public Symbol_Table buildSymbolTable(Node node, Symbol_Table symbolTable) {
         // if the node is null, return the symbol table
@@ -61,12 +72,12 @@ public class Scope_Analysis {
                 // every function opens a new scope
                 // see if the function is already in the symbol table ( could be due to call in main )
                 if(symbolTable.lookupName(node.children.get(i).identifier.identifier) == null){
-                    symbolTable.bind(node.children.get(i).token.id, node.children.get(i).identifier.identifier, scope, "F", "void");
+                    symbolTable.bind(genNewFunc(), node.children.get(i).identifier.identifier, scope, "F", "void");
                     // scopeStack.push(scope);
                     continue;
                 }else{
                     // if the function is already in the symbol table, push the scope
-                    symbolTable.bind(node.children.get(i).token.id, node.children.get(i).identifier.identifier, scope, "F", "void");
+                    symbolTable.bind(genNewFunc(), node.children.get(i).identifier.identifier, scope, "F", "void");
                     // scopeStack.push(symbolTable.lookupName(node.children.get(i).identifier.identifier).scope);
                     continue;
                 }
@@ -100,10 +111,10 @@ public class Scope_Analysis {
                         String stringRegex = "\"[a-zA-Z0-9]*\"";
                         String numberRegex = "[0-9]+";
                         if(!node.children.get(i).token.tokenValue.matches(numberRegex) && !node.children.get(i).token.tokenValue.matches(stringRegex)){
-                            symbolTable.bind(node.children.get(i).token.id, node.children.get(i).identifier.identifier, scope, node.children.get(i).token.tokenClass, thisDeclarationType);
+                            symbolTable.bind(genNewVar(), node.children.get(i).identifier.identifier, scope, node.children.get(i).token.tokenClass, thisDeclarationType);
                         }
                     }else{
-                        symbolTable.bind(node.children.get(i).token.id, node.children.get(i).identifier.identifier, scope, "D", declarationType);
+                        symbolTable.bind(genNewVar(), node.children.get(i).identifier.identifier, scope, "D", declarationType);
                     }
                 }
                 else if(node.children.get(i).token.tokenClass.equals("reserved_keyword") && node.children.get(i).token.tokenValue.equals("void")){
@@ -150,7 +161,7 @@ public class Scope_Analysis {
             System.out.println("The symbol table is empty.");
         }else{
             // go through the entire symbol table and check if symbol scope matches the current scope
-            for(Integer key : symbolTable.table.keySet()){
+            for(String key : symbolTable.table.keySet()){
                 // * check if scopes are correct
                 if(scopeStack.scopeStack.contains(symbolTable.table.get(key).scope)){
                     
@@ -191,9 +202,9 @@ public class Scope_Analysis {
 
     // Rule 1: No variable name may be declared more than once in the same scope of different types
     public void Rule1(){
-        for(Integer key : symbolTable.table.keySet()){
+        for(String key : symbolTable.table.keySet()){
             // check if the symbol is declared more than once in the same scope
-            for(Integer key2 : symbolTable.table.keySet()){
+            for(String key2 : symbolTable.table.keySet()){
                 if(symbolTable.table.get(key).value.equals(symbolTable.table.get(key2).value) && symbolTable.table.get(key).scope == symbolTable.table.get(key2).scope && !symbolTable.table.get(key).declarationType.equals(symbolTable.table.get(key2).declarationType)){
                     throw new RuntimeException("Symbol: " + symbolTable.table.get(key).value + " is declared more than once in the same scope with different types.");
                 }
@@ -204,9 +215,9 @@ public class Scope_Analysis {
     // Rule 2: Declaration of used variable name must be found in either own scope or "higher" (in our case lower since highest scope is 1)
     public void Rule2(){
         // TODO: Test this thoroughly to make sure it works at a later time
-        for(Integer key : symbolTable.table.keySet()){
+        for(String key : symbolTable.table.keySet()){
             // check if the symbol is declared more than once in the same scope
-            for(Integer key2 : symbolTable.table.keySet()){
+            for(String key2 : symbolTable.table.keySet()){
                 if(symbolTable.table.get(key).value.equals(symbolTable.table.get(key2).value) && symbolTable.table.get(key).scope < symbolTable.table.get(key2).scope && !symbolTable.table.get(key).declarationType.equals(symbolTable.table.get(key2).declarationType)){
                     throw new RuntimeException("Symbol: " + symbolTable.table.get(key).value + " is declared in a lower scope with a different type.");
                 }
@@ -224,7 +235,7 @@ public class Scope_Analysis {
     public void Rule4(){
         // look through the symbol table and check if the symbol is declared
         
-        for(Integer key : symbolTable.table.keySet()){
+        for(String key : symbolTable.table.keySet()){
             // find type = V, Use that symbol and check if it is declared
             if(symbolTable.table.get(key).type.equals("V")){
                 if(symbolTable.lookupName(symbolTable.table.get(key).value) == null){
