@@ -17,12 +17,10 @@ public class CodeGenerator {
         syntaxTree = _syntaxTree;
         symbolTable = _symbolTable;
 
-        // find first ALGO node from ROOT and create a tree from it
-        List<Node> root = syntaxTree.getNodes("ALGO");
-        root.get(0).parent = null;
-        Tree ALGO = new Tree(root.get(0));
+        Tree ALGO = newBaseSubTree(syntaxTree, "ALGO");
+        Tree FUNCTIONS = newBaseSubTree(syntaxTree, "FUNCTIONS");
 
-        String code = PROG(ALGO, null);
+        String code = PROG(ALGO, FUNCTIONS);
         System.out.println(code);
         System.out.println("\u001B[32m" + "Code Generation Successfully Completed." + "\u001B[0m");
     }
@@ -100,18 +98,18 @@ public class CodeGenerator {
     // whereby aCode = translation(ALGO), and fCode = translation(FUNCTIONS)
     // * PASSING FUNCTION
     private String PROG (Tree ALGO, Tree FUNCTIONS) {
-        Tree INSTRUC = newBaseSubTree(ALGO, "INSTRUC");
-        String aCode = ALGO(INSTRUC);
-
-        // TODO: String fCode = FUNCTIONS(FUNCTIONS);
-        return aCode + " STOP ";
+        String aCode = ALGO(ALGO);
+        String fCode = FUNCTIONS(FUNCTIONS);
+        return aCode + " STOP " + fCode;
     }
 
     // ALGO ::= begin INSTRUC end
     // The source-words begin and end remain un-translated (can be ignored by the translator).
     // Thus: translate(ALGO) = translate(INSTRUC)
     // * PASSING FUNCTION
-    private String ALGO (Tree INSTRUC) {
+    private String ALGO (Tree ALGO) {
+        Tree INSTRUC = newBaseSubTree(ALGO, "INSTRUC");
+
         if (INSTRUC.root.children.size() == 0) {
             return INSTRUC();
         }
@@ -571,15 +569,35 @@ public class CodeGenerator {
     // make calls. Project Phase 5b can be fully accomplished as soon as Textbook Chapter #9 and
     // Textbook Chapter #7 have been discussed in the lectures.
     // FUNCTIONS ::=
+    private String FUNCTIONS () {
+        return "";
+    }
+    
     // For this case, the translator function shall return the target-code-string " REM END "
     // FUNCTIONS1 ::= DECL FUNCTIONS2
     // We translate DECL, and append behind the DECL-code the translation of FUNCTIONS2.
+    private String FUNCTIONS (Tree FUNCTIONS) {
+        if (FUNCTIONS.root.children.size() == 0) {
+            return FUNCTIONS();
+        }
+
+        Tree DECL = newBaseSubTree(FUNCTIONS, "DECL");
+        Tree FUNCTIONS2 = newBaseSubTree(FUNCTIONS, "FUNCTIONS");
+        return DECL(DECL) + FUNCTIONS(FUNCTIONS2);
+    }
+
     // Also important is the generation of a stop command behind DECL, such that the running
     // DECL code will not continue to run into the program code of the subsequent functions in
     // the same target-code-file!
     // Thus we must return the target-code-string dCode++" STOP "++fCode
     // where dCode = translation(DECL), and fCode = translation(FUNCTIONS2)
     // DECL ::= HEADER BODY
+    private String DECL (Tree DECL) {
+        Tree HEADER = newBaseSubTree(DECL, "HEADER");
+        Tree BODY = newBaseSubTree(DECL, "BODY");
+        return HEADER(HEADER) + BODY(BODY);
+    }
+
     // The HEADER will be treated either by the method of INLINING (as explained in lecture),
     // or by the method explained in Chapter #9 of our Textbook. Ultimately the HEADER will
     // vanish, as it does not contain any do-able algorithm. Only the BODY contains a do-able
@@ -588,6 +606,14 @@ public class CodeGenerator {
     // The HEADER will be treated either by the method of INLINING (as explained in lecture),
     // or by the method explained in Chapter #9 of our Textbook. Ultimately the HEADER will
     // vanish, as explained above.
+    private String HEADER (Tree HEADER) {
+        Tree FNAME = newBaseSubTree(HEADER, "FNAME");
+        Tree VNAME1 = newBaseSubTree(HEADER, "VNAME");
+        Tree VNAME2 = newBaseSubTree(HEADER, "VNAME", 1);
+        Tree VNAME3 = newBaseSubTree(HEADER, "VNAME", 2);
+        return FNAME(FNAME) + VNAME(VNAME1, newvar()) + VNAME(VNAME2, newvar()) + VNAME(VNAME3, newvar());
+    }
+
     // FTYP ::= num
     // FTYP ::= void
     // The type declarations were needed only for Scope-Analysis and for Type-Checking.
@@ -602,18 +628,34 @@ public class CodeGenerator {
     // aCode = translate(ALGO)
     // eCode = translate(EPILOG)
     // sCode = translate(SUBFUNCS)
+    private String BODY (Tree BODY) {
+        Tree PROLOG = newBaseSubTree(BODY, "PROLOG");
+        Tree ALGO = newBaseSubTree(BODY, "ALGO");
+        Tree EPILOG = newBaseSubTree(BODY, "EPILOG");
+        return PROLOG(PROLOG) + ALGO(ALGO) + EPILOG(EPILOG);
+    }
+
+
     // PROLOG ::= {
     // If the code-generation-method for its corresponding function is INLINING (as lectured),
     // then translate(PROLOG) → return " REM BEGIN "
     // If the code-generation-method for its corresponding function is the method from Chapter #9,
     // then translate(PROLOG) will generate the boiler-plate-code (with runtime-Stack) as
     // explained in Chapter #9.
+    private String PROLOG (Tree PROLOG) {
+        return " REM BEGIN ";
+    }
+
     // EPILOG ::= }
     // If the code-generation-method for its corresponding function is INLINING (as lectured),
     // then translate(EPILOG) → return " REM END "
     // If the code-generation-method for its corresponding function is the method from Chapter #9,
     // then translate(EPILOG) will generate the boiler-plate-code (with runtime-Stack) as
     // explained in Chapter #9.
+    private String EPILOG (Tree EPILOG) {
+        return " REM END ";
+    }
+
     // SUBFUNCS ::= FUNCTIONS translate(SUBFUNCS) = translate(FUNCTIONS)
     // ______
 }
