@@ -478,8 +478,8 @@ public class CodeGenerator {
             
             return code1 + code2 + 
                    " IF " + t1 + op + t2 + 
-                   " THEN GOTO " + labelT + 
-                   " ELSE GOTO " + labelF;
+                   " THEN " + labelT + 
+                   " ELSE " + labelF;
         } else if (COND.root.children.get(0).identifier.identifier.equals("COMPOSIT")) {
             Tree COMPOSIT = newBaseSubTree(COND, "COMPOSIT");
             return COMPOSIT(COMPOSIT, labelT, labelF);
