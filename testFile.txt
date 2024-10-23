@@ -1,18 +1,4 @@
 main
-    num V_number ,
-    begin
-        V_number = add ( 0.03 , 2 ) ;
-    end
-    num F_test ( V_first , V_second , V_third ) {
-        text V_t1 ,
-        text V_t2 ,
-        text V_t3 ,
-        begin
-        end
-    }
-    end
-## BREAK ##
-main
     num V_a01 ,
     num V_a02 ,
     num V_a03 ,
@@ -75,6 +61,21 @@ main
         halt ;
     end
 ## BREAK ##
+main
+    num V_number ,
+    begin
+        V_number = add ( 0.03 , 2 ) ;
+    end
+    num F_test ( V_first , V_second , V_third ) {
+        text V_t1 ,
+        text V_t2 ,
+        text V_t3 ,
+        begin
+        end
+    }
+    end
+## BREAK ##
+
 
 
 main

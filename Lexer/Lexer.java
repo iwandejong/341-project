@@ -215,6 +215,8 @@ public class Lexer {
             return "N";
         }
 
+        System.out.println(numberInput);
+
         for (int i = 0; i < numberInput.length(); i++) {
             char c = numberInput.charAt(i);
             if (!Character.isDigit(c)) {

@@ -189,7 +189,8 @@ public class CodeGenerator {
     // return( "PRINT"++" "++codeString )
     private String COMMAND_PRINT (Tree COMMAND) {
         Tree ATOMIC = newBaseSubTree(COMMAND, "ATOMIC");
-        String codeString = ATOMIC(ATOMIC, newvar());
+        // String codeString = ATOMIC(ATOMIC, newvar());
+        String codeString = ATOMIC.root.children.get(0).children.get(0).identifier.identifier + "\n";
         return "PRINT" + " " + codeString;
     }
 
@@ -234,10 +235,13 @@ public class CodeGenerator {
     // ATOMIC ::= VNAME
     // translate(ATOMIC) → returns as code-string the new name of VNAME as found in the Symbol Table
     // ATOMIC ::= CONST translate(ATOMIC) = translate(CONST)
-    private String ATOMIC (Tree ATOMIC, String place) throws RuntimeException {
+    private String ATOMIC(Tree ATOMIC, String place) throws RuntimeException {
         if (ATOMIC.root.children.get(0).identifier.identifier.equals("VNAME")) {
-            Tree VNAME = newBaseSubTree(ATOMIC, "VNAME");
-            return VNAME(VNAME, place);
+            // For VNAME, we want to get the value, not assign to it
+            Node node = ATOMIC.root.children.get(0).children.get(0);
+            String token = node.token.tokenValue;
+            String varName = symbolTable.lookupID(token);
+            return place + " := " + varName + "\n";
         } else if (ATOMIC.root.children.get(0).identifier.identifier.equals("CONST")) {
             Tree CONST = newBaseSubTree(ATOMIC, "CONST");
             return CONST(CONST, place);
