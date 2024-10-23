@@ -1,4 +1,14 @@
 main
+    text V_a01 ,
+    num V_a02 ,
+    num V_a03 ,
+    begin
+        V_a01 = 10 ;
+        halt ;
+    end
+## BREAK ##
+
+main
     num V_a01 ,
     num V_a02 ,
     num V_a03 ,
@@ -18,18 +28,6 @@ main
         halt ;
     end
     void F_func ( V_a01 , V_a02 , V_a03 ) {
-        num V_a04 , num V_a05 , num V_a06 ,
-        begin
-            V_a04 = 30 ;
-            V_a05 = 40 ;
-            V_a06 = 50 ;
-            print V_a04 ;
-            print V_a05 ;
-            print V_a06 ;
-            halt ;
-        end
-    } end
-    void F_func2 ( V_a01 , V_a02 , V_a03 ) {
         num V_a04 , num V_a05 , num V_a06 ,
         begin
             V_a04 = 30 ;

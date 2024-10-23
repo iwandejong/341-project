@@ -76,8 +76,12 @@ public class Main {
         List<Lexer> lexers = new ArrayList<Lexer>();
         for (int i = 0; i < programs.size(); i++) {
             Lexer l = new Lexer(i);
-            l.performLexing(programs.get(i));
-            lexers.add(l);
+            try {
+                l.performLexing(programs.get(i));
+                lexers.add(l);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         // load grammar
@@ -159,42 +163,37 @@ public class Main {
         }
 
         // Print grammar
-        System.out.println();
-        System.out.println("\u001B[33m" + "CFG Rules:");
-        System.out.println("----------" + "\u001B[0m");
-        String r = "";
-        for (ProductionRule rule : rules) {
-            if (rule.nullable) {
-                r += "\u001B[33m" + rule.lhs.identifier + " -> " + "\u001B[0m";
-            } else {
-                r += rule.lhs.identifier + " -> ";
-            }
-            for (Symbol s : rule.rhs) {
-                if (s.terminal) {
-                    if (s.nullable) {
-                        r += "\u001B[33m" + s.identifier + "\u001B[0m";
-                    } else {
-                        r += "\u001B[32m" + s.identifier + "\u001B[0m";
-                    }
-                } else {
-                    // r += s.identifier;
-                    if (s.nullable) {
-                        r += "\u001B[33m" + s.identifier + "\u001B[0m";
-                    } else {
-                        r += s.identifier;
-                    }
-                }
-                r += " ";
-            }
-            System.out.println(r);
-            r = "";
-        }
-        System.out.println();
-
-        // TODO: traverse the tokens sequentially
-        // when you run into a non-terminal symbol such as GLOBVARS, you "enter" the non-terminal symbol by "expanding" the symbol.
-        // in the case of GLOBVARS, you'd enter the symbol and expand to get PROG -> main -> VTYP -> VNAME -> , -> ...
-        // if no match is found BUT there is an epsilon-transition (e.g. GLOBVARS -> ε), then continue building the tree.
+        // System.out.println();
+        // System.out.println("\u001B[33m" + "CFG Rules:");
+        // System.out.println("----------" + "\u001B[0m");
+        // String r = "";
+        // for (ProductionRule rule : rules) {
+        //     if (rule.nullable) {
+        //         r += "\u001B[33m" + rule.lhs.identifier + " -> " + "\u001B[0m";
+        //     } else {
+        //         r += rule.lhs.identifier + " -> ";
+        //     }
+        //     for (Symbol s : rule.rhs) {
+        //         if (s.terminal) {
+        //             if (s.nullable) {
+        //                 r += "\u001B[33m" + s.identifier + "\u001B[0m";
+        //             } else {
+        //                 r += "\u001B[32m" + s.identifier + "\u001B[0m";
+        //             }
+        //         } else {
+        //             // r += s.identifier;
+        //             if (s.nullable) {
+        //                 r += "\u001B[33m" + s.identifier + "\u001B[0m";
+        //             } else {
+        //                 r += s.identifier;
+        //             }
+        //         }
+        //         r += " ";
+        //     }
+        //     System.out.println(r);
+        //     r = "";
+        // }
+        // System.out.println();
 
         List<Parser> parsers = new ArrayList<Parser>();
         for (Lexer l : lexers) {
@@ -207,17 +206,15 @@ public class Main {
         Scope_Analysis sa = new Scope_Analysis();
         Type_Checker tc = new Type_Checker();
         CodeGenerator cg = new CodeGenerator();
-        TargetCodeGenerator tcg = new TargetCodeGenerator();
         for (Parser p : parsers) {
             try {
                 p.parse();
+                Symbol_Table st = sa.start(p.syntaxTree);
+                tc.check(p.syntaxTree.root, sa.symbolTable);
+                cg.generateCode(rules, p.syntaxTree, st);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            Symbol_Table st = sa.start(p.syntaxTree);
-            tc.check(p.syntaxTree.root, sa.symbolTable);
-            cg.generateCode(rules, p.syntaxTree, st);
-            // tcg.generateCode(rules, p.syntaxTree, st);
         }
     }
 }

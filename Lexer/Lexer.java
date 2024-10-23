@@ -41,7 +41,7 @@ public class Lexer {
         sc.close();
     }
 
-    public void performLexing(String input) throws Exception {
+    public void performLexing(String input) throws RuntimeException {
         // perform lexing while not in an accepting state (if accepting state, then tokenize)
         // State s = dfa.g.S; // set s to start state of DFA
         String temp = "";
@@ -65,7 +65,7 @@ public class Lexer {
                     temp = "";
                     continue; // prevent ' ' or '\n' from being added to the temp string
                 } else {
-                    throw new Exception("Lexical analysis failed.");
+                    throw new RuntimeException("Lexical analysis failed.");
                 }
             }
 
@@ -79,7 +79,7 @@ public class Lexer {
     }
 
     // check if token matches the expected language, returns the class
-    public String verifyToken(String input) throws Exception {
+    public String verifyToken(String input) throws RuntimeException {
         // ? perform reserved-keyword search first - why?
         if (reservedKeywords.contains(input)) {
             return "reserved_keyword";
@@ -100,19 +100,19 @@ public class Lexer {
             } // otherwise remain hopeful
 
             if (Character.isDigit(input.charAt(2))) {
-                throw new Exception("Variable names cannot start with a digit.");
+                throw new RuntimeException("Variable names cannot start with a digit.");
             }
 
             for (int i = 2; i < input.length(); i++) { // Start from index 2 after "V_"
                 char c = input.charAt(i);
                 if (!Character.isLowerCase(c) && !Character.isDigit(c)) {
-                    throw new Exception(
+                    throw new RuntimeException(
                         "Invalid character '" + c + "' at position " + i + ". Variable names can only contain lowercase letters and digits after 'V_'."
                     );
                 }
             }
         
-            throw new Exception("Invalid variable name.");
+            throw new RuntimeException("Invalid variable name.");
         }
 
         // * TOKEN CLASS F
@@ -126,28 +126,28 @@ public class Lexer {
             }
 
             if (Character.isDigit(input.charAt(2))) {
-                throw new Exception("Function names cannot start with a digit.");
+                throw new RuntimeException("Function names cannot start with a digit.");
             }
 
             for (int i = 2; i < input.length(); i++) { // Start from index 2 after "F_"
                 char c = input.charAt(i);
                 if (!Character.isLowerCase(c) && !Character.isDigit(c)) {
-                    throw new Exception(
+                    throw new RuntimeException(
                         "Invalid character '" + c + "' at position " + i + ". Function names can only contain lowercase letters and digits after 'F_'."
                     );
                 }
             }
 
-            throw new Exception("Invalid function name");
+            throw new RuntimeException("Invalid function name");
         }
 
         // * TOKEN CLASS T
         if (input.startsWith("\"") && !input.endsWith("\"")) {
-            throw new Exception("String literals must end with a double quote.");
+            throw new RuntimeException("String literals must end with a double quote.");
         }
 
         if (!input.startsWith("\"") && input.endsWith("\"")) {
-            throw new Exception("String literals must start with a double quote.");
+            throw new RuntimeException("String literals must start with a double quote.");
         }
 
         if (input.startsWith("\"") && input.endsWith("\"")) {
@@ -160,25 +160,25 @@ public class Lexer {
             }
 
             if (input.length() > 8) {
-                throw new Exception("String literals can only contain up to 8 characters.");
+                throw new RuntimeException("String literals can only contain up to 8 characters.");
             }
 
             if (!Character.isUpperCase(input.charAt(1))) {
-                throw new Exception("String literals must start with an uppercase letter.");
+                throw new RuntimeException("String literals must start with an uppercase letter.");
             }
 
             if (input.charAt(1) == ' ') {
-                throw new Exception("String literals cannot start with a space.");
+                throw new RuntimeException("String literals cannot start with a space.");
             }
 
             for (int i = 2; i < input.length()-1; i++) {
                 char c = input.charAt(i);
                 if (!Character.isLowerCase(c)) {
-                    throw new Exception("String literals can only contain lowercase letters.");
+                    throw new RuntimeException("String literals can only contain lowercase letters.");
                 }
             }
 
-            throw new Exception("Invalid string literal.");
+            throw new RuntimeException("Invalid string literal.");
         }
 
         // * TOKEN CLASS N
@@ -187,12 +187,12 @@ public class Lexer {
         for (int i = 0; i < input.length(); i++) {
             if (input.charAt(i) == '.') {
                 if (isFloat) {
-                    throw new Exception("Invalid number. Too many decimal points.");
+                    throw new RuntimeException("Invalid number. Too many decimal points.");
                 }
                 numberInput = input.substring(0, i) + input.substring(i+1);
 
                 if (i == 0 || i == input.length()-1) {
-                    throw new Exception("Invalid number. Decimal point cannot be at the start or end of a number.");
+                    throw new RuntimeException("Invalid number. Decimal point cannot be at the start or end of a number.");
                 }
 
                 isFloat = true;
@@ -204,7 +204,7 @@ public class Lexer {
         }
 
         if (numberInput.length() == 0) {
-            throw new Exception("Invalid number.");
+            throw new RuntimeException("Invalid number.");
         }
 
         pattern = Pattern.compile("^-?\\d+(\\.\\d+)?$");
@@ -220,7 +220,7 @@ public class Lexer {
         for (int i = 0; i < numberInput.length(); i++) {
             char c = numberInput.charAt(i);
             if (!Character.isDigit(c)) {
-                throw new Exception("Invalid number.");
+                throw new RuntimeException("Invalid number.");
             }
         }
 
@@ -228,7 +228,7 @@ public class Lexer {
         try {
             Integer.parseInt(numberInput);
         } catch (NumberFormatException e) {
-            throw new Exception("Failed to convert string to number.");
+            throw new RuntimeException("Failed to convert string to number.");
         }
 
         // eventually return null
@@ -244,44 +244,48 @@ public class Lexer {
         }
     }
 
-    public void generateXML() throws Exception {
+    public void generateXML() throws RuntimeException {
         if (tokens == null || tokens.isEmpty()) {
-            throw new Exception("Token list is empty or not initialized.");
+            throw new RuntimeException("Token list is empty or not initialized.");
         }
 
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder docBuilder = factory.newDocumentBuilder();
-        Document doc = docBuilder.newDocument();
-
-        Element tokenStream = null;
-        tokenStream = doc.createElement("TOKENSTREAM");
-
-        for (int i = 0; i < tokens.size(); i++) {
-            Element token = doc.createElement("TOK");
-
-            Element tokenId = doc.createElement("ID");
-            tokenId.setTextContent(Integer.toString(tokens.get(i).id));
-
-            Element tokenClass = doc.createElement("CLASS");
-            tokenClass.setTextContent(tokens.get(i).tokenClass);
-
-            Element tokenValue = doc.createElement("WORD");
-            tokenValue.setTextContent(tokens.get(i).tokenValue);
-
-            token.appendChild(tokenId);
-            token.appendChild(tokenClass);
-            token.appendChild(tokenValue);
-
-            tokenStream.appendChild(token);
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = factory.newDocumentBuilder();
+            Document doc = docBuilder.newDocument();
+    
+            Element tokenStream = null;
+            tokenStream = doc.createElement("TOKENSTREAM");
+    
+            for (int i = 0; i < tokens.size(); i++) {
+                Element token = doc.createElement("TOK");
+    
+                Element tokenId = doc.createElement("ID");
+                tokenId.setTextContent(Integer.toString(tokens.get(i).id));
+    
+                Element tokenClass = doc.createElement("CLASS");
+                tokenClass.setTextContent(tokens.get(i).tokenClass);
+    
+                Element tokenValue = doc.createElement("WORD");
+                tokenValue.setTextContent(tokens.get(i).tokenValue);
+    
+                token.appendChild(tokenId);
+                token.appendChild(tokenClass);
+                token.appendChild(tokenValue);
+    
+                tokenStream.appendChild(token);
+            }
+    
+            doc.appendChild(tokenStream);
+    
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(new File("lexer_output_" + id + ".xml"));
+            transformer.transform(source, result);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate XML.");
         }
-
-        doc.appendChild(tokenStream);
-
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-        DOMSource source = new DOMSource(doc);
-        StreamResult result = new StreamResult(new File("lexer_output_" + id + ".xml"));
-        transformer.transform(source, result);
     }
 }
