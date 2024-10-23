@@ -218,6 +218,21 @@
     <TOK>
         <ID>43</ID>
         <CLASS>reserved_keyword</CLASS>
+        <WORD>print</WORD>
+    </TOK>
+    <TOK>
+        <ID>44</ID>
+        <CLASS>V</CLASS>
+        <WORD>V_a03</WORD>
+    </TOK>
+    <TOK>
+        <ID>45</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>;</WORD>
+    </TOK>
+    <TOK>
+        <ID>46</ID>
+        <CLASS>reserved_keyword</CLASS>
         <WORD>end</WORD>
     </TOK>
 </TOKENSTREAM>

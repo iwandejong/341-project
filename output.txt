@@ -18,4 +18,5 @@ PRINT "No"
 LABEL L3 
 t4 := V0
 V2 := t4
+PRINT V2
  REM END  STOP 

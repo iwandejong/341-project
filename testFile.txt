@@ -14,6 +14,7 @@ main
                 print "No" ;
             end ;
         V_a03 = V_a01 ;
+        print V_a03 ;
     end
 ## BREAK ##
 

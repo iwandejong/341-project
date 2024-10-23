@@ -135,7 +135,7 @@ public class TargetCodeGenerator {
     // Comment: In our Target-Language, REM represents a non-executable remark
     // * RETURNING FUNCTION
     private String INSTRUC () {
-        return "END";
+        return "";
     }
 
     // INSTRUC1 ::= COMMAND ; INSTRUC2
@@ -481,8 +481,8 @@ public class TargetCodeGenerator {
             String code2 = ALGO(ALGO1);
             String code3 = ALGO(ALGO2);
             return code1 + "\n\n" + label1 + ":\n" +
-                   code2 + "\nGOTO " + label3 + "\n\n" + label2 + ":\n" +
-                   code3 + "\n\n" + label3 + ":\n";
+                   code2 + "GOTO " + label3 + "\n\n" + label2 + ":\n" +
+                   code3 + "\n" + label3 + ":\n";
         }
         throw new RuntimeException("Invalid BRANCH structure.");
     }

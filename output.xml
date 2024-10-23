@@ -96,7 +96,7 @@
       <CHILDREN>
         <ID>22</ID>
         <ID>23</ID>
-        <ID>96</ID>
+        <ID>103</ID>
       </CHILDREN>
     </IN>
     <IN>
@@ -406,6 +406,7 @@
       <CHILDREN>
         <ID>86</ID>
         <ID>95</ID>
+        <ID>96</ID>
       </CHILDREN>
     </IN>
     <IN>
@@ -456,6 +457,40 @@
       <SYMB>VNAME</SYMB>
       <CHILDREN>
         <ID>94</ID>
+      </CHILDREN>
+    </IN>
+    <IN>
+      <PARENT>85</PARENT>
+      <UNID>96</UNID>
+      <SYMB>INSTRUC</SYMB>
+      <CHILDREN>
+        <ID>97</ID>
+        <ID>102</ID>
+      </CHILDREN>
+    </IN>
+    <IN>
+      <PARENT>96</PARENT>
+      <UNID>97</UNID>
+      <SYMB>COMMAND</SYMB>
+      <CHILDREN>
+        <ID>98</ID>
+        <ID>99</ID>
+      </CHILDREN>
+    </IN>
+    <IN>
+      <PARENT>97</PARENT>
+      <UNID>99</UNID>
+      <SYMB>ATOMIC</SYMB>
+      <CHILDREN>
+        <ID>100</ID>
+      </CHILDREN>
+    </IN>
+    <IN>
+      <PARENT>99</PARENT>
+      <UNID>100</UNID>
+      <SYMB>VNAME</SYMB>
+      <CHILDREN>
+        <ID>101</ID>
       </CHILDREN>
     </IN>
   </INNERNODES>
@@ -891,8 +926,38 @@
       </TERMINAL>
     </LEAF>
     <LEAF>
+      <PARENT>97</PARENT>
+      <UNID>98</UNID>
+      <TERMINAL>
+        <TOKEN>
+            <TYPE>reserved_keyword</TYPE>
+            <VALUE>print</VALUE>
+        </TOKEN>
+      </TERMINAL>
+    </LEAF>
+    <LEAF>
+      <PARENT>100</PARENT>
+      <UNID>101</UNID>
+      <TERMINAL>
+        <TOKEN>
+            <TYPE>V</TYPE>
+            <VALUE>V_a03</VALUE>
+        </TOKEN>
+      </TERMINAL>
+    </LEAF>
+    <LEAF>
+      <PARENT>96</PARENT>
+      <UNID>102</UNID>
+      <TERMINAL>
+        <TOKEN>
+            <TYPE>reserved_keyword</TYPE>
+            <VALUE>;</VALUE>
+        </TOKEN>
+      </TERMINAL>
+    </LEAF>
+    <LEAF>
       <PARENT>21</PARENT>
-      <UNID>96</UNID>
+      <UNID>103</UNID>
       <TERMINAL>
         <TOKEN>
             <TYPE>reserved_keyword</TYPE>
