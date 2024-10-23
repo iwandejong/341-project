@@ -1,4 +1,5 @@
 package Parser;
+import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -222,6 +223,17 @@ public class Parser {
 
         // visualise the tree
         syntaxTree.visualiseTree(syntaxTree.root, "", true);
+
+        try {
+            // Simple usage
+            syntaxTree.saveXMLToFile("output.xml");
+            
+            // Or with pretty printing
+            syntaxTree.saveXMLToFile("output_pretty.xml", true);
+        } catch (IOException e) {
+            // Handle the error
+            e.printStackTrace();
+        }
     }
 
     public void parseHelper(int atToken, Stack<ProductionRule> ruleStack, Stack<Node> nodeStack, Stack<Integer> positionStack) throws Exception {

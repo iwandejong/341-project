@@ -5,7 +5,7 @@ import Lexer.Token;
 public class Node {
     public List<Node> children;
     public Symbol identifier;
-    public boolean terminal;
+    public boolean terminal = true;
     public Token token;
     public Node parent = null;
 
@@ -21,6 +21,8 @@ public class Node {
     }
 
     public void addChild(Node child) {
+        child.parent = this;
+        terminal = false;
         children.add(child);
     }
 }
