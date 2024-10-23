@@ -1,0 +1,76 @@
+// Paste these programs into testFile.txt to run
+
+// Type checker tests ( Paser )
+1) valid
+main
+    num V_a01 ,
+    num V_a02 ,
+    num V_a03 ,
+    begin
+        V_a01 = 10 ;
+        halt ;
+    end
+## BREAK ##
+!!--  Success --!!
+
+
+1.1) Invalid: num -> text
+main
+    num V_a01 ,
+    num V_a02 ,
+    num V_a03 ,
+    begin
+        V_a01 = "Hello" ;
+        halt ;
+    end
+## BREAK ##
+!!-- Success --!!
+
+1.2) Invalid: text -> num
+main
+    text V_a01 ,
+    num V_a02 ,
+    num V_a03 ,
+    begin
+        V_a01 = 10
+        halt ;
+    end
+## BREAK ##
+!!--  Success  --!!
+
+
+Analysis
+1) Invalid: variable not declared
+main
+    num V_a01 ,
+    num V_a02 ,
+    num V_a03 ,
+    begin
+        V_a06 = 10 ;
+        halt ;
+    end
+## BREAK ##
+!!--  Success  --!!
+
+1.1) Invalid: Declared as num then text
+main
+    num V_a01 ,
+    num V_a02 ,
+    num V_a03 ,
+    begin
+        text V_a01 ;
+        halt ;
+    end
+
+
+2) Invalid: call to main
+main
+    num V_a01 ,
+    num V_a02 ,
+    num V_a03 ,
+    begin
+        main ;
+        halt ;
+    end
+## BREAK ##
+!!-- Success ( because of Parser)  --!!

@@ -240,14 +240,14 @@ public class Scope_Analysis {
     public void Rule4(){
         // look through the symbol table and check if the symbol is declared
         
-        // for(String key : symbolTable.table.keySet()){
-        //     // find type = V, Use that symbol and check if it is declared
-        //     if(symbolTable.table.get(key).type.equals("V")){
-        //         if(symbolTable.lookupName(symbolTable.table.get(key).value) == null){
-        //             throw new RuntimeException("Symbol: " + symbolTable.table.get(key).value + " is not declared.");
-        //         }
-        //     } 
-        // }
+        for(String key : symbolTable.table.keySet()){
+            // find type = V, Use that symbol and check if it is declared
+            if(symbolTable.table.get(key).type.equals("V")){
+                if(symbolTable.lookupName(symbolTable.table.get(key).value) == null){
+                    throw new RuntimeException("Symbol: " + symbolTable.table.get(key).value + " is not declared.");
+                }
+            } 
+        }
     }
 
     public void Rule10(){
