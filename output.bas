@@ -1,8 +1,50 @@
- t0  := 10
- t0  := V_a01
+t0 = 10
+V0 = t0
+t1 = 20
+V1 = t1
+t2 = 5
+V0 = t3
+IF t2 > t3 THEN GOSUB L1 ELSE GOSUB L2 
+L1: 
+PRINT "Yes"
+GOSUB L3 
+
+L2: 
+PRINT "No"
  
-  t1  := 20
-   t1  := V_a02 t2  := 5 t3  := V_a01 IF  t2  >  t3  THEN  L1  ELSE  L2  LABEL  L1  
-PRINT  t4  := "Yes" REM END  GOTO  L3  LABEL  L2  
-PRINT  t5  := "No" REM END  LABEL  L3  
- t6  := V_a01 t6  := V_a03 STOP  REM END  STOP 
+L3: 
+V0 = t4
+V2 = t4
+CALL_F1
+(V0 = t5
+,V1 = t6
+,V2 = t7
+) STOP  STOP F1
+V0 = t8
+V1 = t9
+V2 = t10
+REM BEGIN
+t11 = 30
+V6 = t11
+t12 = 40
+V7 = t12
+t13 = 50
+V8 = t13
+PRINT V_a04
+PRINT V_a05
+PRINT V_a06
+ STOP F2
+V0 = t14
+V1 = t15
+V2 = t16
+REM BEGIN
+t17 = 30
+V6 = t17
+t18 = 40
+V7 = t18
+t19 = 50
+V8 = t19
+PRINT V_a04
+PRINT V_a05
+PRINT V_a06
+ STOP 

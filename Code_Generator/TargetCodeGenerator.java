@@ -3,7 +3,9 @@ import Parser.*;
 import java.util.*;
 import Analysis.Symbol_Table;
 
-public class CodeGenerator {
+// ! This is the code generator for the target language, which is QB64
+
+public class TargetCodeGenerator {
     List<ProductionRule> productionRules = new ArrayList<>();
     Tree syntaxTree = new Tree();
     Symbol_Table symbolTable = new Symbol_Table();
@@ -19,10 +21,10 @@ public class CodeGenerator {
         Tree FUNCTIONS = newBaseSubTree(syntaxTree, "FUNCTIONS");
 
         String code = PROG(ALGO, FUNCTIONS);
-        
+
         // write output to output.bas
         try {
-            java.io.FileWriter myWriter = new java.io.FileWriter("output.txt");
+            java.io.FileWriter myWriter = new java.io.FileWriter("output.bas");
             myWriter.write(code);
             myWriter.close();
         } catch (Exception e) {
@@ -77,7 +79,7 @@ public class CodeGenerator {
     // VNAME ::= a token of Token-Class V from the Lexer
     // The user-defined names were already re-named in the foregoing Scope Analysis.
     // The translator function can find their new names in the Symbol Table.
-    private String VNAME (Tree VNAME, String place) throws RuntimeException {
+    private String VNAME (Tree VNAME, String place) {
         // x = lookup(vtable, getname(id))
         // [place := x]
 
@@ -90,7 +92,7 @@ public class CodeGenerator {
         // get the new name from the symbol table
         String newName = symbolTable.lookupID(token); // V_a01
 
-        return newName + " := " + place + "\n";
+        return newName + " = " + place + "\n";
     }
 
     // PROG ::= main GLOBVARS ALGO FUNCTIONS
@@ -127,7 +129,8 @@ public class CodeGenerator {
     // Comment: In our Target-Language, REM represents a non-executable remark
     // * RETURNING FUNCTION
     private String INSTRUC () {
-        return " REM END ";
+        return "";
+        // return "REM END\n";
     }
 
     // INSTRUC1 ::= COMMAND ; INSTRUC2
@@ -189,8 +192,10 @@ public class CodeGenerator {
     // return( "PRINT"++" "++codeString )
     private String COMMAND_PRINT (Tree COMMAND) {
         Tree ATOMIC = newBaseSubTree(COMMAND, "ATOMIC");
-        String codeString = ATOMIC(ATOMIC, newvar());
-        return "PRINT" + " " + codeString;
+        // String codeString = ATOMIC(ATOMIC, newvar());
+        String codeString = ATOMIC.root.children.get(0).children.get(0).identifier.identifier;
+        // System.out.println("PRINT: " + codeString);
+        return "PRINT" + " " + codeString + "\n";
     }
 
     // COMMAND ::= return ATOMIC // Only for Project Phase 5b, NOT for Project Phase 5a!
@@ -253,9 +258,9 @@ public class CodeGenerator {
     private String CONST (Tree CONST, String place) throws RuntimeException {
         String token = CONST.root.children.get(0).token.tokenValue;
         if (CONST.root.children.get(0).token.tokenClass.equals("N")) {
-            return place + " := " + token + "\n";
+            return place + " = " + token + "\n";
         } else if (CONST.root.children.get(0).token.tokenClass.equals("T")) {
-            return place + " := " + token + "\n";
+            return place + " = " + token + "\n";
         }
 
         throw new RuntimeException("Invalid CONST.");
@@ -347,7 +352,7 @@ public class CodeGenerator {
             String code1 = ARG(ARG, place1);
             String op = UNOP(OP);
 
-            return code1 + place + " := " + op + "(" + place1 + ")";
+            return code1 + place + " = " + op + "(" + place1 + ")";
         } else if (OP.root.children.get(0).identifier.identifier.equals("BINOP")) {
             Tree ARG1 = newBaseSubTree(OP, "ARG");
             Tree ARG2 = newBaseSubTree(OP, "ARG", 1);
@@ -357,7 +362,7 @@ public class CodeGenerator {
             String code2 = ARG(ARG2, place2);
             String op = BINOP(OP);
 
-            return code1 + code2 + place + " := " + place1 + op + place2;
+            return code1 + code2 + place + " = " + place1 + op + place2;
         }
         throw new RuntimeException("Invalid OP.");
     }
@@ -462,9 +467,9 @@ public class CodeGenerator {
             String code1 = COND(COND, label1, label2);
             String code2 = ALGO(ALGO1);
             String code3 = ALGO(ALGO2);
-            return code1 + "\n\nLABEL " + label1 + " \n" +
-                   code2 + "\nGOTO " + label3 + "\n\nLABEL " + label2 + " \n" +
-                   code3 + "\n\nLABEL " + label3 + " \n";
+            return code1 + " \n" + label1 + ": \n" +
+                   code2 + "GOSUB " + label3 + " \n\n" + label2 + ": \n" +
+                   code3 + " \n" + label3 + ": \n";
         }
         throw new RuntimeException("Invalid BRANCH structure.");
     }
@@ -485,9 +490,9 @@ public class CodeGenerator {
             String op = BINOP(BINOP);
             
             return code1 + code2 + 
-                   " IF " + t1 + op + t2 + 
-                   " THEN " + labelT + 
-                   " ELSE " + labelF;
+                   "IF " + t1 + op + t2 + 
+                   " THEN GOSUB " + labelT + 
+                   " ELSE GOSUB " + labelF;
         } else if (COND.root.children.get(0).identifier.identifier.equals("COMPOSIT")) {
             Tree COMPOSIT = newBaseSubTree(COND, "COMPOSIT");
             return COMPOSIT(COMPOSIT, labelT, labelF);
@@ -515,7 +520,7 @@ public class CodeGenerator {
             String code1 = ATOMIC(ATOMIC1, place1);
             String code2 = ATOMIC(ATOMIC2, place2);
             String op = BINOP(BINOP);
-            return code1 + code2 + place + " := " + place1 + op + place2;
+            return code1 + code2 + place + " = " + place1 + op + place2;
         }
 
         throw new RuntimeException("Invalid SIMPLE.");
@@ -656,7 +661,7 @@ public class CodeGenerator {
     // then translate(PROLOG) will generate the boiler-plate-code (with runtime-Stack) as
     // explained in Chapter #9.
     private String PROLOG (Tree PROLOG) {
-        return " REM BEGIN ";
+        return "REM BEGIN\n";
     }
 
     // EPILOG ::= }
@@ -666,7 +671,8 @@ public class CodeGenerator {
     // then translate(EPILOG) will generate the boiler-plate-code (with runtime-Stack) as
     // explained in Chapter #9.
     private String EPILOG (Tree EPILOG) {
-        return " REM END ";
+        return "";
+        // return "REM END\n";
     }
 
     // SUBFUNCS ::= FUNCTIONS translate(SUBFUNCS) = translate(FUNCTIONS)
