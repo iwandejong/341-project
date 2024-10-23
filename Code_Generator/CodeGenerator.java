@@ -190,8 +190,14 @@ public class CodeGenerator {
     private String COMMAND_PRINT (Tree COMMAND) {
         Tree ATOMIC = newBaseSubTree(COMMAND, "ATOMIC");
         // String codeString = ATOMIC(ATOMIC, newvar());
-        String codeString = ATOMIC.root.children.get(0).children.get(0).identifier.identifier + "\n";
-        return "PRINT" + " " + codeString;
+        String token = ATOMIC.root.children.get(0).children.get(0).token.tokenValue;
+        String varName = symbolTable.lookupID(token);
+        if (varName.length() == 0) {
+            // If the variable is not found in the symbol table, then it is a constant
+            return "PRINT" + " " + token + "\n";
+        }
+        String codeString = varName;
+        return "PRINT" + " " + codeString + "\n";
     }
 
     // COMMAND ::= return ATOMIC // Only for Project Phase 5b, NOT for Project Phase 5a!
