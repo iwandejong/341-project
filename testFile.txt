@@ -3,8 +3,17 @@ main
     num V_a02 ,
     num V_a03 ,
     begin
-        V_a01 = 0 ;
-        halt ;
+        V_a01 = 10 ;
+        V_a02 = 20 ;
+        if grt ( V_a02 , V_a01 ) then
+            begin
+                print "Yes" ;
+            end
+        else
+            begin
+                print "No" ;
+            end ;
+        V_a03 = V_a01 ;
     end
 ## BREAK ##
 

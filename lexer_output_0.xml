@@ -68,7 +68,7 @@
     <TOK>
         <ID>13</ID>
         <CLASS>N</CLASS>
-        <WORD>0</WORD>
+        <WORD>10</WORD>
     </TOK>
     <TOK>
         <ID>14</ID>
@@ -77,16 +77,146 @@
     </TOK>
     <TOK>
         <ID>15</ID>
-        <CLASS>reserved_keyword</CLASS>
-        <WORD>halt</WORD>
+        <CLASS>V</CLASS>
+        <WORD>V_a02</WORD>
     </TOK>
     <TOK>
         <ID>16</ID>
         <CLASS>reserved_keyword</CLASS>
-        <WORD>;</WORD>
+        <WORD>=</WORD>
     </TOK>
     <TOK>
         <ID>17</ID>
+        <CLASS>N</CLASS>
+        <WORD>20</WORD>
+    </TOK>
+    <TOK>
+        <ID>18</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>;</WORD>
+    </TOK>
+    <TOK>
+        <ID>19</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>if</WORD>
+    </TOK>
+    <TOK>
+        <ID>20</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>grt</WORD>
+    </TOK>
+    <TOK>
+        <ID>21</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>(</WORD>
+    </TOK>
+    <TOK>
+        <ID>22</ID>
+        <CLASS>V</CLASS>
+        <WORD>V_a02</WORD>
+    </TOK>
+    <TOK>
+        <ID>23</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>,</WORD>
+    </TOK>
+    <TOK>
+        <ID>24</ID>
+        <CLASS>V</CLASS>
+        <WORD>V_a01</WORD>
+    </TOK>
+    <TOK>
+        <ID>25</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>)</WORD>
+    </TOK>
+    <TOK>
+        <ID>26</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>then</WORD>
+    </TOK>
+    <TOK>
+        <ID>27</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>begin</WORD>
+    </TOK>
+    <TOK>
+        <ID>28</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>print</WORD>
+    </TOK>
+    <TOK>
+        <ID>29</ID>
+        <CLASS>T</CLASS>
+        <WORD>"Yes"</WORD>
+    </TOK>
+    <TOK>
+        <ID>30</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>;</WORD>
+    </TOK>
+    <TOK>
+        <ID>31</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>end</WORD>
+    </TOK>
+    <TOK>
+        <ID>32</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>else</WORD>
+    </TOK>
+    <TOK>
+        <ID>33</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>begin</WORD>
+    </TOK>
+    <TOK>
+        <ID>34</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>print</WORD>
+    </TOK>
+    <TOK>
+        <ID>35</ID>
+        <CLASS>T</CLASS>
+        <WORD>"No"</WORD>
+    </TOK>
+    <TOK>
+        <ID>36</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>;</WORD>
+    </TOK>
+    <TOK>
+        <ID>37</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>end</WORD>
+    </TOK>
+    <TOK>
+        <ID>38</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>;</WORD>
+    </TOK>
+    <TOK>
+        <ID>39</ID>
+        <CLASS>V</CLASS>
+        <WORD>V_a03</WORD>
+    </TOK>
+    <TOK>
+        <ID>40</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>=</WORD>
+    </TOK>
+    <TOK>
+        <ID>41</ID>
+        <CLASS>V</CLASS>
+        <WORD>V_a01</WORD>
+    </TOK>
+    <TOK>
+        <ID>42</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>;</WORD>
+    </TOK>
+    <TOK>
+        <ID>43</ID>
         <CLASS>reserved_keyword</CLASS>
         <WORD>end</WORD>
     </TOK>
