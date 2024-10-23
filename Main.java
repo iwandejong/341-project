@@ -214,9 +214,9 @@ public class Main {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            Symbol_Table st = sa.start(p.syntaxTree);
-            tc.check(p.syntaxTree.root, sa.symbolTable);
-            cg.generateCode(rules, p.syntaxTree, st);
+            // Symbol_Table st = sa.start(p.syntaxTree);
+            // tc.check(p.syntaxTree.root, sa.symbolTable);
+            // cg.generateCode(rules, p.syntaxTree, st);
             // tcg.generateCode(rules, p.syntaxTree, st);
         }
     }
