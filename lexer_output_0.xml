@@ -8,7 +8,7 @@
     <TOK>
         <ID>1</ID>
         <CLASS>reserved_keyword</CLASS>
-        <WORD>text</WORD>
+        <WORD>num</WORD>
     </TOK>
     <TOK>
         <ID>2</ID>
@@ -68,7 +68,7 @@
     <TOK>
         <ID>13</ID>
         <CLASS>N</CLASS>
-        <WORD>10</WORD>
+        <WORD>0</WORD>
     </TOK>
     <TOK>
         <ID>14</ID>

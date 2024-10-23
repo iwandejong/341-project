@@ -444,7 +444,11 @@ public class Parser {
         return null;
     }
 
-    public Stack<Integer> incrementTop(Stack<Integer> stack) {
+    public Stack<Integer> incrementTop(Stack<Integer> stack) throws RuntimeException {
+        if (stack.isEmpty()) {
+            throw new RuntimeException("Stack is empty. Rules are not being followed.");
+        }
+
         int top = stack.pop();
         stack.push(top + 1);
         return stack;

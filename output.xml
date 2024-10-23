@@ -194,7 +194,7 @@
       <TERMINAL>
         <TOKEN>
             <TYPE>reserved_keyword</TYPE>
-            <VALUE>text</VALUE>
+            <VALUE>num</VALUE>
         </TOKEN>
       </TERMINAL>
     </LEAF>
@@ -314,7 +314,7 @@
       <TERMINAL>
         <TOKEN>
             <TYPE>N</TYPE>
-            <VALUE>10</VALUE>
+            <VALUE>0</VALUE>
         </TOKEN>
       </TERMINAL>
     </LEAF>
