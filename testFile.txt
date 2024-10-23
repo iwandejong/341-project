@@ -5,7 +5,7 @@ main
     begin
         V_a01 = 10 ;
         V_a02 = 20 ;
-        if grt ( 5 , V_a01 ) then
+        if grt ( V_a02 , V_a01 ) then
             begin
                 print "Yes" ;
             end
@@ -61,6 +61,21 @@ main
         halt ;
     end
 ## BREAK ##
+main
+    num V_number ,
+    begin
+        V_number = add ( 0.03 , 2 ) ;
+    end
+    num F_test ( V_first , V_second , V_third ) {
+        text V_t1 ,
+        text V_t2 ,
+        text V_t3 ,
+        begin
+        end
+    }
+    end
+## BREAK ##
+
 
 
 main

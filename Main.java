@@ -207,6 +207,7 @@ public class Main {
         Scope_Analysis sa = new Scope_Analysis();
         Type_Checker tc = new Type_Checker();
         CodeGenerator cg = new CodeGenerator();
+        TargetCodeGenerator tcg = new TargetCodeGenerator();
         for (Parser p : parsers) {
             try {
                 p.parse();
@@ -216,6 +217,7 @@ public class Main {
             Symbol_Table st = sa.start(p.syntaxTree);
             tc.check(p.syntaxTree.root, sa.symbolTable);
             cg.generateCode(rules, p.syntaxTree, st);
+            // tcg.generateCode(rules, p.syntaxTree, st);
         }
     }
 }

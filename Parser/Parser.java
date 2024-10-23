@@ -484,18 +484,6 @@ public class Parser {
                 //     }
                 //     System.out.println("\u001B[0m");
                 // }
-
-                // * Example:
-                // b c d
-                // * X -> C
-                // * C -> A
-                // * A -> b c x
-                // * A -> b c d
-
-                boolean correctRule = false;
-                if (rule.rhs.size() < 2) {
-                    correctRule = true;
-                }
                 
                 List<List<List<Symbol>>> firstSets = new ArrayList<>();
                 List<List<Boolean>> matches = new ArrayList<>();
@@ -506,8 +494,8 @@ public class Parser {
                         firstSet.add(findFirst(pr.rhs.get(i)));
                     }
                     firstSets.add(firstSet);
-
-                    // print first sets
+                    
+                    // print FIRST set
                     // for (List<Symbol> fS : firstSet) {
                     //     String first = " ";
                     //     for (Symbol sym : fS) {
@@ -521,7 +509,10 @@ public class Parser {
                     for (int i = 0; i < pr.rhs.size(); i++) {
                         if (firstSet.get(i).size() > 0) {
                             for (Symbol sym : firstSet.get(i)) {
-                                if (lookahead != null && sym.identifier.equals(lookahead.tokenValue)) {
+                                // check if token itself matches
+                                if (sym.identifier.equals(identifier)) {
+                                    subMatches.add(true);
+                                } else if (lookahead != null && sym.identifier.equals(lookahead.tokenValue)) {
                                     subMatches.add(true);
                                 }
                             }
@@ -597,7 +588,7 @@ public class Parser {
         Matcher matcher = pattern.matcher(input);
         return matcher.matches();
     }
-
+    
     public boolean checkDirectMatch(String input, String match) {
         return input.equals(match);
     }
