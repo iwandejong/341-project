@@ -14,7 +14,8 @@ A compiler by Jacobus Smit (u21489476) and Iwan de Jong (u22498037)
 - If there are errors in the file it will be shown in the terminal. If there are no errors, the program will run the code and output the intermediate code in "intermediate_code_n.txt" where n is the number of the file.
 - Target code will be output to file "target_code_n.bas" where n is the number of the file.
 - Target code will be run using the QB64 compiler and the output will be displayed in the terminal.
-    - Note: The QB64 compiler must be installed on the system to run the target code. It is obtained from https://www.qb64.com
+
+<span style="background-color: #FF0000; color: #FFF">Note: The QB64 compiler must be installed on the system to run the target code. It can be obtained from https://www.qb64.com</span>
 
 ## Input code rules: 
 ### Declaring variables:
