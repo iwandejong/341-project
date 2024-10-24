@@ -4,6 +4,8 @@
 
 Develop a compiler for the RecSPL (Recursive Students' Programming Language). The language eliminates traditional looping constructs (like WHILE ), requiring that all iterations be achieved through recursion. The project will culminate in a fully functional compiler that can parse, analyze, and run RecSPL programs.
 
+A compiler by Jacobus Smit (u21489476) and Iwan de Jong (u22498037)
+
 How to run the program:
 - Run the compiled program by running the following command in the terminal: ``` java -jar compiler.jar ```
 - The program will ask you for the input file name. Enter the name of the file you want to compile. 
