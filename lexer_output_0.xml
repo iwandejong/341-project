@@ -163,7 +163,7 @@
     <TOK>
         <ID>32</ID>
         <CLASS>T</CLASS>
-        <WORD>"Yes"</WORD>
+        <WORD>"Hellyeah"</WORD>
     </TOK>
     <TOK>
         <ID>33</ID>
@@ -318,7 +318,7 @@
     <TOK>
         <ID>63</ID>
         <CLASS>reserved_keyword</CLASS>
-        <WORD>void</WORD>
+        <WORD>num</WORD>
     </TOK>
     <TOK>
         <ID>64</ID>
@@ -427,23 +427,23 @@
     </TOK>
     <TOK>
         <ID>85</ID>
-        <CLASS>V</CLASS>
-        <WORD>V_a01</WORD>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>add</WORD>
     </TOK>
     <TOK>
         <ID>86</ID>
         <CLASS>reserved_keyword</CLASS>
-        <WORD>;</WORD>
+        <WORD>(</WORD>
     </TOK>
     <TOK>
         <ID>87</ID>
         <CLASS>V</CLASS>
-        <WORD>V_a05</WORD>
+        <WORD>V_a01</WORD>
     </TOK>
     <TOK>
         <ID>88</ID>
         <CLASS>reserved_keyword</CLASS>
-        <WORD>=</WORD>
+        <WORD>,</WORD>
     </TOK>
     <TOK>
         <ID>89</ID>
@@ -453,162 +453,162 @@
     <TOK>
         <ID>90</ID>
         <CLASS>reserved_keyword</CLASS>
-        <WORD>;</WORD>
+        <WORD>)</WORD>
     </TOK>
     <TOK>
         <ID>91</ID>
-        <CLASS>V</CLASS>
-        <WORD>V_a06</WORD>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>;</WORD>
     </TOK>
     <TOK>
         <ID>92</ID>
-        <CLASS>reserved_keyword</CLASS>
-        <WORD>=</WORD>
+        <CLASS>V</CLASS>
+        <WORD>V_a06</WORD>
     </TOK>
     <TOK>
         <ID>93</ID>
         <CLASS>reserved_keyword</CLASS>
-        <WORD>add</WORD>
+        <WORD>=</WORD>
     </TOK>
     <TOK>
         <ID>94</ID>
-        <CLASS>reserved_keyword</CLASS>
-        <WORD>(</WORD>
+        <CLASS>F</CLASS>
+        <WORD>F_foo</WORD>
     </TOK>
     <TOK>
         <ID>95</ID>
-        <CLASS>V</CLASS>
-        <WORD>V_a04</WORD>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>(</WORD>
     </TOK>
     <TOK>
         <ID>96</ID>
-        <CLASS>reserved_keyword</CLASS>
-        <WORD>,</WORD>
-    </TOK>
-    <TOK>
-        <ID>97</ID>
-        <CLASS>V</CLASS>
-        <WORD>V_a05</WORD>
-    </TOK>
-    <TOK>
-        <ID>98</ID>
-        <CLASS>reserved_keyword</CLASS>
-        <WORD>)</WORD>
-    </TOK>
-    <TOK>
-        <ID>99</ID>
-        <CLASS>reserved_keyword</CLASS>
-        <WORD>;</WORD>
-    </TOK>
-    <TOK>
-        <ID>100</ID>
-        <CLASS>F</CLASS>
-        <WORD>F_foo</WORD>
-    </TOK>
-    <TOK>
-        <ID>101</ID>
-        <CLASS>reserved_keyword</CLASS>
-        <WORD>(</WORD>
-    </TOK>
-    <TOK>
-        <ID>102</ID>
         <CLASS>V</CLASS>
         <WORD>V_a04</WORD>
     </TOK>
     <TOK>
-        <ID>103</ID>
+        <ID>97</ID>
         <CLASS>reserved_keyword</CLASS>
         <WORD>,</WORD>
     </TOK>
     <TOK>
-        <ID>104</ID>
-        <CLASS>V</CLASS>
-        <WORD>V_a05</WORD>
-    </TOK>
-    <TOK>
-        <ID>105</ID>
-        <CLASS>reserved_keyword</CLASS>
-        <WORD>,</WORD>
-    </TOK>
-    <TOK>
-        <ID>106</ID>
-        <CLASS>V</CLASS>
-        <WORD>V_a06</WORD>
-    </TOK>
-    <TOK>
-        <ID>107</ID>
-        <CLASS>reserved_keyword</CLASS>
-        <WORD>)</WORD>
-    </TOK>
-    <TOK>
-        <ID>108</ID>
-        <CLASS>reserved_keyword</CLASS>
-        <WORD>;</WORD>
-    </TOK>
-    <TOK>
-        <ID>109</ID>
-        <CLASS>reserved_keyword</CLASS>
-        <WORD>end</WORD>
-    </TOK>
-    <TOK>
-        <ID>110</ID>
-        <CLASS>reserved_keyword</CLASS>
-        <WORD>}</WORD>
-    </TOK>
-    <TOK>
-        <ID>111</ID>
-        <CLASS>reserved_keyword</CLASS>
-        <WORD>end</WORD>
-    </TOK>
-    <TOK>
-        <ID>112</ID>
-        <CLASS>reserved_keyword</CLASS>
-        <WORD>void</WORD>
-    </TOK>
-    <TOK>
-        <ID>113</ID>
-        <CLASS>F</CLASS>
-        <WORD>F_foo</WORD>
-    </TOK>
-    <TOK>
-        <ID>114</ID>
-        <CLASS>reserved_keyword</CLASS>
-        <WORD>(</WORD>
-    </TOK>
-    <TOK>
-        <ID>115</ID>
+        <ID>98</ID>
         <CLASS>V</CLASS>
         <WORD>V_a01</WORD>
     </TOK>
     <TOK>
-        <ID>116</ID>
+        <ID>99</ID>
         <CLASS>reserved_keyword</CLASS>
         <WORD>,</WORD>
     </TOK>
     <TOK>
-        <ID>117</ID>
+        <ID>100</ID>
         <CLASS>V</CLASS>
         <WORD>V_a02</WORD>
     </TOK>
     <TOK>
-        <ID>118</ID>
-        <CLASS>reserved_keyword</CLASS>
-        <WORD>,</WORD>
-    </TOK>
-    <TOK>
-        <ID>119</ID>
-        <CLASS>V</CLASS>
-        <WORD>V_a03</WORD>
-    </TOK>
-    <TOK>
-        <ID>120</ID>
+        <ID>101</ID>
         <CLASS>reserved_keyword</CLASS>
         <WORD>)</WORD>
     </TOK>
     <TOK>
-        <ID>121</ID>
+        <ID>102</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>;</WORD>
+    </TOK>
+    <TOK>
+        <ID>103</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>return</WORD>
+    </TOK>
+    <TOK>
+        <ID>104</ID>
+        <CLASS>V</CLASS>
+        <WORD>V_a06</WORD>
+    </TOK>
+    <TOK>
+        <ID>105</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>;</WORD>
+    </TOK>
+    <TOK>
+        <ID>106</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>end</WORD>
+    </TOK>
+    <TOK>
+        <ID>107</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>}</WORD>
+    </TOK>
+    <TOK>
+        <ID>108</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>end</WORD>
+    </TOK>
+    <TOK>
+        <ID>109</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>num</WORD>
+    </TOK>
+    <TOK>
+        <ID>110</ID>
+        <CLASS>F</CLASS>
+        <WORD>F_foo</WORD>
+    </TOK>
+    <TOK>
+        <ID>111</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>(</WORD>
+    </TOK>
+    <TOK>
+        <ID>112</ID>
+        <CLASS>V</CLASS>
+        <WORD>V_a01</WORD>
+    </TOK>
+    <TOK>
+        <ID>113</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>,</WORD>
+    </TOK>
+    <TOK>
+        <ID>114</ID>
+        <CLASS>V</CLASS>
+        <WORD>V_a02</WORD>
+    </TOK>
+    <TOK>
+        <ID>115</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>,</WORD>
+    </TOK>
+    <TOK>
+        <ID>116</ID>
+        <CLASS>V</CLASS>
+        <WORD>V_a03</WORD>
+    </TOK>
+    <TOK>
+        <ID>117</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>)</WORD>
+    </TOK>
+    <TOK>
+        <ID>118</ID>
         <CLASS>reserved_keyword</CLASS>
         <WORD>{</WORD>
+    </TOK>
+    <TOK>
+        <ID>119</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>num</WORD>
+    </TOK>
+    <TOK>
+        <ID>120</ID>
+        <CLASS>V</CLASS>
+        <WORD>V_a04</WORD>
+    </TOK>
+    <TOK>
+        <ID>121</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>,</WORD>
     </TOK>
     <TOK>
         <ID>122</ID>
@@ -618,7 +618,7 @@
     <TOK>
         <ID>123</ID>
         <CLASS>V</CLASS>
-        <WORD>V_a04</WORD>
+        <WORD>V_a05</WORD>
     </TOK>
     <TOK>
         <ID>124</ID>
@@ -633,7 +633,7 @@
     <TOK>
         <ID>126</ID>
         <CLASS>V</CLASS>
-        <WORD>V_a05</WORD>
+        <WORD>V_a06</WORD>
     </TOK>
     <TOK>
         <ID>127</ID>
@@ -643,102 +643,102 @@
     <TOK>
         <ID>128</ID>
         <CLASS>reserved_keyword</CLASS>
-        <WORD>num</WORD>
+        <WORD>begin</WORD>
     </TOK>
     <TOK>
         <ID>129</ID>
         <CLASS>V</CLASS>
-        <WORD>V_a06</WORD>
+        <WORD>V_a04</WORD>
     </TOK>
     <TOK>
         <ID>130</ID>
         <CLASS>reserved_keyword</CLASS>
-        <WORD>,</WORD>
-    </TOK>
-    <TOK>
-        <ID>131</ID>
-        <CLASS>reserved_keyword</CLASS>
-        <WORD>begin</WORD>
-    </TOK>
-    <TOK>
-        <ID>132</ID>
-        <CLASS>V</CLASS>
-        <WORD>V_a04</WORD>
-    </TOK>
-    <TOK>
-        <ID>133</ID>
-        <CLASS>reserved_keyword</CLASS>
         <WORD>=</WORD>
     </TOK>
     <TOK>
-        <ID>134</ID>
+        <ID>131</ID>
         <CLASS>V</CLASS>
         <WORD>V_a01</WORD>
     </TOK>
     <TOK>
-        <ID>135</ID>
+        <ID>132</ID>
         <CLASS>reserved_keyword</CLASS>
         <WORD>;</WORD>
     </TOK>
     <TOK>
-        <ID>136</ID>
+        <ID>133</ID>
         <CLASS>V</CLASS>
         <WORD>V_a05</WORD>
     </TOK>
     <TOK>
-        <ID>137</ID>
+        <ID>134</ID>
         <CLASS>reserved_keyword</CLASS>
         <WORD>=</WORD>
     </TOK>
     <TOK>
-        <ID>138</ID>
+        <ID>135</ID>
         <CLASS>V</CLASS>
         <WORD>V_a02</WORD>
     </TOK>
     <TOK>
-        <ID>139</ID>
+        <ID>136</ID>
         <CLASS>reserved_keyword</CLASS>
         <WORD>;</WORD>
     </TOK>
     <TOK>
-        <ID>140</ID>
+        <ID>137</ID>
         <CLASS>V</CLASS>
         <WORD>V_a06</WORD>
     </TOK>
     <TOK>
-        <ID>141</ID>
+        <ID>138</ID>
         <CLASS>reserved_keyword</CLASS>
         <WORD>=</WORD>
     </TOK>
     <TOK>
-        <ID>142</ID>
+        <ID>139</ID>
         <CLASS>reserved_keyword</CLASS>
         <WORD>mul</WORD>
     </TOK>
     <TOK>
-        <ID>143</ID>
+        <ID>140</ID>
         <CLASS>reserved_keyword</CLASS>
         <WORD>(</WORD>
     </TOK>
     <TOK>
-        <ID>144</ID>
+        <ID>141</ID>
         <CLASS>V</CLASS>
         <WORD>V_a04</WORD>
     </TOK>
     <TOK>
-        <ID>145</ID>
+        <ID>142</ID>
         <CLASS>reserved_keyword</CLASS>
         <WORD>,</WORD>
     </TOK>
     <TOK>
-        <ID>146</ID>
+        <ID>143</ID>
         <CLASS>V</CLASS>
         <WORD>V_a05</WORD>
     </TOK>
     <TOK>
-        <ID>147</ID>
+        <ID>144</ID>
         <CLASS>reserved_keyword</CLASS>
         <WORD>)</WORD>
+    </TOK>
+    <TOK>
+        <ID>145</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>;</WORD>
+    </TOK>
+    <TOK>
+        <ID>146</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>return</WORD>
+    </TOK>
+    <TOK>
+        <ID>147</ID>
+        <CLASS>V</CLASS>
+        <WORD>V_a06</WORD>
     </TOK>
     <TOK>
         <ID>148</ID>
