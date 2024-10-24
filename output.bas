@@ -1,9 +1,9 @@
 t0 = 10
-V0 = t0
+V3 = t0
 t1 = 20
-V1 = t1
-t2 = V1
-t3 = V0
+V4 = t1
+t2 = V4
+t3 = V3
 IF t2 > t3 THEN GOSUB L1 ELSE GOSUB L2
 
 L1:
@@ -14,6 +14,23 @@ L2:
 PRINT "No"
 
 L3:
-t4 = V0
-V2 = t4
-PRINT V2
+t4 = V3
+V5 = t4
+CALL_F1
+(t5 = V3
+,t6 = V4
+,t7 = V5
+)F1
+V3 = t8
+V4 = t9
+V5 = t10
+ REM BEGIN t11 = 30
+V9 = t11
+t12 = 40
+V16 = t12
+t13 = 50
+V17 = t13
+PRINT V9
+PRINT V16
+PRINT V17
+ REM END 
