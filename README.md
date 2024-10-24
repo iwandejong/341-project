@@ -5,7 +5,7 @@
 Develop a compiler for the RecSPL (Recursive Students' Programming Language). The language eliminates traditional looping constructs (like WHILE ), requiring that all iterations be achieved through recursion. The project will culminate in a fully functional compiler that can parse, analyze, and run RecSPL programs.
 
 How to run the program:
-- Run the compiled program by running the following command in the terminal: java -jar compiler.jar
+- Run the compiled program by running the following command in the terminal: ``` java -jar compiler.jar ```
 - The program will ask you for the input file name. Enter the name of the file you want to compile. 
   - Note: The file must be in the same directory as the compiler.jar file to use the filename only (filename.txt). Otherwise, you must enter the full path of the file ( C:\files\testFile.txt).
 - If the lexer and parser doesnt throw errors, the xml file will be output to "lexer_output_n.xml" and "parser_output_n.xml" where n is the number of the file.
