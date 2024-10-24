@@ -169,7 +169,7 @@ public class CodeGenerator {
             case "print":
                 return COMMAND_PRINT(COMMAND);
             case "return":
-                return COMMAND_ATOMIC(COMMAND);
+                return COMMAND_RETURN(COMMAND);
             case "ASSIGN":
                 return COMMAND_ASSIGN(COMMAND);
             case "CALL":
@@ -215,10 +215,11 @@ public class CodeGenerator {
     // was found inside the MAIN program then a semantic error must have already been thrown
     // in the Semantic Analysis phase, such that the translation phase would not even start.
     // Advice: Translation as per Chapter #9 of our Textbook, or per INLINING (as lectured).
-    private String COMMAND_ATOMIC (Tree COMMAND) {
+    private String COMMAND_RETURN (Tree COMMAND) {
         Tree ATOMIC = newBaseSubTree(COMMAND, "ATOMIC");
-        String codeString = ATOMIC(ATOMIC, newvar());
-        return "RETURN" + " " + codeString;
+        String variable = ATOMIC.root.children.get(0).children.get(0).token.tokenValue;
+        String varName = symbolTable.lookupID(variable);
+        return "RETURN" + " " + varName;
     }
 
     // COMMAND ::= ASSIGN translate(COMMAND) = translate(ASSIGN)
@@ -280,13 +281,25 @@ public class CodeGenerator {
         throw new RuntimeException("Invalid CONST.");
     }
 
+    private String CONSTnoNewLine (Tree CONST, String place) throws RuntimeException {
+        String token = CONST.root.children.get(0).token.tokenValue;
+        if (CONST.root.children.get(0).token.tokenClass.equals("N")) {
+            return place + " := " + token;
+        } else if (CONST.root.children.get(0).token.tokenClass.equals("T")) {
+            return place + " := " + token;
+        }
+
+        throw new RuntimeException("Invalid CONST.");
+    }
+
     // ASSIGN ::= VNAME < input // The symbol < remains un-translated
     // codeString = translate(VNAME)
     // return( "INPUT"++" "++codeString )
     private String ASSIGN_INPUT (Tree ASSIGN) {
         Tree VNAME = newBaseSubTree(ASSIGN, "VNAME");
-        String codeString = ATOMIC(VNAME, newvar());
-        return "INPUT" + " " + codeString;
+        String var = VNAME.root.children.get(0).token.tokenValue;
+        String codeString = symbolTable.lookupID(var);
+        return "INPUT" + " \"Input:\"," + codeString + "\n";
     }
 
     // ASSIGN ::= VNAME = TERM
@@ -614,7 +627,7 @@ public class CodeGenerator {
         Tree DECL = newBaseSubTree(FUNCTIONS, "DECL");
         if (FUNCTIONS.root.children.size() == 2) {
             Tree FUNCTIONS2 = newBaseSubTree(FUNCTIONS, "FUNCTIONS", 1);
-            return DECL(DECL) + FUNCTIONS(FUNCTIONS2);
+            return DECL(DECL) + "\n" + FUNCTIONS(FUNCTIONS2);
         }
         return DECL(DECL);
     }

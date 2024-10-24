@@ -184,13 +184,13 @@ public class TargetCodeGenerator {
     // COMMAND ::= skip
     // For this case, the translator function returns the code-string " REM DO NOTHING "
     private String COMMAND_SKIP () {
-        return " REM DO NOTHING ";
+        return "END\n";
     }
 
     // COMMAND ::= halt
     // For this case, the translator function must return the code-string " STOP "
     private String COMMAND_HALT () {
-        return "";
+        return "STOP\n";
     }
 
     // COMMAND ::= print ATOMIC
@@ -311,8 +311,9 @@ public class TargetCodeGenerator {
     // return( "INPUT"++" "++codeString )
     private String ASSIGN_INPUT (Tree ASSIGN) {
         Tree VNAME = newBaseSubTree(ASSIGN, "VNAME");
-        String codeString = ATOMIC(VNAME, newvar());
-        return "INPUT" + " " + codeString;
+        String var = VNAME.root.children.get(0).token.tokenValue;
+        String codeString = symbolTable.lookupID(var);
+        return "INPUT" + " \"Input:\"," + codeString + "\n";
     }
 
     // ASSIGN ::= VNAME = TERM
@@ -396,11 +397,12 @@ public class TargetCodeGenerator {
     private String OP(Tree OP, String place) throws RuntimeException {
         if (OP.root.children.get(0).identifier.identifier.equals("UNOP")) {
             Tree ARG = newBaseSubTree(OP, "ARG");
+            Tree UNOP = newBaseSubTree(OP, "UNOP");
             String place1 = newvar();
             String code1 = ARG(ARG, place1);
-            String op = UNOP(OP);
+            String op = UNOP(UNOP);
 
-            return code1 + place + " = " + op + "(" + place1 + ")";
+            return code1 + place + " = " + op + "(" + place1 + ")" + "\n";
         } else if (OP.root.children.get(0).identifier.identifier.equals("BINOP")) {
             Tree ARG1 = newBaseSubTree(OP, "ARG");
             Tree ARG2 = newBaseSubTree(OP, "ARG", 1);
@@ -443,7 +445,7 @@ public class TargetCodeGenerator {
     // translate(sqrt) → return "SQR" // That is the operator's syntax in our Target Language
     private String UNOP (Tree UNOP) throws RuntimeException {
         if (UNOP.root.children.get(0).identifier.identifier.equals("not")) {
-            return "! ";
+            return "NOT";
         } else if (UNOP.root.children.get(0).identifier.identifier.equals("sqrt")) {
             return "SQR";
         }
@@ -564,12 +566,12 @@ public class TargetCodeGenerator {
             // code2 = TransExp(Exp2,vtable,ftable,place2)
             // op = transop(getopname(binop))
             // code1++code2++[place = place1 op place2]
-            String place1 = newvar();
-            String place2 = newvar();
-            String code1 = ATOMIC(ATOMIC1, place1);
-            String code2 = ATOMIC(ATOMIC2, place2);
+            String atomicVar1 = ATOMIC1.root.children.get(0).children.get(0).token.tokenValue;
+            String varName1 = symbolTable.lookupID(atomicVar1);
+            String atomicVar2 = ATOMIC2.root.children.get(0).children.get(0).token.tokenValue;
+            String varName2 = symbolTable.lookupID(atomicVar2);
             String op = BINOP(BINOP);
-            return code1 + code2 + place + " = " + place1 + op + place2;
+            return varName1 + op + varName2;
         }
 
         throw new RuntimeException("Invalid SIMPLE.");
@@ -597,9 +599,12 @@ public class TargetCodeGenerator {
                 return SIMPLE(SIMPLE1, labelT) + SIMPLE(SIMPLE2, labelT) + " GOTO " + labelF + " \n";
             }
         } else if (COMPOSIT.root.children.get(0).identifier.identifier.equals("UNOP")) {
-            // Handle NOT operation by swapping labels
+            Tree UNOP = newBaseSubTree(COMPOSIT, "UNOP");
             Tree SIMPLE = newBaseSubTree(COMPOSIT, "SIMPLE");
-            return SIMPLE(SIMPLE, labelF) + " GOTO " + labelT + " \n";
+            String op = UNOP(UNOP);
+            String place = newvar();
+            String code = SIMPLE(SIMPLE, place);
+            return "IF " + op + "(" + code + ")" + " THEN GOTO " + labelT + " ELSE GOTO " + labelF;
         }
         throw new RuntimeException("Invalid COMPOSIT.");
     }

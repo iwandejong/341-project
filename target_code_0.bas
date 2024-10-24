@@ -1,49 +1,54 @@
-t0 = 10
-V0 = t0
-t1 = 20
-V1 = t1
-t2 = V1
-t3 = V0
-IF t2 > t3 THEN GOSUB L1 ELSE GOSUB L2
+INPUT "Input:",V4
+t0 = 20
+V5 = t0
+t2 = V5
+t3 = 4
+t1 = t2 - t3
+V6 = t1
+PRINT V6
+t4 = V4
+t5 = V6
+IF t4 = t5 THEN GOSUB L1 ELSE GOSUB L2
 
 L1:
+END
 PRINT "Hellyeah"
 GOTO L3
 
 L2:
 PRINT "No"
+STOP
 
 L3:
-t4 = V0
-V2 = t4
-t5 = F1(V0, V1, V2)
-V3 = t5
-PRINT V3
+t6 = V4
+V6 = t6
+t7 = F1(V4, V5, V6)
+V7 = t7
+PRINT V7
+STOP
 END
 
-FUNCTION F1 (t6, t7, t8)
-V0 = t6
-V1 = t7
-V2 = t8
-t10 = V0
-t11 = V1
-t9 = t10 + t11
-V3 = t9
-t12 = F3(V3, V0, V1)
-V5 = t12
-F1 = V5
+FUNCTION F1 (t8, t9, t10)
+V4 = t8
+V5 = t9
+V6 = t10
+t12 = V4
+t13 = V5
+t11 = t12 + t13
+V7 = t11
+F1 = V7
 END FUNCTION
-FUNCTION F3 (t13, t14, t15)
-V0 = t13
-V1 = t14
-V2 = t15
-t16 = V0
-V3 = t16
-t17 = V1
-V4 = t17
-t19 = V3
-t20 = V4
-t18 = t19 * t20
-V5 = t18
-F3 = V5
+FUNCTION F2 (t14, t15, t16)
+V4 = t14
+V5 = t15
+V6 = t16
+t17 = V4
+V7 = t17
+t18 = V5
+V8 = t18
+t20 = V7
+t21 = V8
+t19 = t20 * t21
+V9 = t19
+F2 = V9
 END FUNCTION

@@ -4,15 +4,19 @@ main
     num V_a03 ,
     num V_a04 ,
     begin
-        V_a01 = 10 ;
+        V_a01 < input ;
         V_a02 = 20 ;
-        if grt ( V_a02 , V_a01 ) then
+        V_a03 = sub ( V_a02 , 4 ) ;
+        print V_a03 ;
+        if eq ( V_a01 , V_a03 ) then
             begin
+                skip ;
                 print "Hellyeah" ;
             end
         else
             begin
                 print "No" ;
+                halt ;
             end ;
         V_a03 = V_a01 ;
         V_a04 = F_add ( V_a01 , V_a02 , V_a03 ) ;
@@ -23,11 +27,10 @@ main
         num V_a04 , num V_a05 , num V_a06 ,
         begin
             V_a04 = add ( V_a01 , V_a02 ) ;
-            V_a06 = F_foo ( V_a04 , V_a01 , V_a02 ) ;
-            return V_a06 ;
+            return V_a04 ;
         end
     } end
-    num F_foo ( V_a01 , V_a02 , V_a03 ) {
+    void F_foo ( V_a01 , V_a02 , V_a03 ) {
         num V_a04 , num V_a05 , num V_a06 ,
         begin
             V_a04 = V_a01 ;
