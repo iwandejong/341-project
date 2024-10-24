@@ -61,24 +61,24 @@ Important notes:
 Example code:
 ```
 main
-    num V_a01,
-    num V_a02,
-    num V_a03,
-    num V_a04,
+    num V_a01 ,
+    num V_a02 ,
+    num V_a03 ,
+    num V_a04 ,
     begin
-        V_a01 = 10;
-        V_a02 = 20;
-        if grt(V_a02, V_a01) then
+        V_a01 = 10 ;
+        V_a02 = 20 ;
+        if grt ( V_a02 , V_a01 ) then
             begin
-                print "Yes";
+                print "Yes" ;
             end
         else
             begin
-                print "No";
+                print "No" ;
             end;
-        V_a03 = V_a01;
-        V_a04 = 10;
-        print V_a04;
-        halt;
+        V_a03 = V_a01 ;
+        V_a04 = 10 ;
+        print V_a04 ;
+        halt ;
     end
 ```
