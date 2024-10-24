@@ -23,7 +23,8 @@ Input code rules:
     - When declaring variables or functions seperate every token by a (" ") space.
         - This includes Tab key, Enter key, and extra spaces in between. 
     - Variables must start with a capital letter V and followed by and underscore (_).
-    - Example of variable declaration: num V_a01 , num V_a02 , num      V_a01 , and so on.
+    - if there are no Global variables, the begin token must be on the same line as the main or directly below it.
+    - Example of variable declaration: num V_a01 , num V_a02 , num      V_a03 , and so on.
 
 - Declaring functions:
     - When declaring variables or functions seperate every token by a (" ") space.
@@ -42,7 +43,8 @@ Input code rules:
             - The function must be of type void if you are not assigning it to a variable.
 
 - Extra whitespace considerations:
-    - The compiler will ignore extra whitespace in the code such as the Enter key, Tab key, and extra spaces between tokens.
+    - The compiler will ignore extra whitespace in the code such as the Tab key, and extra spaces (" ") between tokens.
+    - There may not be a empty line between tokens. 
 
 - Strings:
     - Strings must be enclosed in double quotes. 
