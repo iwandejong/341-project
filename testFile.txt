@@ -2,6 +2,7 @@ main
     num V_a01 ,
     num V_a02 ,
     num V_a03 ,
+    num V_a04 ,
     begin
         V_a01 = 10 ;
         V_a02 = 20 ;
@@ -14,7 +15,8 @@ main
                 print "No" ;
             end ;
         V_a03 = V_a01 ;
-        F_func ( V_a01 , V_a02 , V_a03 ) ;
+        V_a04 = F_add ( V_a01 , V_a02 , V_a03 ) ;
+        print V_a04 ;
         halt ;
     end
     void F_add ( V_a01 , V_a02 , V_a03 ) {
@@ -23,11 +25,15 @@ main
             V_a04 = V_a01 ;
             V_a05 = V_a02 ;
             V_a06 = add ( V_a04 , V_a05 ) ;
-            print V_a04 ;
-            print V_a05 ;
-            print "Sum" ;
-            print V_a06 ;
-            halt ;
+            F_foo ( V_a04 , V_a05 , V_a06 ) ;
+        end
+    } end
+    void F_foo ( V_a01 , V_a02 , V_a03 ) {
+        num V_a04 , num V_a05 , num V_a06 ,
+        begin
+            V_a04 = V_a01 ;
+            V_a05 = V_a02 ;
+            V_a06 = mul ( V_a04 , V_a05 ) ;
         end
     } end
 ## BREAK ##

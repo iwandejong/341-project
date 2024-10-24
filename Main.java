@@ -216,7 +216,7 @@ public class Main {
                 System.out.println();
                 System.out.println("\u001B[33m" + "Symbol Table:" + "\u001B[0m");
                 sa.printSymbolTable();
-                cg.generateCode(rules, p.syntaxTree, st);
+                // cg.generateCode(rules, p.syntaxTree, st); // TODO: RE-ADD THIS LINE LATER
                 tcg.generateCode(rules, p.syntaxTree, st);
             } catch (Exception e) {
                 e.printStackTrace();
