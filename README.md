@@ -75,7 +75,7 @@ main
         else
             begin
                 print "No" ;
-            end;
+            end ;
         V_a03 = V_a01 ;
         V_a04 = 10 ;
         print V_a04 ;
