@@ -17,14 +17,15 @@ main
         F_func ( V_a01 , V_a02 , V_a03 ) ;
         halt ;
     end
-    void F_func ( V_a01 , V_a02 , V_a03 ) {
+    void F_add ( V_a01 , V_a02 , V_a03 ) {
         num V_a04 , num V_a05 , num V_a06 ,
         begin
-            V_a04 = 30 ;
-            V_a05 = 40 ;
-            V_a06 = 50 ;
+            V_a04 = V_a01 ;
+            V_a05 = V_a02 ;
+            V_a06 = add ( V_a04 , V_a05 ) ;
             print V_a04 ;
             print V_a05 ;
+            print "Sum" ;
             print V_a06 ;
             halt ;
         end

@@ -263,6 +263,20 @@ public class TargetCodeGenerator {
         throw new RuntimeException("Invalid ATOMIC.");
     }
 
+    private String ATOMICnoNewLine(Tree ATOMIC, String place) throws RuntimeException {
+        if (ATOMIC.root.children.get(0).identifier.identifier.equals("VNAME")) {
+            // For VNAME, we want to get the value, not assign to it
+            Node node = ATOMIC.root.children.get(0).children.get(0);
+            String token = node.token.tokenValue;
+            String varName = symbolTable.lookupID(token);
+            return place + " = " + varName;
+        } else if (ATOMIC.root.children.get(0).identifier.identifier.equals("CONST")) {
+            Tree CONST = newBaseSubTree(ATOMIC, "CONST");
+            return CONSTnoNewLine(CONST, place);
+        }
+        throw new RuntimeException("Invalid ATOMIC.");
+    }
+
     // CONST ::= a token of Token-Class N from the Lexer
     // CONST ::= a token of Token-Class T from the Lexer
     // Constants are translated to themselves.
@@ -274,6 +288,17 @@ public class TargetCodeGenerator {
             return place + " = " + token + "\n";
         } else if (CONST.root.children.get(0).token.tokenClass.equals("T")) {
             return place + " = " + token + "\n";
+        }
+
+        throw new RuntimeException("Invalid CONST.");
+    }
+
+    private String CONSTnoNewLine (Tree CONST, String place) throws RuntimeException {
+        String token = CONST.root.children.get(0).token.tokenValue;
+        if (CONST.root.children.get(0).token.tokenClass.equals("N")) {
+            return place + " = " + token;
+        } else if (CONST.root.children.get(0).token.tokenClass.equals("T")) {
+            return place + " = " + token;
         }
 
         throw new RuntimeException("Invalid CONST.");
@@ -345,11 +370,20 @@ public class TargetCodeGenerator {
     // the final translation will continue from there either by way of INLINING (as lectured),
     // or by the code generation method described in Chapter #9 of our Textbook (with stack).
     private String CALL(Tree CALL, Tree ATOMIC1, Tree ATOMIC2, Tree ATOMIC3) {
-        String p1 = ATOMIC(ATOMIC1, newvar());
-        String p2 = ATOMIC(ATOMIC2, newvar());
-        String p3 = ATOMIC(ATOMIC3, newvar());
+        Node node = ATOMIC1.root.children.get(0).children.get(0);
+        String token = node.token.tokenValue;
+        String p1 = symbolTable.lookupID(token);
+
+        node = ATOMIC2.root.children.get(0).children.get(0);
+        token = node.token.tokenValue;
+        String p2 = symbolTable.lookupID(token);
+
+        node = ATOMIC3.root.children.get(0).children.get(0);
+        token = node.token.tokenValue;
+        String p3 = symbolTable.lookupID(token);
+
         String newName = FNAME(newBaseSubTree(CALL, "FNAME"));
-        return "CALL_" + newName + "(" + p1 + "," + p2 + "," + p3 + ")";
+        return "CALL " + newName + "(" + p1 + ", " + p2 + ", " + p3 + ")\n";
     }
 
     // OP ::= UNOP( ARG ) Translate this case such as unop Exp1 in Figure 6.3 of our Textbook,
@@ -579,7 +613,7 @@ public class TargetCodeGenerator {
         // get the new name from the symbol table
         String newName = symbolTable.lookupID(token);
 
-        return newName + "\n";
+        return newName;
     }
 
     // The user-defined names were already re-named in the foregoing Scope Analysis.
@@ -639,10 +673,7 @@ public class TargetCodeGenerator {
     // vanish, as explained above.
     private String HEADER (Tree HEADER) {
         Tree FNAME = newBaseSubTree(HEADER, "FNAME");
-        Tree VNAME1 = newBaseSubTree(HEADER, "VNAME");
-        Tree VNAME2 = newBaseSubTree(HEADER, "VNAME", 1);
-        Tree VNAME3 = newBaseSubTree(HEADER, "VNAME", 2);
-        return FNAME(FNAME) + VNAME(VNAME1, newvar()) + VNAME(VNAME2, newvar()) + VNAME(VNAME3, newvar());
+        return "SUB " + FNAME(FNAME).toUpperCase() + " (" + newvar() + ", " + newvar() + ", " + newvar() + ")\n";
     }
 
     // FTYP ::= num
@@ -674,7 +705,7 @@ public class TargetCodeGenerator {
     // then translate(PROLOG) will generate the boiler-plate-code (with runtime-Stack) as
     // explained in Chapter #9.
     private String PROLOG (Tree PROLOG) {
-        return " REM BEGIN ";
+        return "";
     }
 
     // EPILOG ::= }
@@ -684,7 +715,7 @@ public class TargetCodeGenerator {
     // then translate(EPILOG) will generate the boiler-plate-code (with runtime-Stack) as
     // explained in Chapter #9.
     private String EPILOG (Tree EPILOG) {
-        return " REM END ";
+        return "SUB END";
     }
 
     // SUBFUNCS ::= FUNCTIONS translate(SUBFUNCS) = translate(FUNCTIONS)
