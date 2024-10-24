@@ -17,6 +17,8 @@ public class Scope_Analysis {
     public static String declarationType = "";
     public int varCount = 0;
     public int funcCount = 0;
+    public boolean isDeclarationInFunction = false;
+    int paramterecount = 0;
     
     // take the parser tree 
     public Symbol_Table start(Tree tree) {
@@ -68,16 +70,27 @@ public class Scope_Analysis {
         // if the node is not a reserved word, add it to the symbol table
         for (int i = 0; i < node.children.size(); i++) {
             // if the node is a function
+            if(node.children!=null&& node.children.get(i) != null && node.children.get(i).token!= null && node.children.get(i).token.tokenValue != null && node.children.get(i).token.tokenValue.equals("void")){
+                declarationType = "void";
+                isDeclarationInFunction = true;
+                isDeclaration = true;
+            }else if(node.children!=null&& i>0 && node.children.get(i-1) != null && node.children.get(i-1).token!= null && node.children.get(i-1).token.tokenValue != null && node.children.get(i-1).token.tokenValue.equals("num")){
+                declarationType = "num";
+                isDeclarationInFunction = true;
+                isDeclaration = true;
+            }
             if(node.children.get(i).identifier.identifier.startsWith("F_")){
                 // every function opens a new scope
                 // see if the function is already in the symbol table ( could be due to call in main )
                 if(symbolTable.lookupName(node.children.get(i).identifier.identifier) == null){
-                    symbolTable.bind(genNewFunc(), node.children.get(i).identifier.identifier, scope, "F", "void");
+                    symbolTable.bind(genNewFunc(), node.children.get(i).identifier.identifier, scope, "F", declarationType);
+                    declarationType = "num";
                     // scopeStack.push(scope);
                     continue;
                 }else{
                     // if the function is already in the symbol table, push the scope
-                    symbolTable.bind(genNewFunc(), node.children.get(i).identifier.identifier, scope, "F", "void");
+                    symbolTable.bind(genNewFunc(), node.children.get(i).identifier.identifier, scope, "F", declarationType);
+                    declarationType = "num";
                     // scopeStack.push(symbolTable.lookupName(node.children.get(i).identifier.identifier).scope);
                     continue;
                 }
@@ -85,6 +98,18 @@ public class Scope_Analysis {
             // if the node is a variable
             if (node.children != null && node.children.get(i) != null && node.children.get(i).token != null) { // Add this check
                 // if it is not a reserved keyword
+                if(node.children.get(i).token.tokenClass.equals("reserved_keyword") && node.children.get(i).token.tokenValue.equals("(")){
+                    paramterecount = 0;
+                    // System.out.println("Setting isDeclarationInFunction to true");
+                    // isDeclaration = true;
+                    declarationType = "num";
+                    // isDeclarationInFunction = true;
+                }
+                else if(node.children.get(i).token.tokenClass.equals("reserved_keyword") && paramterecount == 3 && isDeclarationInFunction){
+                    // System.out.println("Setting isDeclarationInFunction to false and token vlaue is: " + node.children.get(i).token.tokenValue);
+                    // isDeclarationInFunction = false;
+                    isDeclaration = false;
+                }
                 if (!node.children.get(i).token.tokenClass.equals("reserved_keyword")) {
                     if(!isDeclaration){
                         // lookup the value in the symbol table and set that declaration type
@@ -100,7 +125,7 @@ public class Scope_Analysis {
                             }
                         }catch(Exception e){
                             // print current symbol that throws the exception
-                            System.out.println("Symbol: " + node.children.get(i).identifier.identifier);
+                            // System.out.println("Symbol: " + node.children.get(i).identifier.identifier + "isDecl: " + isDeclaration);
                             // print symbol table for now
                             symbolTable.printTable();
                             throw new RuntimeException("Variable is used before declaration.");
@@ -119,6 +144,8 @@ public class Scope_Analysis {
                             }
                         }
                     }else{
+                        paramterecount++;
+                        // System.out.println("hier2");
                         symbolTable.bind(genNewVar(), node.children.get(i).identifier.identifier, scope, "D", declarationType);
                     }
                 }
@@ -127,11 +154,10 @@ public class Scope_Analysis {
                     scopeStack.push(scope);
                 }
                 // it is the reserved keyword is not , (the declaration "stops")
-                if(node.children.get(i).token.tokenClass.equals("reserved_keyword") && !node.children.get(i).token.tokenValue.equals(",")){
+                if(node.children.get(i).token.tokenClass.equals("reserved_keyword") && !node.children.get(i).token.tokenValue.equals(",") && !isDeclarationInFunction){
+                    // System.out.println("isDeclarationInFunction: " + isDeclarationInFunction);
                     isDeclaration = false;
                 }
-                
-                //   check if the node is a function and push it to the stack
                 
                 
                 // if reserved keyword = text or num, add the rest of the children to the symbol table with type = D for declaration

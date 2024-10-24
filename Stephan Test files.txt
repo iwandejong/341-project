@@ -1,6 +1,6 @@
 // Paste these programs into testFile.txt to run
+Besides num) is if the test should pass or fail. !!-- Success --!! means that the expected outcome was reached
 
-// Type checker tests ( Paser )
 1) valid
 main
     num V_a01 ,
@@ -14,7 +14,7 @@ main
 !!--  Success --!!
 
 
-1.1) Invalid: num -> text
+2) Invalid: num -> text
 main
     num V_a01 ,
     num V_a02 ,
@@ -26,7 +26,7 @@ main
 ## BREAK ##
 !!-- Success --!!
 
-1.2) Invalid: text -> num
+3) Invalid: text -> num
 main
     text V_a01 ,
     num V_a02 ,
@@ -40,7 +40,7 @@ main
 
 
 Analysis
-1) Invalid: variable not declared
+4) Invalid: variable not declared
 main
     num V_a01 ,
     num V_a02 ,
@@ -52,7 +52,7 @@ main
 ## BREAK ##
 !!--  Success  --!!
 
-1.1) Invalid: Declared as num then text
+5) Invalid: Declared as num then text
 main
     num V_a01 ,
     num V_a02 ,
@@ -63,7 +63,7 @@ main
     end
 
 
-2) Invalid: call to main
+6) Invalid: call to main
 main
     num V_a01 ,
     num V_a02 ,
@@ -74,3 +74,57 @@ main
     end
 ## BREAK ##
 !!-- Success ( because of Parser)  --!!
+
+7) Invalid: text != num 
+main
+    text V_a01 ,
+    num V_a02 ,
+    begin
+        V_a01 = V_a02 ;  
+    end
+## BREAK ## 
+!!-- Success (Type checker gives error) -- !!
+8 ) Valid
+main
+    num V_a01 ,
+    begin
+        V_a01 = 10 ;  
+    end
+## BREAK ## 
+!!-- Fail (Code gen breaks) --!!
+
+7) Valid
+main
+    num V_a01 ,
+    begin
+        print V_a01 ;  
+    end
+## BREAK ## 
+!!-- Success (Except for code gen) --!!
+8) Valid
+main
+    begin
+        skip ;
+    end
+## BREAK ## 
+!!-- Success (Except for code gen) --!!
+
+9) valid but fails symbol table
+main
+begin
+end
+void F_func ( V_a01 , V_a02 , V_a03 ) {
+num V_a01 ,
+num V_a02 ,
+num V_a03 ,
+begin 
+end
+} end
+## BREAK ##
+main
+    num V_a01 ,
+    begin
+        F_func ( V_a01 , 10 , 10 ) ; 
+        V_a01 = 10 ;  
+    end
+## BREAK ##
