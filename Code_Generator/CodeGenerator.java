@@ -369,11 +369,12 @@ public class CodeGenerator {
         } else if (OP.root.children.get(0).identifier.identifier.equals("BINOP")) {
             Tree ARG1 = newBaseSubTree(OP, "ARG");
             Tree ARG2 = newBaseSubTree(OP, "ARG", 1);
+            Tree BINOP = newBaseSubTree(OP, "BINOP");
             String place1 = newvar();
             String place2 = newvar();
             String code1 = ARG(ARG1, place1);
             String code2 = ARG(ARG2, place2);
-            String op = BINOP(OP);
+            String op = BINOP(BINOP);
 
             return code1 + code2 + place + " := " + place1 + op + place2;
         }
