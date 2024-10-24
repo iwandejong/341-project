@@ -70,6 +70,10 @@ public class Scope_Analysis {
         // if the node is not a reserved word, add it to the symbol table
         for (int i = 0; i < node.children.size(); i++) {
             // if the node is a function
+            if(node.children != null && node.children.get(i) != null && node.children.get(i).identifier.identifier.equals("FTYP")){
+                ++scope;
+                scopeStack.push(scope);
+            }
             if(node.children!=null&& node.children.get(i) != null && node.children.get(i).token!= null && node.children.get(i).token.tokenValue != null && node.children.get(i).token.tokenValue.equals("void")){
                 declarationType = "void";
                 isDeclarationInFunction = true;
@@ -158,8 +162,8 @@ public class Scope_Analysis {
                     }
                 }
                 else if(node.children.get(i).token.tokenClass.equals("reserved_keyword") && node.children.get(i).token.tokenValue.equals("void")){
-                    ++scope;
-                    scopeStack.push(scope);
+                    // ++scope;
+                    // scopeStack.push(scope);
                 }
                 // it is the reserved keyword is not , (the declaration "stops")
                 if(node.children.get(i).token.tokenClass.equals("reserved_keyword") && !node.children.get(i).token.tokenValue.equals(",") && !isDeclarationInFunction){
