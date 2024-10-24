@@ -27,6 +27,10 @@ Input code rules:
     - When writing statements, seperate every token by a (" ") space.
     - Example of assignment statement: V_a01 = 5 ; or V_a01 = V_a02 ; or V_a01 = "Hello World" ;
     - Example of function call statement: F_func ( V_a01 , V_a02 , V_a03 ) ;
+    - Exmaple of assigning a function call to a variable: V_a01 = F_func ( V_a01 , V_a02 , V_a03 ) ;
+        - Note: 
+            - The function must be of type num if you are assigning it to a variable of type num. 
+            - The function must be of type void if you are not assigning it to a variable.
 
 - Extra whitespace considerations:
     - The compiler will ignore extra whitespace in the code such as the Enter key, Tab key, and extra spaces between tokens.
@@ -44,3 +48,45 @@ If any of the rules are not followed, the compiler will throw an error and the p
 
 Important notes:
 - SUBFUNCTIONS doesnt work.
+- In the original language a function cannot return a value, however, in the type checking it stated that there exists a COMMAND rule such that a function can return a value. Hence we have went with the type checker language and functions such that a value can be returned (Local or Global).
+
+
+Example code:
+main
+    num V_a01 ,
+    num V_a02 ,
+    num V_a03 ,
+    num V_a04 ,
+    begin
+        V_a01 = 10 ;
+        V_a02 = 20 ;
+        if grt ( V_a02 , V_a01 ) then
+            begin
+                print "Yes" ;
+            end
+        else
+            begin
+                print "No" ;
+            end ;
+        V_a03 = V_a01 ;
+        V_a04 = F_add ( V_a01 , V_a02 , V_a03 ) ;
+        print V_a04 ;
+        halt ;
+    end
+    num F_add ( V_a01 , V_a02 , V_a03 ) {
+        num V_a04 , num V_a05 , num V_a06 ,
+        begin
+            V_a04 = V_a01 ;
+            V_a05 = V_a02 ;
+            V_a06 = add ( V_a04 , V_a05 ) ;
+            F_foo ( V_a04 , V_a05 , V_a06 ) ;
+        end
+    } end
+    void F_foo ( V_a01 , V_a02 , V_a03 ) {
+        num V_a04 , num V_a05 , num V_a06 ,
+        begin
+            V_a04 = V_a01 ;
+            V_a05 = V_a02 ;
+            V_a06 = mul ( V_a04 , V_a05 ) ;
+        end
+    } end
