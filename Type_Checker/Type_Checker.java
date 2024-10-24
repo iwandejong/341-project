@@ -151,8 +151,8 @@ public class Type_Checker {
                         // System.out.println("CALL returns true");
                         return true;
                     }else{
-                        System.out.println("typeOf(symbolTable, CALL) returns:" + typeOf(symbolTable, child));
-                        System.out.println("CALL returns false");
+                        // System.out.println("typeOf(symbolTable, CALL) returns:" + typeOf(symbolTable, child));
+                        // System.out.println("CALL returns false");
                         return false;
                     }
                 }
