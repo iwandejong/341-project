@@ -146,7 +146,15 @@ public class Scope_Analysis {
                     }else{
                         paramterecount++;
                         // System.out.println("hier2");
-                        symbolTable.bind(genNewVar(), node.children.get(i).identifier.identifier, scope, "D", declarationType);
+                        String stringRegex = "\"[a-zA-Z0-9]*\"";
+                        String numberRegex = "[0-9]+";
+                        if(!node.children.get(i).token.tokenValue.matches(numberRegex) && !node.children.get(i).token.tokenValue.matches(stringRegex)){
+                            // it is not already in table with the same scope
+                            if(symbolTable.lookupName(node.children.get(i).identifier.identifier) == null){
+                                symbolTable.bind(genNewVar(), node.children.get(i).identifier.identifier, scope, node.children.get(i).token.tokenClass, declarationType);
+                            }
+                        }
+                        // symbolTable.bind(genNewVar(), node.children.get(i).identifier.identifier, scope, "D", declarationType);
                     }
                 }
                 else if(node.children.get(i).token.tokenClass.equals("reserved_keyword") && node.children.get(i).token.tokenValue.equals("void")){
