@@ -6,6 +6,11 @@ Develop a compiler for the RecSPL (Recursive Students' Programming Language). Th
 
 A compiler by Jacobus Smit (u21489476) and Iwan de Jong (u22498037)
 
+## Contact Information:
+- Github Repository: https://github.com/iwandejong/341-project
+- Iwan de Jong: u22498037@tuks.co.za
+- Jacobus Smit: u21489476@tuks.co.za
+
 ### How to run the program:
 - Run the compiled program by running the following command in the terminal: ``` java -jar compiler.jar ```
 - The program will ask you for the input file name. Enter the name of the file you want to compile. 
@@ -115,9 +120,3 @@ main
         end
     } end
 ```
-
-## Contact Information:
-- Github Repository: https://github.com/iwandejong/341-project
-- Iwan de Jong: u22498037@tuks.co.za
-- Jacobus Smit: u21489476@tuks.co.za
-
