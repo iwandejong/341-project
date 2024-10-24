@@ -114,7 +114,7 @@ public class TargetCodeGenerator {
             return aCode;
         }
         String fCode = FUNCTIONS(FUNCTIONS);
-        return aCode + fCode;
+        return aCode + "END\n\n" +  fCode;
     }
 
     // ALGO ::= begin INSTRUC end
@@ -383,7 +383,7 @@ public class TargetCodeGenerator {
         String p3 = symbolTable.lookupID(token);
 
         String newName = FNAME(newBaseSubTree(CALL, "FNAME"));
-        return "CALL " + newName + "(" + p1 + ", " + p2 + ", " + p3 + ")\n";
+        return newName + " " + p1 + ", " + p2 + ", " + p3 + "\n";
     }
 
     // OP ::= UNOP( ARG ) Translate this case such as unop Exp1 in Figure 6.3 of our Textbook,
@@ -403,13 +403,14 @@ public class TargetCodeGenerator {
         } else if (OP.root.children.get(0).identifier.identifier.equals("BINOP")) {
             Tree ARG1 = newBaseSubTree(OP, "ARG");
             Tree ARG2 = newBaseSubTree(OP, "ARG", 1);
+            Tree BINOP = newBaseSubTree(OP, "BINOP");
             String place1 = newvar();
             String place2 = newvar();
             String code1 = ARG(ARG1, place1);
             String code2 = ARG(ARG2, place2);
-            String op = BINOP(OP);
+            String op = BINOP(BINOP);
 
-            return code1 + code2 + place + " = " + place1 + op + place2;
+            return code1 + code2 + place + " = " + place1 + op + place2 + "\n";
         }
         throw new RuntimeException("Invalid OP.");
     }
@@ -660,7 +661,11 @@ public class TargetCodeGenerator {
     private String DECL (Tree DECL) {
         Tree HEADER = newBaseSubTree(DECL, "HEADER");
         Tree BODY = newBaseSubTree(DECL, "BODY");
-        return HEADER(HEADER) + BODY(BODY);
+        String p1 = newvar();
+        String p2 = newvar();
+        String p3 = newvar();
+
+        return HEADER(HEADER, p1, p2, p3) + BODY(BODY, p1, p2, p3);
     }
 
     // The HEADER will be treated either by the method of INLINING (as explained in lecture),
@@ -671,9 +676,19 @@ public class TargetCodeGenerator {
     // The HEADER will be treated either by the method of INLINING (as explained in lecture),
     // or by the method explained in Chapter #9 of our Textbook. Ultimately the HEADER will
     // vanish, as explained above.
-    private String HEADER (Tree HEADER) {
+    private String HEADER (Tree HEADER, String p1, String p2, String p3) {
         Tree FNAME = newBaseSubTree(HEADER, "FNAME");
-        return "SUB " + FNAME(FNAME).toUpperCase() + " (" + newvar() + ", " + newvar() + ", " + newvar() + ")\n";
+        // Get the VNAMEs from the HEADER node
+        List<Node> vnameNodes = HEADER.getNodes("VNAME");
+        // Look up each VNAME in the symbol table to get their local variable names
+        String v1 = symbolTable.lookupID(vnameNodes.get(0).children.get(0).token.tokenValue);
+        String v2 = symbolTable.lookupID(vnameNodes.get(1).children.get(0).token.tokenValue);
+        String v3 = symbolTable.lookupID(vnameNodes.get(2).children.get(0).token.tokenValue);
+        
+        return "SUB " + FNAME(FNAME).toUpperCase() + " (" + p1 + ", " + p2 + ", " + p3 + ")\n" +
+               v1 + " = " + p1 + "\n" +
+               v2 + " = " + p2 + "\n" + 
+               v3 + " = " + p3 + "\n"; // this declares the parameters as local variables
     }
 
     // FTYP ::= num
@@ -690,7 +705,7 @@ public class TargetCodeGenerator {
     // aCode = translate(ALGO)
     // eCode = translate(EPILOG)
     // sCode = translate(SUBFUNCS)
-    private String BODY (Tree BODY) {
+    private String BODY (Tree BODY, String p1, String p2, String p3) {
         Tree PROLOG = newBaseSubTree(BODY, "PROLOG");
         Tree ALGO = newBaseSubTree(BODY, "ALGO");
         Tree EPILOG = newBaseSubTree(BODY, "EPILOG");
@@ -715,7 +730,7 @@ public class TargetCodeGenerator {
     // then translate(EPILOG) will generate the boiler-plate-code (with runtime-Stack) as
     // explained in Chapter #9.
     private String EPILOG (Tree EPILOG) {
-        return "SUB END";
+        return "END SUB";
     }
 
     // SUBFUNCS ::= FUNCTIONS translate(SUBFUNCS) = translate(FUNCTIONS)

@@ -1,9 +1,9 @@
 t0 = 10
-V3 = t0
+V0 = t0
 t1 = 20
-V4 = t1
-t2 = V4
-t3 = V3
+V1 = t1
+t2 = V1
+t3 = V0
 IF t2 > t3 THEN GOSUB L1 ELSE GOSUB L2
 
 L1:
@@ -14,17 +14,24 @@ L2:
 PRINT "No"
 
 L3:
-t4 = V3
-V5 = t4
-CALL F1(V3, V4, V5)
-SUB F1 (t5$, t6$, t7$)
-t8 = 30
-V9 = t8
-t9 = 40
-V16 = t9
-t10 = 50
-V17 = t10
-PRINT V9
-PRINT V16
-PRINT V17
-SUB END
+t4 = V0
+V2 = t4
+F1 V0, V1, V2
+END
+
+SUB F1 (t5, t6, t7)
+V0 = t5
+V1 = t6
+V2 = t7
+t8 = V0
+V3 = t8
+t9 = V1
+V4 = t9
+t11 = V3
+t12 = V4
+t10 = t11 + t12
+V5 = t10
+PRINT V3
+PRINT V4
+PRINT V5
+END SUB
