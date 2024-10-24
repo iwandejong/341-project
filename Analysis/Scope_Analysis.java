@@ -156,7 +156,21 @@ public class Scope_Analysis {
                             // it is not already in table with the same scope
                             if(symbolTable.lookupName(node.children.get(i).identifier.identifier) == null){
                                 symbolTable.bind(genNewVar(), node.children.get(i).identifier.identifier, scope, node.children.get(i).token.tokenClass, declarationType);
-                            }
+                            }else {
+                                // find all the ids in the symbol table with the same name
+                                String ids[] = symbolTable.findIds(node.children.get(i).identifier.identifier);
+                                // check if the id is already in the symbol table with the same scope
+                                boolean isAlreadyInTable = false;
+                                for(String id : ids){
+                                    if(symbolTable.table.get(id).scope == scope){
+                                        isAlreadyInTable = true;
+                                    }
+                                }
+                                // if it is not in the table with the same scope, add it
+                                if(!isAlreadyInTable){
+                                    symbolTable.bind(genNewVar(), node.children.get(i).identifier.identifier, scope, node.children.get(i).token.tokenClass, declarationType);
+                                } 
+                            } 
                         }
                         // symbolTable.bind(genNewVar(), node.children.get(i).identifier.identifier, scope, "D", declarationType);
                     }
