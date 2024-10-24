@@ -1,6 +1,9 @@
 package Analysis;
 
 import java.util.Hashtable;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
 
 import Lexer.Token;
 import Parser.Node;
@@ -8,7 +11,7 @@ import Parser.Node;
 public class Symbol_Table {
     // simple hash table
     // key: String, value: String (key = id, value = type)
-    Hashtable<String, InnerSymbol_Table> table = new Hashtable<String, InnerSymbol_Table>();
+    public Hashtable<String, InnerSymbol_Table> table = new Hashtable<String, InnerSymbol_Table>();
 
     // functions: bind (add a new entry), lookup (search for an entry), empty (an empty table is an empty list), enter (old table is remebered (referenced)), exit (old table is forgotten)
     public void bind(String id, String value, int scope, String type, String declarationType) {
@@ -54,6 +57,17 @@ public class Symbol_Table {
             }
         }
         return "";
+    }
+
+    public String[] findIds(String value){
+        List<String> matchingEntries = new ArrayList<>();
+        for (Map.Entry<String, InnerSymbol_Table> entry : table.entrySet()) {
+            if (entry.getValue().value.equals(value)) {
+                matchingEntries.add(entry.getKey());
+            }
+        }
+    
+        return matchingEntries.toArray(new String[0]);
     }
 
     public void printTable() {

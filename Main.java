@@ -212,6 +212,10 @@ public class Main {
                 p.parse();
                 Symbol_Table st = sa.start(p.syntaxTree);
                 tc.check(p.syntaxTree.root, sa.symbolTable);
+                // Print symbol table after type checking thus contains type information
+                System.out.println();
+                System.out.println("\u001B[33m" + "Symbol Table:" + "\u001B[0m");
+                sa.printSymbolTable();
                 cg.generateCode(rules, p.syntaxTree, st);
                 tcg.generateCode(rules, p.syntaxTree, st);
             } catch (Exception e) {

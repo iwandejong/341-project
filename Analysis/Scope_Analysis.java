@@ -28,9 +28,9 @@ public class Scope_Analysis {
         
         System.out.println();
         // print the symbol table 
-        System.out.println("\u001B[33m" + "Symbol Table:" + "\u001B[0m");
-        printSymbolTable();
-        System.out.println();
+        // System.out.println("\u001B[33m" + "Symbol Table:" + "\u001B[0m");
+        // printSymbolTable();
+        // System.out.println();
 
         // print the scope stack
         System.out.println("\u001B[33m" + "Scope Stack:" + "\u001B[0m");
@@ -249,8 +249,11 @@ public class Scope_Analysis {
         for(String key : symbolTable.table.keySet()){
             // check if the symbol is declared more than once in the same scope
             for(String key2 : symbolTable.table.keySet()){
-                if(symbolTable.table.get(key).value.equals(symbolTable.table.get(key2).value) && symbolTable.table.get(key).scope < symbolTable.table.get(key2).scope && !symbolTable.table.get(key).declarationType.equals(symbolTable.table.get(key2).declarationType)){
-                    throw new RuntimeException("Symbol: " + symbolTable.table.get(key).value + " is declared in a lower scope with a different type.");
+                // if the key doesnt start with F
+                if(!key.startsWith("F") && !key2.startsWith("F")){        
+                    if(symbolTable.table.get(key).value.equals(symbolTable.table.get(key2).value) && symbolTable.table.get(key).scope < symbolTable.table.get(key2).scope && !symbolTable.table.get(key).declarationType.equals(symbolTable.table.get(key2).declarationType)){
+                        throw new RuntimeException("Symbol: " + symbolTable.table.get(key).value + " is declared in a lower scope with a different type.");
+                    }
                 }
             }
         }

@@ -28,6 +28,7 @@ public class Type_Checker {
             System.out.println("\u001B[32m" + "Type Checking Passed" + "\u001B[0m");
         }else{
             System.out.println("\u001B[31m" + "Type Checking Failed" + "\u001B[0m");
+            throw new RuntimeException("Type Checking Failed");
         }
     }
     
@@ -42,7 +43,21 @@ public class Type_Checker {
         boolean[] childrenTypeChecks = new boolean[node.children.size()];
         if(node.identifier.identifier.equals("PROG")){
             // check children
+            // System.out.println("size of children:" + node.children.size());
+            // int count = 0;
             for(Node child : node.children){
+                // check if each child returns true
+                // System.out.println("Checking child:" + count++ + "name:" + child.identifier.identifier);
+                // if(child != null && child.identifier != null && child.identifier.identifier.equals("GLOBVARS")){
+                //     System.out.println("Checking Globvars in PROG returns:" + typeCheck(child, symbolTable));
+                //     // childrenTypeChecks[node.children.indexOf(child)] = typeCheck(child, symbolTable);
+                // }else if(child != null && child.token != null && child.token.tokenValue.equals("ALGO")){
+                //     System.out.println("Checking Algo in PROG returns:" + typeCheck(child, symbolTable));
+
+                // }else if(child != null && child.token != null && child.token.tokenValue.equals("FUNCTIONS")){
+                //     System.out.println("Checking Functions in PROG returns:" + typeCheck(child, symbolTable));
+                // }
+
                 if(child != null && child.identifier.identifier.equals("GLOBVARS") || child.identifier.identifier.equals("FUNCTIONS") || child.identifier.identifier.equals("ALGO")){
                     if(child.identifier.identifier.equals("GLOBVARS")){
                         // System.out.println("Checking GLOBVARS in PROG returns:" + typeCheck(child, symbolTable));
@@ -136,8 +151,8 @@ public class Type_Checker {
                         // System.out.println("CALL returns true");
                         return true;
                     }else{
-                        // System.out.println("typeOf(symbolTable, CALL) returns:" + typeOf(symbolTable, child));
-                        // System.out.println("CALL returns false");
+                        System.out.println("typeOf(symbolTable, CALL) returns:" + typeOf(symbolTable, child));
+                        System.out.println("CALL returns false");
                         return false;
                     }
                 }
@@ -222,6 +237,27 @@ public class Type_Checker {
             }
             return true;
         }else if(node.identifier.identifier.equals("HEADER")){
+            // find all children with fname
+            String Fname = node.children.get(1).children.get(0).token.tokenValue;
+            // check if Fname is in symbol table
+            if(symbolTable.lookupName(Fname) != null){
+                // change the declaration type of the function to the type of the function
+                
+                String type = typeOf(symbolTable, node.children.get(0));
+                // System.out.println("Type of function: " + type);
+                if(type.equals("v")){
+                    type = "void";
+                }else if(type.equals("n")){
+                    type = "num";
+                }
+                // go through all function declarations and change the declaration type
+                // System.out.println("Fname: " + Fname + " type: " + type + "count: " + symbolTable.findIds(Fname).length);
+                // System.out.println("Ids to change:" + symbolTable.findIds(Fname)[0] + "," + symbolTable.findIds(Fname)[1] );
+                for(String innerSymbolTable : symbolTable.findIds(Fname)){
+                    symbolTable.table.get(innerSymbolTable).declarationType = type;
+                }
+            }
+            
             int count = 0;
             for(Node child : node.children){
                 if(child.identifier.identifier.equals("VNAME")){
@@ -381,7 +417,10 @@ public class Type_Checker {
             }else if(node.identifier.identifier.equals("FNAME")){
                 // check if FNAME is in symbol table
                 if(symbol_Table.lookupName(child.token.tokenValue) != null){
-                    if(symbol_Table.lookupName(child.token.tokenValue).declarationType.equals("void")){
+                    if(symbol_Table.lookupName(child.token.tokenValue).declarationType.equals("num")){
+                        return "n";
+                    }
+                    else if(symbol_Table.lookupName(child.token.tokenValue).declarationType.equals("void")){
                         return "v";
                     }else{
                         return "u";
