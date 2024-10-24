@@ -16,21 +16,15 @@ PRINT "No"
 L3:
 t4 = V3
 V5 = t4
-CALL_F1
-(t5 = V3
-,t6 = V4
-,t7 = V5
-)F1
-V3 = t8
-V4 = t9
-V5 = t10
- REM BEGIN t11 = 30
-V9 = t11
-t12 = 40
-V16 = t12
-t13 = 50
-V17 = t13
+CALL F1(V3, V4, V5)
+SUB F1 (t5$, t6$, t7$)
+t8 = 30
+V9 = t8
+t9 = 40
+V16 = t9
+t10 = 50
+V17 = t10
 PRINT V9
 PRINT V16
 PRINT V17
- REM END 
+SUB END

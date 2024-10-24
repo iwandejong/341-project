@@ -283,7 +283,7 @@
     <TOK>
         <ID>56</ID>
         <CLASS>F</CLASS>
-        <WORD>F_func</WORD>
+        <WORD>F_add</WORD>
     </TOK>
     <TOK>
         <ID>57</ID>
@@ -387,8 +387,8 @@
     </TOK>
     <TOK>
         <ID>77</ID>
-        <CLASS>N</CLASS>
-        <WORD>30</WORD>
+        <CLASS>V</CLASS>
+        <WORD>V_a01</WORD>
     </TOK>
     <TOK>
         <ID>78</ID>
@@ -407,8 +407,8 @@
     </TOK>
     <TOK>
         <ID>81</ID>
-        <CLASS>N</CLASS>
-        <WORD>40</WORD>
+        <CLASS>V</CLASS>
+        <WORD>V_a02</WORD>
     </TOK>
     <TOK>
         <ID>82</ID>
@@ -427,63 +427,63 @@
     </TOK>
     <TOK>
         <ID>85</ID>
-        <CLASS>N</CLASS>
-        <WORD>50</WORD>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>add</WORD>
     </TOK>
     <TOK>
         <ID>86</ID>
         <CLASS>reserved_keyword</CLASS>
-        <WORD>;</WORD>
+        <WORD>(</WORD>
     </TOK>
     <TOK>
         <ID>87</ID>
-        <CLASS>reserved_keyword</CLASS>
-        <WORD>print</WORD>
-    </TOK>
-    <TOK>
-        <ID>88</ID>
         <CLASS>V</CLASS>
         <WORD>V_a04</WORD>
     </TOK>
     <TOK>
+        <ID>88</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>,</WORD>
+    </TOK>
+    <TOK>
         <ID>89</ID>
-        <CLASS>reserved_keyword</CLASS>
-        <WORD>;</WORD>
-    </TOK>
-    <TOK>
-        <ID>90</ID>
-        <CLASS>reserved_keyword</CLASS>
-        <WORD>print</WORD>
-    </TOK>
-    <TOK>
-        <ID>91</ID>
         <CLASS>V</CLASS>
         <WORD>V_a05</WORD>
     </TOK>
     <TOK>
-        <ID>92</ID>
+        <ID>90</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>)</WORD>
+    </TOK>
+    <TOK>
+        <ID>91</ID>
         <CLASS>reserved_keyword</CLASS>
         <WORD>;</WORD>
     </TOK>
     <TOK>
-        <ID>93</ID>
+        <ID>92</ID>
         <CLASS>reserved_keyword</CLASS>
         <WORD>print</WORD>
     </TOK>
     <TOK>
-        <ID>94</ID>
+        <ID>93</ID>
         <CLASS>V</CLASS>
-        <WORD>V_a06</WORD>
+        <WORD>V_a04</WORD>
     </TOK>
     <TOK>
-        <ID>95</ID>
+        <ID>94</ID>
         <CLASS>reserved_keyword</CLASS>
         <WORD>;</WORD>
     </TOK>
     <TOK>
-        <ID>96</ID>
+        <ID>95</ID>
         <CLASS>reserved_keyword</CLASS>
-        <WORD>halt</WORD>
+        <WORD>print</WORD>
+    </TOK>
+    <TOK>
+        <ID>96</ID>
+        <CLASS>V</CLASS>
+        <WORD>V_a05</WORD>
     </TOK>
     <TOK>
         <ID>97</ID>
@@ -493,15 +493,55 @@
     <TOK>
         <ID>98</ID>
         <CLASS>reserved_keyword</CLASS>
-        <WORD>end</WORD>
+        <WORD>print</WORD>
     </TOK>
     <TOK>
         <ID>99</ID>
+        <CLASS>T</CLASS>
+        <WORD>"Sum"</WORD>
+    </TOK>
+    <TOK>
+        <ID>100</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>;</WORD>
+    </TOK>
+    <TOK>
+        <ID>101</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>print</WORD>
+    </TOK>
+    <TOK>
+        <ID>102</ID>
+        <CLASS>V</CLASS>
+        <WORD>V_a06</WORD>
+    </TOK>
+    <TOK>
+        <ID>103</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>;</WORD>
+    </TOK>
+    <TOK>
+        <ID>104</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>halt</WORD>
+    </TOK>
+    <TOK>
+        <ID>105</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>;</WORD>
+    </TOK>
+    <TOK>
+        <ID>106</ID>
+        <CLASS>reserved_keyword</CLASS>
+        <WORD>end</WORD>
+    </TOK>
+    <TOK>
+        <ID>107</ID>
         <CLASS>reserved_keyword</CLASS>
         <WORD>}</WORD>
     </TOK>
     <TOK>
-        <ID>100</ID>
+        <ID>108</ID>
         <CLASS>reserved_keyword</CLASS>
         <WORD>end</WORD>
     </TOK>
