@@ -159,7 +159,7 @@ public class Lexer {
                 return "T";
             }
 
-            if (input.length() > 8) {
+            if (input.length() > 10) {
                 throw new RuntimeException("String literals can only contain up to 8 characters.");
             }
 

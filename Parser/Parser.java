@@ -333,7 +333,6 @@ public class Parser {
                 } else {
                     // * no match found, but there are still remaining rules to check
                     if (currentSymbol < rhsSymbols.size() - 1) {
-                        System.out.println("Current rule: " + ruleStack.peek().lhs.identifier + " -> " + ruleStack.peek().rhs.get(currentSymbol).identifier);
                         throw new RuntimeException("Syntax error: " + currentToken.tokenValue + " does not match " + curr.identifier);
                     } else {
                         // pop from stack, maybe the parent's "next" rule will match

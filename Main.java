@@ -209,14 +209,23 @@ public class Main {
         TargetCodeGenerator tcg = new TargetCodeGenerator();
         for (Parser p : parsers) {
             try {
+                // * Project Phase 2
                 p.parse();
+
+                // * Project Phase 3
                 Symbol_Table st = sa.start(p.syntaxTree);
+
+                // * Project Phase 4
                 tc.check(p.syntaxTree.root, sa.symbolTable);
                 // Print symbol table after type checking thus contains type information
                 System.out.println();
                 System.out.println("\u001B[33m" + "Symbol Table:" + "\u001B[0m");
                 sa.printSymbolTable();
-                // cg.generateCode(rules, p.syntaxTree, st); // TODO: RE-ADD THIS LINE LATER
+
+                // * Project Phase 5a
+                cg.generateCode(rules, p.syntaxTree, st);
+
+                // * Project Phase 5b
                 tcg.generateCode(rules, p.syntaxTree, st);
             } catch (Exception e) {
                 e.printStackTrace();

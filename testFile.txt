@@ -8,7 +8,7 @@ main
         V_a02 = 20 ;
         if grt ( V_a02 , V_a01 ) then
             begin
-                print "Yes" ;
+                print "Hellyeah" ;
             end
         else
             begin
@@ -19,21 +19,21 @@ main
         print V_a04 ;
         halt ;
     end
-    void F_add ( V_a01 , V_a02 , V_a03 ) {
+    num F_add ( V_a01 , V_a02 , V_a03 ) {
         num V_a04 , num V_a05 , num V_a06 ,
         begin
-            V_a04 = V_a01 ;
-            V_a05 = V_a02 ;
-            V_a06 = add ( V_a04 , V_a05 ) ;
-            F_foo ( V_a04 , V_a05 , V_a06 ) ;
+            V_a04 = add ( V_a01 , V_a02 ) ;
+            V_a06 = F_foo ( V_a04 , V_a01 , V_a02 ) ;
+            return V_a06 ;
         end
     } end
-    void F_foo ( V_a01 , V_a02 , V_a03 ) {
+    num F_foo ( V_a01 , V_a02 , V_a03 ) {
         num V_a04 , num V_a05 , num V_a06 ,
         begin
             V_a04 = V_a01 ;
             V_a05 = V_a02 ;
             V_a06 = mul ( V_a04 , V_a05 ) ;
+            return V_a06 ;
         end
     } end
 ## BREAK ##

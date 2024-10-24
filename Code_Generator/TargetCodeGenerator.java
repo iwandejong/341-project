@@ -109,7 +109,7 @@ public class TargetCodeGenerator {
     // whereby aCode = translation(ALGO), and fCode = translation(FUNCTIONS)
     // * PASSING FUNCTION
     private String PROG (Tree ALGO, Tree FUNCTIONS) {
-        String aCode = ALGO(ALGO);
+        String aCode = ALGO(ALGO, "");
         if (FUNCTIONS == null) {
             return aCode;
         }
@@ -121,13 +121,13 @@ public class TargetCodeGenerator {
     // The source-words begin and end remain un-translated (can be ignored by the translator).
     // Thus: translate(ALGO) = translate(INSTRUC)
     // * PASSING FUNCTION
-    private String ALGO (Tree ALGO) {
+    private String ALGO (Tree ALGO, String funcName) {
         Tree INSTRUC = newBaseSubTree(ALGO, "INSTRUC");
 
         if (INSTRUC == null || INSTRUC.root.children.size() == 0) {
             return INSTRUC();
         }
-        return INSTRUC(INSTRUC);
+        return INSTRUC(INSTRUC, funcName);
     }
 
     // INSTRUC ::=
@@ -141,7 +141,7 @@ public class TargetCodeGenerator {
     // INSTRUC1 ::= COMMAND ; INSTRUC2
     // Translate this sequence such as Stat1 ; Stat2 in Figure 6.5 of our Textbook.
     // * PASSING FUNCTION
-    private String INSTRUC (Tree INSTRUC) {
+    private String INSTRUC (Tree INSTRUC, String funcName) {
         if (INSTRUC == null || INSTRUC.root.children.size() == 0) {
             return INSTRUC();
         }
@@ -154,12 +154,12 @@ public class TargetCodeGenerator {
             lastChild.parent = null;
             Tree INSTRUC2 = new Tree(lastChild);
             
-            return COMMAND(COMMAND) + INSTRUC(INSTRUC2);
+            return COMMAND(COMMAND, funcName) + INSTRUC(INSTRUC2, funcName);
         }
-        return COMMAND(COMMAND) + INSTRUC();
+        return COMMAND(COMMAND, funcName) + INSTRUC();
     }
 
-    private String COMMAND (Tree COMMAND) throws RuntimeException {
+    private String COMMAND (Tree COMMAND, String funcName) throws RuntimeException {
         switch (COMMAND.root.children.get(0).identifier.identifier) {
             case "skip":
                 return COMMAND_SKIP();
@@ -168,7 +168,7 @@ public class TargetCodeGenerator {
             case "print":
                 return COMMAND_PRINT(COMMAND);
             case "return":
-                return COMMAND_ATOMIC(COMMAND);
+                return COMMAND_RETURN(COMMAND, funcName);
             case "ASSIGN":
                 return COMMAND_ASSIGN(COMMAND);
             case "CALL":
@@ -214,10 +214,11 @@ public class TargetCodeGenerator {
     // was found inside the MAIN program then a semantic error must have already been thrown
     // in the Semantic Analysis phase, such that the translation phase would not even start.
     // Advice: Translation as per Chapter #9 of our Textbook, or per INLINING (as lectured).
-    private String COMMAND_ATOMIC (Tree COMMAND) {
+    private String COMMAND_RETURN (Tree COMMAND, String funcName) {
         Tree ATOMIC = newBaseSubTree(COMMAND, "ATOMIC");
-        String codeString = ATOMIC(ATOMIC, newvar());
-        return "RETURN" + " " + codeString;
+        String variable = ATOMIC.root.children.get(0).children.get(0).token.tokenValue;
+        String varName = symbolTable.lookupID(variable);
+        return funcName + " = " + varName + "\n";
     }
 
     // COMMAND ::= ASSIGN translate(COMMAND) = translate(ASSIGN)
@@ -322,7 +323,6 @@ public class TargetCodeGenerator {
         // place = newvar()
         // x = lookup(vtable, getname(id))
         // TransExp(Exp,vtable,ftable,place)++[x = place]
-
         String place = newvar();
         String x = VNAME(VNAME, place);
         String code = TERM(TERM, place);
@@ -342,7 +342,7 @@ public class TargetCodeGenerator {
             Tree ATOMIC1 = newBaseSubTree(CALL, "ATOMIC");
             Tree ATOMIC2 = newBaseSubTree(CALL, "ATOMIC", 1);
             Tree ATOMIC3 = newBaseSubTree(CALL, "ATOMIC", 2);
-            return CALL(CALL, ATOMIC1, ATOMIC2, ATOMIC3);
+            return place + " = " + CALL(CALL, ATOMIC1, ATOMIC2, ATOMIC3);
         } else if (TERM.root.children.get(0).identifier.identifier.equals("OP")) {
             Tree OP = newBaseSubTree(TERM, "OP");
             return OP(OP, place);
@@ -383,7 +383,7 @@ public class TargetCodeGenerator {
         String p3 = symbolTable.lookupID(token);
 
         String newName = FNAME(newBaseSubTree(CALL, "FNAME"));
-        return newName + " " + p1 + ", " + p2 + ", " + p3 + "\n";
+        return newName + "(" + p1 + ", " + p2 + ", " + p3 + ")\n";
     }
 
     // OP ::= UNOP( ARG ) Translate this case such as unop Exp1 in Figure 6.3 of our Textbook,
@@ -513,8 +513,8 @@ public class TargetCodeGenerator {
             Tree ALGO1 = newBaseSubTree(BRANCH, "ALGO");
             Tree ALGO2 = newBaseSubTree(BRANCH, "ALGO", 1);
             String code1 = COND(COND, label1, label2);
-            String code2 = ALGO(ALGO1);
-            String code3 = ALGO(ALGO2);
+            String code2 = ALGO(ALGO1, "");
+            String code3 = ALGO(ALGO2, "");
             return code1 + "\n\n" + label1 + ":\n" +
                    code2 + "GOTO " + label3 + "\n\n" + label2 + ":\n" +
                    code3 + "\n" + label3 + ":\n";
@@ -647,7 +647,7 @@ public class TargetCodeGenerator {
         Tree DECL = newBaseSubTree(FUNCTIONS, "DECL");
         if (FUNCTIONS.root.children.size() == 2) {
             Tree FUNCTIONS2 = newBaseSubTree(FUNCTIONS, "FUNCTIONS", 1);
-            return DECL(DECL) + FUNCTIONS(FUNCTIONS2);
+            return DECL(DECL) + "\n" + FUNCTIONS(FUNCTIONS2);
         }
         return DECL(DECL);
     }
@@ -665,7 +665,11 @@ public class TargetCodeGenerator {
         String p2 = newvar();
         String p3 = newvar();
 
-        return HEADER(HEADER, p1, p2, p3) + BODY(BODY, p1, p2, p3);
+        // does the functio nreturn anything?
+        Tree FNAME = newBaseSubTree(HEADER, "FNAME");
+        String funcName = FNAME(FNAME).toUpperCase();
+
+        return HEADER(HEADER, p1, p2, p3) + BODY(BODY, funcName);
     }
 
     // The HEADER will be treated either by the method of INLINING (as explained in lecture),
@@ -685,7 +689,7 @@ public class TargetCodeGenerator {
         String v2 = symbolTable.lookupID(vnameNodes.get(1).children.get(0).token.tokenValue);
         String v3 = symbolTable.lookupID(vnameNodes.get(2).children.get(0).token.tokenValue);
         
-        return "SUB " + FNAME(FNAME).toUpperCase() + " (" + p1 + ", " + p2 + ", " + p3 + ")\n" +
+        return "FUNCTION " + FNAME(FNAME).toUpperCase() + " (" + p1 + ", " + p2 + ", " + p3 + ")\n" +
                v1 + " = " + p1 + "\n" +
                v2 + " = " + p2 + "\n" + 
                v3 + " = " + p3 + "\n"; // this declares the parameters as local variables
@@ -705,11 +709,18 @@ public class TargetCodeGenerator {
     // aCode = translate(ALGO)
     // eCode = translate(EPILOG)
     // sCode = translate(SUBFUNCS)
-    private String BODY (Tree BODY, String p1, String p2, String p3) {
+    private String BODY (Tree BODY, String funcName) {
         Tree PROLOG = newBaseSubTree(BODY, "PROLOG");
         Tree ALGO = newBaseSubTree(BODY, "ALGO");
         Tree EPILOG = newBaseSubTree(BODY, "EPILOG");
-        return PROLOG(PROLOG) + ALGO(ALGO) + EPILOG(EPILOG);
+        return PROLOG(PROLOG) + ALGO(ALGO, funcName) + EPILOG(EPILOG);
+    }
+
+    private Tree getLastInstruc (Tree ALGO) {
+        if (ALGO.root.children.size() == 1) {
+            return ALGO;
+        }
+        return getLastInstruc(newBaseSubTree(ALGO, "INSTRUC", 1));
     }
 
 
@@ -730,7 +741,7 @@ public class TargetCodeGenerator {
     // then translate(EPILOG) will generate the boiler-plate-code (with runtime-Stack) as
     // explained in Chapter #9.
     private String EPILOG (Tree EPILOG) {
-        return "END SUB";
+        return "END FUNCTION";
     }
 
     // SUBFUNCS ::= FUNCTIONS translate(SUBFUNCS) = translate(FUNCTIONS)
