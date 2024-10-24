@@ -1,7 +1,0 @@
-main
-num V_a01 ,
-text V_a02 ,
-begin
-    V_a01 = 1.0 ;
-    halt ;
-end

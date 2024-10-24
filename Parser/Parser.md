@@ -1,5 +1,3 @@
-Here's a pseudocode representation of your `Parser` class, which provides an overview of its structure and logic:
-
 ### Pseudocode for the Parser Class
 
 #### Parser Class
@@ -52,5 +50,3 @@ Here's a pseudocode representation of your `Parser` class, which provides an ove
 - **Token Matching:** The parser checks if the current token matches the expected symbol using regex patterns or direct string comparisons.
 - **Epsilon Transition:** Handles cases where a non-terminal symbol can transition to an empty production (`ε`).
 - **Syntax Tree Construction:** Nodes are added to the syntax tree based on matching tokens or expanded rules.
-
-This pseudocode summarizes the logic of the parser, making it easier to understand its flow and purpose.
