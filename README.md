@@ -115,4 +115,9 @@ main
         end
     } end
 ```
-Github Repository: https://github.com/iwandejong/341-project
+
+## Contact Information:
+- Github Repository: https://github.com/iwandejong/341-project
+- Iwan de Jong: u22498037@tuks.co.za
+- Jacobus Smit: u21489476@tuks.co.za
+
