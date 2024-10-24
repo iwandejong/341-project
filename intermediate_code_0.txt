@@ -1,0 +1,52 @@
+t0 := 10
+V0 := t0
+t1 := 20
+V1 := t1
+t2 := V1
+t3 := V0
+ IF t2 > t3 THEN L1 ELSE L2
+
+LABEL L1 
+PRINT "Hellyeah"
+ REM END 
+GOTO L3
+
+LABEL L2 
+PRINT "No"
+ REM END 
+
+LABEL L3 
+t4 := V0
+V2 := t4
+CALL_F1
+(t6 := V0
+,t7 := V1
+,t8 := V2
+)V3 := t5
+PRINT V3
+ STOP  REM END  STOP F1
+V0 := t9
+V1 := t10
+V2 := t11
+ REM BEGIN t13 := V0
+t14 := V1
+t12 := t13 + t14V3 := t12
+CALL_F3
+(t16 := V3
+,t17 := V0
+,t18 := V1
+)V5 := t15
+RETURN t19 := V5
+ REM END  REM END F3
+V0 := t20
+V1 := t21
+V2 := t22
+ REM BEGIN t23 := V0
+V3 := t23
+t24 := V1
+V4 := t24
+t26 := V3
+t27 := V4
+t25 := t26 * t27V5 := t25
+RETURN t28 := V5
+ REM END  REM END 

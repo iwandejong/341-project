@@ -182,7 +182,7 @@ public class Parser {
         return follow;
     }
 
-    public void parse() throws RuntimeException {
+    public void parse(int n) throws RuntimeException {
         // define the stack
         Stack<ProductionRule> ruleStack = new Stack<ProductionRule>();
 
@@ -229,7 +229,8 @@ public class Parser {
             syntaxTree.visualiseTree(syntaxTree.root, "", true);
             try {
                 // Simple usage
-                syntaxTree.saveXMLToFile("output.xml", true);
+                syntaxTree.saveXMLToFile("parser_output_" + n + ".xml", true);
+                System.out.println("\u001B[32m" + "Syntax tree saved to parser_output_" + n + ".xml" + "\u001B[0m");
             } catch (IOException e) {
                 // Handle the error
                 e.printStackTrace();

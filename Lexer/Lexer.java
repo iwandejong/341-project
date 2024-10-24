@@ -283,6 +283,7 @@ public class Lexer {
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             DOMSource source = new DOMSource(doc);
             StreamResult result = new StreamResult(new File("lexer_output_" + id + ".xml"));
+            System.out.println("\u001B[32m" + "Lexer output saved to lexer_output_" + id + ".xml" + "\u001B[0m");
             transformer.transform(source, result);
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate XML.");

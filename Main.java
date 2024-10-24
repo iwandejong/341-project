@@ -22,7 +22,29 @@ public class Main {
         // read each "Test" from a txt file into a list
         List<String> programs = new ArrayList<>();
         try {
-            File file = new File("testFile.txt");
+            // README
+            System.out.println("***********************************");
+            System.out.println("*      WELCOME TO THE RecSPL      *");
+            System.out.println("*          COMPILER!              *");
+            System.out.println("***********************************");
+            System.out.println("A compiler by Jacobus Smit (u21489476) and Iwan de Jong (u22498037)");
+            System.out.println("Please enter the path of the input file containing the RecSPL programs.");
+            System.out.println("Please see how we have structured the input file in the testFile.txt for reference.");
+            System.out.println();
+            System.out.println("\u001B[34m" + "Expected output files:" + "\u001B[0m");
+            System.out.println("1. Lexer Output: lexer_output_n.xml");
+            System.out.println("2. Parser Output: parser_output_n.xml");
+            System.out.println("3. Intermediate Code: intermediate_code_n.txt");
+            System.out.println("4. Target Code: target_code_n.bas");
+            System.out.println();
+            System.out.println("\u001B[41m" + "Note: The target code runs on QB64, a modern extended BASIC programming language, which is obtainable from https://qb64.com/" + "\u001B[0m");
+
+            Scanner userInput = new Scanner(System.in);
+            System.out.print("Enter the path of the input file (e.g., C:\\files\\testFile.txt or testFile.txt (if you're in the right directory)): ");
+            String filePath = userInput.nextLine();
+            userInput.close();
+
+            File file = new File(filePath);
             Scanner sc1 = new Scanner(file);
             StringBuilder tempString = new StringBuilder();
 
@@ -207,10 +229,11 @@ public class Main {
         Type_Checker tc = new Type_Checker();
         CodeGenerator cg = new CodeGenerator();
         TargetCodeGenerator tcg = new TargetCodeGenerator();
+        int i = 0;
         for (Parser p : parsers) {
             try {
                 // * Project Phase 2
-                p.parse();
+                p.parse(i);
 
                 // * Project Phase 3
                 Symbol_Table st = sa.start(p.syntaxTree);
@@ -223,13 +246,14 @@ public class Main {
                 sa.printSymbolTable();
 
                 // * Project Phase 5a
-                cg.generateCode(rules, p.syntaxTree, st);
+                cg.generateCode(rules, p.syntaxTree, st, i);
 
                 // * Project Phase 5b
-                tcg.generateCode(rules, p.syntaxTree, st);
+                tcg.generateCode(rules, p.syntaxTree, st, i);
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            i++;
         }
     }
 }

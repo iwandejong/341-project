@@ -10,7 +10,7 @@ public class TargetCodeGenerator {
     String newvar = "";
     String newlabel = "";
 
-    public void generateCode(List<ProductionRule> _productionRules, Tree _syntaxTree, Symbol_Table _symbolTable) {
+    public void generateCode(List<ProductionRule> _productionRules, Tree _syntaxTree, Symbol_Table _symbolTable, int n) {
         productionRules = _productionRules;
         syntaxTree = _syntaxTree;
         symbolTable = _symbolTable;
@@ -22,9 +22,10 @@ public class TargetCodeGenerator {
         
         // write output to output.bas
         try {
-            java.io.FileWriter myWriter = new java.io.FileWriter("output.bas");
+            java.io.FileWriter myWriter = new java.io.FileWriter("target_code_" + n + ".bas");
             myWriter.write(code);
             myWriter.close();
+            System.out.println("\u001B[32m" + "Target code saved to target_code_" + n + ".bas" + "\u001B[0m");
         } catch (Exception e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
