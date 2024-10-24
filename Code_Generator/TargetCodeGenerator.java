@@ -3,8 +3,6 @@ import Parser.*;
 import java.util.*;
 import Analysis.Symbol_Table;
 
-// ! This is the code generator for the target language, which is QB64
-
 public class TargetCodeGenerator {
     List<ProductionRule> productionRules = new ArrayList<>();
     Tree syntaxTree = new Tree();
@@ -21,7 +19,7 @@ public class TargetCodeGenerator {
         Tree FUNCTIONS = newBaseSubTree(syntaxTree, "FUNCTIONS");
 
         String code = PROG(ALGO, FUNCTIONS);
-
+        
         // write output to output.bas
         try {
             java.io.FileWriter myWriter = new java.io.FileWriter("output.bas");
@@ -55,6 +53,11 @@ public class TargetCodeGenerator {
 
     public Tree newBaseSubTree(Tree tree, String identifier) {
         List<Node> nodes = tree.getNodes(identifier);
+
+        if (nodes.size() == 0) {
+            return null;
+        }
+
         nodes.get(0).parent = null;
         return new Tree(nodes.get(0));
     }
@@ -79,9 +82,9 @@ public class TargetCodeGenerator {
     // VNAME ::= a token of Token-Class V from the Lexer
     // The user-defined names were already re-named in the foregoing Scope Analysis.
     // The translator function can find their new names in the Symbol Table.
-    private String VNAME (Tree VNAME, String place) {
+    private String VNAME (Tree VNAME, String place) throws RuntimeException {
         // x = lookup(vtable, getname(id))
-        // [place := x]
+        // [place = x]
 
         // take the first child of VNAME
         Node node = VNAME.root.children.get(0);
@@ -107,8 +110,11 @@ public class TargetCodeGenerator {
     // * PASSING FUNCTION
     private String PROG (Tree ALGO, Tree FUNCTIONS) {
         String aCode = ALGO(ALGO);
+        if (FUNCTIONS == null) {
+            return aCode;
+        }
         String fCode = FUNCTIONS(FUNCTIONS);
-        return aCode + " STOP " + fCode;
+        return aCode + fCode;
     }
 
     // ALGO ::= begin INSTRUC end
@@ -118,7 +124,7 @@ public class TargetCodeGenerator {
     private String ALGO (Tree ALGO) {
         Tree INSTRUC = newBaseSubTree(ALGO, "INSTRUC");
 
-        if (INSTRUC.root.children.size() == 0) {
+        if (INSTRUC == null || INSTRUC.root.children.size() == 0) {
             return INSTRUC();
         }
         return INSTRUC(INSTRUC);
@@ -130,14 +136,13 @@ public class TargetCodeGenerator {
     // * RETURNING FUNCTION
     private String INSTRUC () {
         return "";
-        // return "REM END\n";
     }
 
     // INSTRUC1 ::= COMMAND ; INSTRUC2
     // Translate this sequence such as Stat1 ; Stat2 in Figure 6.5 of our Textbook.
     // * PASSING FUNCTION
     private String INSTRUC (Tree INSTRUC) {
-        if (INSTRUC.root.children.size() == 0) {
+        if (INSTRUC == null || INSTRUC.root.children.size() == 0) {
             return INSTRUC();
         }
 
@@ -184,7 +189,7 @@ public class TargetCodeGenerator {
     // COMMAND ::= halt
     // For this case, the translator function must return the code-string " STOP "
     private String COMMAND_HALT () {
-        return " STOP ";
+        return "";
     }
 
     // COMMAND ::= print ATOMIC
@@ -193,8 +198,13 @@ public class TargetCodeGenerator {
     private String COMMAND_PRINT (Tree COMMAND) {
         Tree ATOMIC = newBaseSubTree(COMMAND, "ATOMIC");
         // String codeString = ATOMIC(ATOMIC, newvar());
-        String codeString = ATOMIC.root.children.get(0).children.get(0).identifier.identifier;
-        // System.out.println("PRINT: " + codeString);
+        String token = ATOMIC.root.children.get(0).children.get(0).token.tokenValue;
+        String varName = symbolTable.lookupID(token);
+        if (varName.length() == 0) {
+            // If the variable is not found in the symbol table, then it is a constant
+            return "PRINT" + " " + token + "\n";
+        }
+        String codeString = varName;
         return "PRINT" + " " + codeString + "\n";
     }
 
@@ -239,10 +249,13 @@ public class TargetCodeGenerator {
     // ATOMIC ::= VNAME
     // translate(ATOMIC) → returns as code-string the new name of VNAME as found in the Symbol Table
     // ATOMIC ::= CONST translate(ATOMIC) = translate(CONST)
-    private String ATOMIC (Tree ATOMIC, String place) throws RuntimeException {
+    private String ATOMIC(Tree ATOMIC, String place) throws RuntimeException {
         if (ATOMIC.root.children.get(0).identifier.identifier.equals("VNAME")) {
-            Tree VNAME = newBaseSubTree(ATOMIC, "VNAME");
-            return VNAME(VNAME, place);
+            // For VNAME, we want to get the value, not assign to it
+            Node node = ATOMIC.root.children.get(0).children.get(0);
+            String token = node.token.tokenValue;
+            String varName = symbolTable.lookupID(token);
+            return place + " = " + varName + "\n";
         } else if (ATOMIC.root.children.get(0).identifier.identifier.equals("CONST")) {
             Tree CONST = newBaseSubTree(ATOMIC, "CONST");
             return CONST(CONST, place);
@@ -276,14 +289,14 @@ public class TargetCodeGenerator {
     }
 
     // ASSIGN ::= VNAME = TERM
-    // Translate this case such as id := Exp in Figure 6.5 of our Textbook.
+    // Translate this case such as id = Exp in Figure 6.5 of our Textbook.
     private String ASSIGN_TERM (Tree ASSIGN) {
         Tree VNAME = newBaseSubTree(ASSIGN, "VNAME");
         Tree TERM = newBaseSubTree(ASSIGN, "TERM");
 
         // place = newvar()
         // x = lookup(vtable, getname(id))
-        // TransExp(Exp,vtable,ftable,place)++[x := place]
+        // TransExp(Exp,vtable,ftable,place)++[x = place]
 
         String place = newvar();
         String x = VNAME(VNAME, place);
@@ -467,9 +480,9 @@ public class TargetCodeGenerator {
             String code1 = COND(COND, label1, label2);
             String code2 = ALGO(ALGO1);
             String code3 = ALGO(ALGO2);
-            return code1 + " \n" + label1 + ": \n" +
-                   code2 + "GOSUB " + label3 + " \n\n" + label2 + ": \n" +
-                   code3 + " \n" + label3 + ": \n";
+            return code1 + "\n\n" + label1 + ":\n" +
+                   code2 + "GOTO " + label3 + "\n\n" + label2 + ":\n" +
+                   code3 + "\n" + label3 + ":\n";
         }
         throw new RuntimeException("Invalid BRANCH structure.");
     }
@@ -514,7 +527,7 @@ public class TargetCodeGenerator {
             // code1 = TransExp(Exp1,vtable,ftable,place1)
             // code2 = TransExp(Exp2,vtable,ftable,place2)
             // op = transop(getopname(binop))
-            // code1++code2++[place := place1 op place2]
+            // code1++code2++[place = place1 op place2]
             String place1 = newvar();
             String place2 = newvar();
             String code1 = ATOMIC(ATOMIC1, place1);
@@ -661,7 +674,7 @@ public class TargetCodeGenerator {
     // then translate(PROLOG) will generate the boiler-plate-code (with runtime-Stack) as
     // explained in Chapter #9.
     private String PROLOG (Tree PROLOG) {
-        return "REM BEGIN\n";
+        return " REM BEGIN ";
     }
 
     // EPILOG ::= }
@@ -671,8 +684,7 @@ public class TargetCodeGenerator {
     // then translate(EPILOG) will generate the boiler-plate-code (with runtime-Stack) as
     // explained in Chapter #9.
     private String EPILOG (Tree EPILOG) {
-        return "";
-        // return "REM END\n";
+        return " REM END ";
     }
 
     // SUBFUNCS ::= FUNCTIONS translate(SUBFUNCS) = translate(FUNCTIONS)

@@ -182,7 +182,7 @@ public class Parser {
         return follow;
     }
 
-    public void parse() {
+    public void parse() throws RuntimeException {
         // define the stack
         Stack<ProductionRule> ruleStack = new Stack<ProductionRule>();
 
@@ -214,29 +214,33 @@ public class Parser {
             parseHelper(atToken, ruleStack, nodeStack, positionStack);
         } catch (Exception e) {
             // Handle the exception (e.g., log it or print an error message)
-            e.printStackTrace(); // Or use logging
+            throw e;
         }
 
-        System.out.println();
-        System.out.println((ruleStack.peek().lhs.identifier.equals("$") && ruleStack.size() == 1) ? "\u001B[32m" + "Parsing successful." + "\u001B[0m" : "\u001B[31m" + "Parsing unsuccessful." + "\u001B[0m");
-        System.out.println();
-
-        // visualise the tree
-        syntaxTree.visualiseTree(syntaxTree.root, "", true);
-
-        try {
-            // Simple usage
-            syntaxTree.saveXMLToFile("output.xml");
-            
-            // Or with pretty printing
-            syntaxTree.saveXMLToFile("output_pretty.xml", true);
-        } catch (IOException e) {
-            // Handle the error
-            e.printStackTrace();
+        if (ruleStack.isEmpty()) {
+            throw new RuntimeException("Syntax error: ran out of tokens.");
         }
+
+        if (nodeStack.isEmpty()) {
+            throw new RuntimeException("Syntax error: ran out of tokens.");
+        }
+
+        if (ruleStack.peek().lhs.identifier.equals("$") && ruleStack.size() == 1) {
+            syntaxTree.visualiseTree(syntaxTree.root, "", true);
+            try {
+                // Simple usage
+                syntaxTree.saveXMLToFile("output.xml", true);
+            } catch (IOException e) {
+                // Handle the error
+                e.printStackTrace();
+            }
+            return;
+        }
+
+        throw new RuntimeException("Parsing failed. Unknown error.");
     }
 
-    public void parseHelper(int atToken, Stack<ProductionRule> ruleStack, Stack<Node> nodeStack, Stack<Integer> positionStack) throws Exception {
+    public void parseHelper(int atToken, Stack<ProductionRule> ruleStack, Stack<Node> nodeStack, Stack<Integer> positionStack) throws RuntimeException {
         // break if ruleStack is empty
         if ((ruleStack.peek().lhs.identifier.equals("$") && ruleStack.size() == 1)) {
             return;
@@ -244,7 +248,7 @@ public class Parser {
 
         // break if nodeStack is empty
         if (nodeStack.empty()) {
-            throw new Exception("Node stack is empty.");
+            throw new RuntimeException("Node stack is empty.");
         }
 
         // get all the right hand symbols
@@ -329,7 +333,7 @@ public class Parser {
                 } else {
                     // * no match found, but there are still remaining rules to check
                     if (currentSymbol < rhsSymbols.size() - 1) {
-                        throw new Exception("Syntax error: " + currentToken.tokenValue + " does not match " + curr.identifier);
+                        throw new RuntimeException("Syntax error: " + currentToken.tokenValue + " does not match " + curr.identifier);
                     } else {
                         // pop from stack, maybe the parent's "next" rule will match
                         nodeStack.pop();
@@ -426,7 +430,7 @@ public class Parser {
                 return;
             }
 
-            throw new Exception("Syntax error: ran out of tokens.");
+            throw new RuntimeException("Syntax error: ran out of tokens.");
         }
     }
 
@@ -440,7 +444,11 @@ public class Parser {
         return null;
     }
 
-    public Stack<Integer> incrementTop(Stack<Integer> stack) {
+    public Stack<Integer> incrementTop(Stack<Integer> stack) throws RuntimeException {
+        if (stack.isEmpty()) {
+            throw new RuntimeException("Stack is empty. Rules are not being followed.");
+        }
+
         int top = stack.pop();
         stack.push(top + 1);
         return stack;

@@ -211,10 +211,6 @@ public class Tree {
     
     private void collectLeafNodes(Node node, List<Node> leafNodes) {
         if (node == null) return;
-
-        // print node
-        System.out.println(node.identifier.identifier);
-        System.out.println(node.terminal);
         
         if (node.terminal) {
             leafNodes.add(node);

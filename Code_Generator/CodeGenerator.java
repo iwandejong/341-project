@@ -53,6 +53,11 @@ public class CodeGenerator {
 
     public Tree newBaseSubTree(Tree tree, String identifier) {
         List<Node> nodes = tree.getNodes(identifier);
+
+        if (nodes.size() == 0) {
+            return null;
+        }
+
         nodes.get(0).parent = null;
         return new Tree(nodes.get(0));
     }
@@ -105,6 +110,9 @@ public class CodeGenerator {
     // * PASSING FUNCTION
     private String PROG (Tree ALGO, Tree FUNCTIONS) {
         String aCode = ALGO(ALGO);
+        if (FUNCTIONS == null) {
+            return aCode + " STOP ";
+        }
         String fCode = FUNCTIONS(FUNCTIONS);
         return aCode + " STOP " + fCode;
     }
@@ -116,7 +124,7 @@ public class CodeGenerator {
     private String ALGO (Tree ALGO) {
         Tree INSTRUC = newBaseSubTree(ALGO, "INSTRUC");
 
-        if (INSTRUC.root.children.size() == 0) {
+        if (INSTRUC == null || INSTRUC.root.children.size() == 0) {
             return INSTRUC();
         }
         return INSTRUC(INSTRUC);
@@ -134,7 +142,7 @@ public class CodeGenerator {
     // Translate this sequence such as Stat1 ; Stat2 in Figure 6.5 of our Textbook.
     // * PASSING FUNCTION
     private String INSTRUC (Tree INSTRUC) {
-        if (INSTRUC.root.children.size() == 0) {
+        if (INSTRUC == null || INSTRUC.root.children.size() == 0) {
             return INSTRUC();
         }
 
